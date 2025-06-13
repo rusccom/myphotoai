@@ -1,0 +1,624 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: rgba(18, 18, 18, 0.8);
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+}
+
+.navSection {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.logoText {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--light); /* Fallback color */
+    letter-spacing: -0.5px;
+}
+
+/* Colorful gradient style for the logo */
+.colorfulLogoText {
+    background: linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.85rem;
+    letter-spacing: -0.02em;
+    position: relative;
+    display: inline-block;
+    text-transform: none;
+    filter: drop-shadow(0 0 1px rgba(236, 72, 153, 0.5));
+}
+
+.colorfulLogoText::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6, #EC4899);
+    border-radius: 2px;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.logoText::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff7eb3, #8b5cf6, #6366f1, #4ade80);
+    border-radius: var(--radius-full);
+    opacity: 0.7;
+}
+
+.logo span {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Контейнер для навигационных ссылок и аутентификации */
+.navContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+/* Контейнер для ссылок навигации */
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-left: 1.5rem;
+}
+
+/* Секция для кнопок аутентификации */
+.authSection {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-left: auto;
+    position: relative;
+}
+
+.profileContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.profileButton {
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.profileButton:hover {
+    color: var(--light);
+    background-color: rgba(139, 92, 246, 0.1);
+}
+
+.dropdownArrow {
+    font-size: 0.7em;
+    transition: transform 0.2s ease;
+}
+
+.dropdownArrow.open {
+    transform: rotate(180deg);
+}
+
+.profileDropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background-color: var(--light-dark);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 0.75rem;
+    min-width: 220px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.dropdownItem {
+    padding: 0.5rem 0.75rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.dropdownItem:first-of-type {
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
+    color: var(--light);
+    font-weight: 500;
+}
+
+.dropdownLink {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    color: var(--primary);
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.dropdownLink:hover {
+    background-color: rgba(139, 92, 246, 0.15);
+    color: var(--primary-hover);
+    text-decoration: none;
+}
+
+.dropdownLogoutButton {
+    background-color: rgba(244, 63, 94, 0.15);
+    color: var(--secondary);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    width: 100%;
+    text-align: left;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.dropdownLogoutButton:hover {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.navLink {
+    text-decoration: none;
+    color: var(--gray);
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+    position: relative;
+}
+
+.navLink:hover {
+    color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.15);
+    text-decoration: none;
+}
+
+.navLink.active {
+    color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.2);
+}
+
+.navLink.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0.75rem;
+    right: 0.75rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: var(--radius-full);
+}
+
+.welcomeMessage {
+    color: var(--gray);
+    font-weight: 500;
+    margin-right: 1rem;
+}
+
+.logoutButton {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: rgba(244, 63, 94, 0.15);
+    color: var(--secondary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.logoutButton:hover {
+    background-color: var(--secondary);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.authButtons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.signInButton {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.signInButton:hover {
+    background-color: rgba(139, 92, 246, 0.15);
+    text-decoration: none;
+}
+
+.signUpButton {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.signUpButton:hover {
+    background-color: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+}
+
+/* Кнопка мобильного меню (гамбургер) */
+.mobileMenuButton {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1100;
+}
+
+.hamburger {
+    display: block;
+    width: 24px;
+    height: 18px;
+    position: relative;
+}
+
+.hamburger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: var(--light);
+    position: absolute;
+    left: 0;
+    transition: all 0.3s ease;
+}
+
+.hamburger span:nth-child(1) {
+    top: 0;
+}
+
+.hamburger span:nth-child(2) {
+    top: 8px;
+}
+
+.hamburger span:nth-child(3) {
+    top: 16px;
+}
+
+/* Стили для открытого гамбургера */
+.hamburger.open span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 8px;
+}
+
+.hamburger.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+    transform: rotate(-45deg);
+    top: 8px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Показываем кнопку мобильного меню */
+    .mobileMenuButton {
+        display: block;
+        order: 2;
+    }
+    
+    /* Полноэкранное меню для мобильных */
+    .navContent {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: rgba(17, 24, 39, 0.98);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-20px);
+        transition: all 0.3s ease-in-out;
+        z-index: 1000;
+    }
+    
+    .navContent.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    /* Вертикальное расположение ссылок */
+    .navLinks {
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-left: 0;
+        text-align: center;
+        width: 100%;
+        align-items: center;
+    }
+    
+    .navLink {
+        font-size: 1.25rem;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    /* Вертикальное расположение кнопок авторизации */
+    .authSection {
+        margin-left: 0;
+        width: 100%;
+        align-items: stretch;
+    }
+    
+    .profileContainer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .profileButton {
+        justify-content: center;
+        width: 80%;
+        padding: 0.75rem 1rem;
+        background-color: rgba(139, 92, 246, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .profileDropdown {
+        position: static;
+        box-shadow: none;
+        border: none;
+        background: none;
+        padding: 0;
+        width: 80%;
+        gap: 0.75rem;
+        animation: none;
+    }
+    
+    .dropdownItem,
+    .dropdownLink,
+    .dropdownLogoutButton {
+        text-align: center;
+        padding: 0.75rem 1rem;
+        background-color: rgba(75, 85, 99, 0.2);
+        border-radius: var(--radius-md);
+    }
+    
+    .dropdownItem:first-of-type {
+        border-bottom: none;
+        margin-bottom: 0;
+        background-color: transparent;
+        color: var(--gray);
+        font-weight: normal;
+    }
+    
+    .dropdownLogoutButton {
+        margin-top: 0;
+        text-align: center;
+    }
+    
+    /* Улучшенные стили для градиентов на мобильных */
+    .logoText, 
+    .logo span, 
+    .navLink.active::after {
+        background: linear-gradient(90deg, #ff7eb3, #8b5cf6, #6366f1, #4ade80);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        animation: gradientAnimation 8s linear infinite;
+    }
+    
+    .logoText::after,
+    .navLink.active::after {
+        background: linear-gradient(90deg, #ff7eb3, #8b5cf6, #6366f1, #4ade80);
+        background-size: 200% 100%;
+        animation: gradientAnimation 8s linear infinite;
+    }
+}
+
+/* --- NEW Styles for Mobile Dashboard Links --- */
+
+/* Container for the dashboard links in the mobile menu */
+.mobileDashboardLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Adjust gap as needed */
+    width: 80%; /* Match profile dropdown width */
+    align-items: stretch; /* Make links take full width */
+    border-top: 1px solid rgba(75, 85, 99, 0.2); /* Add a separator */
+    padding-top: 1.5rem; /* Space above the links */
+    margin-top: 1.5rem; /* Space below previous links */
+}
+
+/* Individual dashboard link style */
+.mobileDashboardLink {
+    text-align: center;
+    padding: 0.75rem 1rem;
+    background-color: rgba(75, 85, 99, 0.2); /* Match dropdown item background */
+    border-radius: var(--radius-md);
+    color: var(--primary); /* Changed from var(--light) to match dropdownLink */
+    font-size: 0.9rem; /* Changed from 1.1rem to match dropdownLink/Item */
+    font-weight: 500; /* Added to match dropdownLink */
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.mobileDashboardLink:hover {
+    background-color: rgba(139, 92, 246, 0.15); /* Match dropdownLink hover */
+    color: var(--primary-hover); /* Match dropdownLink hover */
+}
+
+/* --- END NEW Styles --- */
+
+/* Анимация для градиента */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Общие стили для КОНТЕНТА внутри блока баланса */
+.balanceDisplayContent {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: #f0f0f0;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.balanceDisplayContent:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.balanceLink {
+    text-decoration: none;
+}
+
+/* Иконка монетки */
+.balanceDisplayContent span:first-child {
+    margin-right: 5px;
+    font-size: 1.1em;
+}
+
+/* Сумма */
+.balanceAmount {
+    font-weight: bold;
+}
+
+/* --- Поведение по умолчанию (Десктоп) --- */
+.mobileBalanceDisplay { 
+    display: none; /* Скрываем мобильный баланс на десктопе */
+}
+
+.desktopBalanceDisplay {
+    display: block; /* Показываем десктопный баланс */
+    margin-right: 10px; /* Отступ как был у balanceDisplay */
+}
+
+/* --- Поведение на мобильных --- */
+@media (max-width: 768px) {
+    .desktopBalanceDisplay {
+        display: none; /* Скрываем десктопный баланс (внутри profileContainer) */
+    }
+
+    /* Контейнер для правых контролов на мобильном */
+    .mobileControls {
+        display: flex; /* Выстраиваем баланс и кнопку в ряд */
+        align-items: center;
+        gap: 0.5rem; /* Небольшой отступ между балансом и кнопкой */
+        /* Этот контейнер будет справа из-за justify-content: space-between на .navbar */
+    }
+
+    .mobileBalanceDisplay {
+        display: block; /* Показываем мобильный баланс */
+        /* order: 1; */ /* Убираем order */
+    }
+
+    .mobileMenuButton {
+        /* order: 2; */ /* Убираем order */
+        /* Стили для кнопки остаются */
+        display: block; 
+    }
+
+    .navSection { /* Логотип */
+        /* order: 0; */ /* Order больше не нужен, т.к. space-between разделяет лого и mobileControls */
+    }
+
+    /* ... остальная часть @media ... */
+}
+
+/* ... rest of the styles ... */
+
+/* Стили для иконки баланса */
+.balanceIcon {
+  width: 20px; /* Соответствует размеру в SVG */
+  height: 20px;
+  vertical-align: middle; /* Выравнивание по вертикали с текстом */
+  margin-right: 4px; /* Небольшой отступ справа */
+} 

@@ -1,0 +1,38 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore virtual environment
+venv/
+env/
+.venv/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.idea/
+.vscode/
+
+# Ignore sensitive information
+.env
+*.log
+logs/
+instance/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Ignore frontend build artifacts
+frontend/node_modules/
+frontend/build/
+frontend/.pnp.cjs
+frontend/.pnp.loader.mjs
+frontend/coverage/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local 

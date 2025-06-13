@@ -1,0 +1,225 @@
+/* Styles for BillingPage component */
+.billingContainer {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.billingContainer h1 {
+    margin-bottom: 1.5rem;
+    color: #eee;
+}
+
+.billingContainer p {
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.purchaseSection,
+.historySection {
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.purchaseSection h2,
+.historySection h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #e0e0e0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.amountSelector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.amountButton,
+.customAmountInput {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--gray-dark);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.amountButton {
+    min-width: 80px;
+}
+
+.amountButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--gray-medium);
+}
+
+.amountButton.selected,
+.customAmountInput.selectedInput {
+    border-color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.15);
+    color: var(--primary-light);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.customAmountInput {
+    flex-grow: 1;
+    min-width: 150px;
+    cursor: text;
+}
+
+.warningText {
+    color: var(--secondary-light);
+    font-size: 0.9em;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+
+.summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.summary span {
+    color: #bbb;
+}
+
+.pointsValue {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: var(--accent-light) !important;
+}
+
+.payButton {
+    display: block;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.payButton:hover {
+    opacity: 0.9;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.payButton:disabled {
+    background: var(--gray-dark);
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Стили для таблицы истории */
+.historyTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.historyTable th,
+.historyTable td {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.historyTable th {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #eee;
+    font-weight: bold;
+}
+
+.historyTable tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.historyTable tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Стили для статусов */
+.statusBadge {
+    padding: 0.25em 0.6em;
+    border-radius: 10px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.status_completed {
+    background-color: rgba(74, 222, 128, 0.2); /* Зеленый */
+    color: #4ade80;
+}
+
+.status_pending {
+    background-color: rgba(251, 191, 36, 0.2); /* Желтый */
+    color: #facc15;
+}
+
+.status_failed {
+    background-color: rgba(244, 63, 94, 0.2); /* Красный */
+    color: #f87171;
+}
+
+/* Стиль для текста ошибки */
+.errorText {
+    color: var(--secondary-light);
+    background-color: rgba(244, 63, 94, 0.1);
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+/* Стиль для текста успеха */
+.successText {
+    color: #4ade80; /* Зеленый */
+    background-color: rgba(74, 222, 128, 0.1);
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Контейнер для таблицы для горизонтальной прокрутки */
+.tableContainer {
+    overflow-x: auto; /* Добавляет горизонтальный скролл при необходимости */
+    width: 100%; /* Занимает всю ширину родителя */
+}
+
+/* Можно добавить немного padding снизу контейнера, чтобы скроллбар не прилипал */
+/* .tableContainer {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 5px;
+} */ 

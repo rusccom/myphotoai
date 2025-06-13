@@ -1,0 +1,7 @@
+{
+  "model_training": 50,
+  "model_photo": 1,
+  "text_to_image": 1,
+  "upscale": 1,
+  "virtual_try_on": 10 
+} 

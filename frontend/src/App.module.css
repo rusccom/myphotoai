@@ -1,0 +1,80 @@
+/* App.module.css */
+
+/* Базовые стили контейнера (для всех страниц, кроме дашборда) */
+.appContainer {
+  min-height: 100vh; /* Changed from height to min-height */
+  display: flex;
+  flex-direction: column;
+  background-color: var(--dark);
+  background-image: 
+    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(244, 63, 94, 0.15) 0px, transparent 50%);
+  position: relative;
+}
+
+/* Стили контейнера ТОЛЬКО для дашборда */
+.dashboardLayout {
+  height: 100vh; /* Фиксированная высота */
+  overflow: hidden; /* Запрещаем скролл контейнера */
+}
+
+/* Базовые стили основного контента */
+.mainContent {
+  flex: 1; /* Takes available space */
+  padding-top: 0;
+  position: relative; /* Added for potential absolute positioning inside */
+}
+
+/* Стили основного контента ТОЛЬКО для дашборда */
+.dashboardLayout .mainContent {
+  overflow-y: auto; /* Разрешаем скролл только для контента дашборда */
+}
+
+/* Для страниц, которые используют полную ширину - не нужен контейнер */
+.fullWidth {
+  width: 100%;
+}
+
+/* Градиентная линия внизу страницы */
+.appContainer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, var(--primary), var(--accent), var(--secondary));
+}
+
+/* Потенциальный прелоадер для приложения */
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(139, 92, 246, 0.2);
+  border-bottom-color: var(--primary);
+  border-radius: 50%;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 

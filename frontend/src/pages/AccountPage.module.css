@@ -1,0 +1,175 @@
+/* frontend/src/pages/AccountPage.module.css */
+
+.accountContainer {
+    max-width: 800px;
+    margin: 2rem auto 4rem;
+    padding: 2.5rem;
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(75, 85, 99, 0.2);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.pageTitle {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 2.5rem;
+    color: var(--light);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.section:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    color: var(--light);
+    margin-bottom: 1.5rem;
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.1);
+}
+
+.infoRow:last-of-type {
+    border-bottom: none;
+}
+
+.infoLabel {
+    font-weight: 500;
+    color: var(--gray);
+    margin-right: 1rem;
+}
+
+.infoValue {
+    color: var(--light);
+    font-weight: 500;
+}
+
+.planType {
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    background-color: rgba(139, 92, 246, 0.2);
+    color: var(--primary-hover);
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.actionButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--gradient-primary);
+    color: white;
+    text-decoration: none;
+    display: inline-flex; /* For Link component */
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.actionButton:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-md);
+    color: white; /* Ensure text color remains white on hover for links */
+}
+
+.cancelButton {
+    background: rgba(244, 63, 94, 0.2);
+    color: var(--secondary);
+}
+
+.cancelButton:hover {
+    background: var(--secondary);
+    color: white;
+}
+
+.loading {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--gray);
+    font-size: 1.2rem;
+}
+
+/* Стили для формы смены пароля */
+.formGroup {
+    margin-bottom: 1.25rem;
+}
+
+.formLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+.formInput {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.5);
+    color: var(--light);
+    transition: var(--transition);
+    font-family: var(--font-sans);
+    box-shadow: var(--shadow-sm);
+}
+
+.formInput:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.changePasswordButton {
+    margin-top: 0.5rem; /* Небольшой отступ сверху */
+}
+
+/* Стили для сообщений об успехе/ошибке */
+.message {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.errorMessage {
+    color: var(--error);
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.successMessage {
+    color: var(--success);
+    background-color: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+} 

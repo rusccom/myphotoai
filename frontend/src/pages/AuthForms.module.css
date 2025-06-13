@@ -1,0 +1,222 @@
+/* AuthForms.module.css - общие стили для форм аутентификации */
+
+.authContainer {
+  max-width: 450px;
+  margin: 2rem auto 4rem;
+  padding: 2.5rem;
+  background-color: var(--light-dark);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(75, 85, 99, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.authContainer:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.authContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.authTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--light);
+  margin-bottom: 0.5rem;
+}
+
+.authSubtitle {
+  color: var(--gray);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--gray);
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--light-gray);
+  border-radius: var(--radius-md);
+  background-color: rgba(18, 18, 18, 0.5);
+  color: var(--light);
+  transition: var(--transition);
+  font-family: var(--font-sans);
+  box-shadow: var(--shadow-sm);
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.formInput:disabled {
+  background-color: rgba(18, 18, 18, 0.8);
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  color: var(--error);
+  background-color: rgba(239, 68, 68, 0.15);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  margin-top: 1rem;
+}
+
+.submitButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, var(--accent), var(--primary));
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.submitButton:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.submitButton:hover::before {
+  left: 0;
+}
+
+.submitButton:disabled {
+  background: var(--light-gray);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.submitButton:disabled::before {
+  display: none;
+}
+
+.alternateLink {
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--gray);
+}
+
+.alternateLink a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.alternateLink a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: var(--gray);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--light-gray);
+}
+
+.divider span {
+  padding: 0 1rem;
+  font-size: 0.85rem;
+}
+
+.socialButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background-color: rgba(18, 18, 18, 0.6);
+  color: var(--light);
+  border: 1px solid var(--light-gray);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
+}
+
+.socialButton:hover {
+  background-color: rgba(18, 18, 18, 0.8);
+  box-shadow: var(--shadow-md);
+}
+
+.socialButton svg {
+  margin-right: 0.75rem;
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+  .authContainer {
+    padding: 1.5rem;
+    margin: 1rem auto 3rem;
+  }
+  
+  .authTitle {
+    font-size: 1.75rem;
+  }
+  
+  .formInput, 
+  .submitButton,
+  .socialButton {
+    padding: 0.75rem 1rem;
+  }
+} 

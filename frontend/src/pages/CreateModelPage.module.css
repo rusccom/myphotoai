@@ -1,0 +1,249 @@
+/* CreateModelPage.module.css */
+
+.container {
+    max-width: 700px;
+    margin: 2rem auto 4rem;
+    padding: 2.5rem;
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(75, 85, 99, 0.2);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--light);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--gray);
+    margin-bottom: 2.5rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Стиль для поля, занимающего всю ширину сетки */
+.formGroupFullSpan {
+    grid-column: 1 / -1;
+}
+
+.formGroupFull {
+    grid-column: 1 / -1; /* Занимает всю ширину */
+    margin-bottom: 1.5rem;
+}
+
+.label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+.input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.5);
+    color: var(--light);
+    transition: var(--transition);
+    font-family: var(--font-sans);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Удаляем стрелки в поле ввода возраста */
+.input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+/* Контейнер для стилизации поля загрузки */
+.fileInputContainer {
+    position: relative; /* Для позиционирования скрытого инпута */
+    width: 100%;
+    height: 180px;
+    border: 2px dashed var(--light-gray);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.2);
+    color: var(--gray);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Иконка */
+.fileInputContainer::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 60px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 24 24' fill='none' stroke='rgba(139, 92, 246, 0.8)' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'%3E%3C/path%3E%3Cpolyline points='17 8 12 3 7 8'%3E%3C/polyline%3E%3Cline x1='12' y1='3' x2='12' y2='15'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin-bottom: 0.5rem;
+}
+
+/* Текст */
+.fileInputContainer::after {
+    content: 'Click to select files or drag them here';
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.fileInputContainer:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Сам инпут файла делаем полностью невидимым и растягиваем на весь контейнер */
+.fileInput {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0; /* Скрывает текст типа "No file chosen" в некоторых браузерах */
+}
+
+/* Стиль для информации о количестве файлов */
+.fileCountInfo {
+    font-size: 0.9rem;
+    color: var(--gray);
+    text-align: left;
+    margin-bottom: 0.5rem; /* Отступ под текстом */
+    padding-left: 0.25rem; /* Небольшой отступ слева */
+}
+
+.errorMessage {
+    color: var(--error);
+    background-color: rgba(239, 68, 68, 0.15);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.creationTimeInfo {
+    font-size: 0.85rem;
+    color: var(--gray);
+    text-align: center;
+    margin-top: -0.5rem; /* Подтянуть ближе к сообщению об ошибке */
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+}
+
+.submitButton {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    margin-top: 1rem;
+}
+
+.submitButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-secondary);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.submitButton:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.submitButton:hover::before {
+    left: 0;
+}
+
+.submitButton:disabled {
+    background: var(--light-gray);
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+.submitButton:disabled::before {
+    display: none;
+}
+
+.loading,
+.message {
+    text-align: center;
+    color: var(--gray);
+    margin: 2rem 0;
+}
+
+.message a {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .gridContainer {
+        grid-template-columns: 1fr;
+    }
+    .container {
+        padding: 1.5rem;
+    }
+} 

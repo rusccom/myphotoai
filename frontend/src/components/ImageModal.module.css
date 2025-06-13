@@ -1,0 +1,68 @@
+/* ImageModal.module.css */
+
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Полупрозрачный черный фон */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Выше остального контента */
+    padding: 20px;
+    box-sizing: border-box;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+    position: relative;
+    background-color: var(--dark); /* Фон самого окна */
+    padding: 15px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    max-width: 90vw; /* Макс ширина */
+    max-height: 90vh; /* Макс высота */
+    display: flex; /* Чтобы картинка нормально вписалась */
+    justify-content: center;
+    align-items: center;
+}
+
+.modalImage {
+    display: block;
+    max-width: 100%;
+    max-height: calc(90vh - 30px); /* Вычитаем паддинги контента */
+    object-fit: contain; /* Показываем изображение целиком */
+    border-radius: var(--radius-sm);
+}
+
+.closeButton {
+    position: absolute;
+    top: -10px; /* Чуть выше правого угла */
+    right: -10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 28px; /* Центрируем крестик */
+    text-align: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    z-index: 1001;
+}
+
+.closeButton:hover {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+} 

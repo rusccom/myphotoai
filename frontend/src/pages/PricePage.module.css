@@ -1,0 +1,302 @@
+.pricingContainer {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.pricingHeader {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.pricingTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.pricingSubtitle {
+    color: var(--gray);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.pricingToggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.toggleOption {
+    color: var(--gray);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.toggleActive {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.toggle {
+    width: 60px;
+    height: 30px;
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition);
+}
+
+.toggleThumb {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    top: 2px;
+    background: var(--primary);
+    border-radius: 50%;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.toggleLeft {
+    left: 2px;
+}
+
+.toggleRight {
+    left: 32px;
+}
+
+.pricingError {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: var(--error);
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.pricingPlans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 0 auto;
+}
+
+.pricingCard {
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(75, 85, 99, 0.2);
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+.pricingCard:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.popularBadge {
+    position: absolute;
+    top: 12px;
+    right: -30px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    color: white;
+    padding: 0.5rem 2.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transform: rotate(45deg);
+    z-index: 10;
+}
+
+.pricingCard.popular {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    z-index: 1;
+    transform: scale(1.05);
+}
+
+.planName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--light);
+}
+
+.pricingCard.popular .planName {
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.planPrice {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.planCurrency {
+    font-size: 1.5rem;
+    margin-right: 0.25rem;
+    vertical-align: top;
+}
+
+.planPeriod {
+    font-size: 1rem;
+    color: var(--gray);
+    font-weight: 500;
+    margin-left: 0.25rem;
+    align-self: flex-end;
+    margin-bottom: 0.75rem;
+}
+
+.planDescription {
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+    min-height: 50px;
+}
+
+.divider {
+    height: 1px;
+    background-color: rgba(75, 85, 99, 0.2);
+    margin: 1.5rem 0;
+}
+
+.featureList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    text-align: left;
+}
+
+.featureItem {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--gray);
+}
+
+.featureItem::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.subscribeButton {
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.pricingCard.popular .subscribeButton {
+    background: linear-gradient(to right, var(--secondary), var(--primary));
+}
+
+.subscribeButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, var(--accent), var(--primary));
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.pricingCard.popular .subscribeButton::before {
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+}
+
+.subscribeButton:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.subscribeButton:hover::before {
+    left: 0;
+}
+
+.subscribeButton:disabled {
+    background: var(--light-gray);
+    cursor: not-allowed;
+}
+
+.subscribeButton:disabled::before {
+    display: none;
+}
+
+.currentPlan {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    padding: 0.85rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .pricingPlans {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .pricingCard {
+        transform: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .pricingContainer {
+        padding: 1.5rem 1rem 3rem;
+    }
+    
+    .pricingTitle {
+        font-size: 1.75rem;
+    }
+    
+    .pricingSubtitle {
+        font-size: 1rem;
+    }
+    
+    .pricingCard {
+        padding: 1.5rem;
+    }
+    
+    .planPrice {
+        font-size: 2.5rem;
+    }
+} 
