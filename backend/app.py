@@ -102,23 +102,23 @@ def create_app(config_class=Config):
     # Регистрация Blueprints (маршрутов)
     # Используем относительные импорты для Blueprints и моделей
     from .routes.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
 
     from .routes.payment import bp as payment_bp
-    app.register_blueprint(payment_bp, url_prefix='/api/payment')
+    app.register_blueprint(payment_bp, url_prefix='/payment')
 
     from .routes.model import bp as model_bp
-    app.register_blueprint(model_bp, url_prefix='/api/model')
+    app.register_blueprint(model_bp, url_prefix='/model')
 
     from .routes.generation import bp as generation_bp
-    app.register_blueprint(generation_bp, url_prefix='/api/generation')
+    app.register_blueprint(generation_bp, url_prefix='/generation')
 
     # Убедимся, что модели импортируются после инициализации db
     with app.app_context():
         from . import models # Импортируем модуль models целиком
 
     # Простой тестовый маршрут
-    @app.route('/api/ping')
+    @app.route('/ping')
     def ping():
         app.logger.info('Ping endpoint was called')
         return 'Pong!'
