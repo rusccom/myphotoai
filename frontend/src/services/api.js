@@ -1,6 +1,5 @@
-// Базовый URL вашего Flask API
-// В режиме разработки React обычно работает на порту 3000, а Flask на 5000
-const API_BASE_URL = 'http://localhost:5000/api'; // Убедитесь, что порт совпадает с тем, на котором запущен Flask
+// frontend/src/services/api.js
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 // Общая функция для выполнения запросов
 export async function fetchApi(endpoint, options = {}, isFormData = false) {
