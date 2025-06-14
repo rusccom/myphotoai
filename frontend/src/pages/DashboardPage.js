@@ -247,9 +247,21 @@ function DashboardPage() {
             }
 
             if (updated) {
-                setPendingGenerations(newPending);
-                // Add newly completed to the beginning of history
-                setCompletedHistory(prev => [...newlyCompleted, ...prev]);
+                // Вместо простого добавления, мы "умно" обновим оба списка.
+                // 1. Обновляем основной список завершенных.
+                setCompletedHistory(prevCompleted => {
+                    const newCompletedIds = new Set(newlyCompleted.map(img => img.id));
+                    // Фильтруем старые версии завершенных картинок
+                    const filteredPrev = prevCompleted.filter(img => !newCompletedIds.has(img.id));
+                    // Возвращаем новый массив: свежезавершенные + отфильтрованные старые
+                    return [...newlyCompleted, ...filteredPrev];
+                });
+
+                // 2. Удаляем завершенные из списка ожидания.
+                setPendingGenerations(prevPending => {
+                    const newCompletedIds = new Set(newlyCompleted.map(img => img.id));
+                    return prevPending.filter(img => !newCompletedIds.has(img.id));
+                });
             }
 
         }, 5000); // Poll every 5 seconds
