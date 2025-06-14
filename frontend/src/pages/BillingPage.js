@@ -16,7 +16,7 @@ function BillingPage() {
     const [amount, setAmount] = useState(10);
     const [customAmount, setCustomAmount] = useState('');
     const [isCustomSelected, setIsCustomSelected] = useState(false);
-    const { user, api, updateUser } = useAuth();
+    const { api, updateUser } = useAuth();
     // Состояния для истории платежей
     const [history, setHistory] = useState([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);

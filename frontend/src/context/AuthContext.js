@@ -21,28 +21,6 @@ export const AuthProvider = ({ children }) => {
     const [modelsLoading, setModelsLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Функция для обновления состояния после успешного входа/регистрации
-    const handleAuthSuccess = (userData) => {
-        console.log("Auth success, setting user:", userData);
-        setUser(userData.user);
-        setIsAuthenticated(true);
-        // Перенаправление после успешной аутентификации
-        if (userData.user && userData.user.bfl_model_id) {
-            navigate('/dashboard');
-        } else {
-            navigate('/create-model');
-        }
-    };
-
-    // Функция для обработки ошибки аутентификации
-    const handleAuthError = (error) => {
-        console.error("Auth error:", error);
-        setUser(null);
-        setIsAuthenticated(false);
-        // Возвращаем ошибку, чтобы ее можно было показать в форме
-        throw error;
-    };
-
     // Функция для проверки статуса и загрузки моделей
     const checkStatusAndLoadModels = useCallback(async () => {
         console.log("AuthProvider: Checking auth status...");
