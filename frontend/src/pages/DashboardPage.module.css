@@ -890,21 +890,31 @@
 /* --- Адаптивность --- */
 
 @media (max-width: 992px) {
+    /* Отменяем фиксированный лэйаут, возвращаем естественный поток документа */
     .dashboardContainer {
         height: auto;
         overflow: visible;
     }
-    
+
+    /* Шапка с табами становится "липкой" */
+    .topTabContainer {
+        position: sticky;
+        top: 70px; /* Высота главного навбара, чтобы шапка прилипла под ним */
+        z-index: 900; /* Должен быть высоким, но ниже z-index модального окна */
+    }
+
+    /* Враппер панелей просто становится колонкой */
     .panelsWrapper {
         flex-direction: column;
         overflow: visible;
         height: auto;
     }
 
+    /* Панели теряют свои скроллы и ограничения по высоте */
     .leftPanel, .rightPanel {
-        flex-basis: auto;
-        height: auto;
-        overflow-y: visible;
+        flex-basis: auto; 
+        height: auto; 
+        overflow-y: visible; 
     }
 
     .leftPanel {
