@@ -77,4 +77,17 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* --- Мобильная адаптация для лэйаута --- */
+@media (max-width: 992px) {
+  .dashboardLayout {
+    height: auto; /* Отменяем фиксированную высоту */
+    overflow: visible; /* Разрешаем скролл */
+  }
+
+  /* Также убедимся, что контент внутри не имеет своей прокрутки */
+  .dashboardLayout .mainContent {
+    overflow-y: visible;
+  }
 } 
