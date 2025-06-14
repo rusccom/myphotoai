@@ -473,6 +473,24 @@
         text-align: center;
     }
     
+    .authButtons {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        padding: 0 2rem; /* Add horizontal padding to the container */
+        box-sizing: border-box; /* Include padding in width calculation */
+    }
+
+    .signInButton,
+    .signUpButton {
+        width: 100%; /* Make buttons fill the container */
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-size: 1.15rem;
+        text-align: center; /* Just in case */
+    }
+    
     /* Улучшенные стили для градиентов на мобильных */
     .logoText, 
     .logo span, 

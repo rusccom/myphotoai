@@ -540,57 +540,54 @@ function DashboardPage() {
                                                             onClick={() => openImageModal(displayImageUrl)}
                                                             style={{ cursor: 'pointer' }}
                                                         />
-                                                        {/* Кнопка три точки (меню) - видна, если меню для этой карточки ЗАКРЫТО */}
-                                                        {actionsMenuOpenForId !== img.id && (
-                                                            // Добавляем класс .singleMenuButtonContainer для особого выравнивания
-                                                            <div className={`${styles.imageCardActions} ${styles.singleMenuButtonContainer}`}> 
+
+                                                        {/* Условное отображение: Либо 4 кнопки, либо одна. */}
+                                                        {actionsMenuOpenForId === img.id ? (
+                                                            /* Блок с 4 кнопками, если меню открыто */
+                                                            <div className={styles.imageCardActions}>
                                                                 <button 
-                                                                    className={`${styles.actionButton} ${styles.menuButton}`}
+                                                                    className={styles.actionButton} 
+                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Try On', img, e); setActionsMenuOpenForId(null); }}
+                                                                    title="Try On"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8l4.5-5h11L22 8l-5 2v10c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V10L2 8z"></path><path d="M2 8l6-5"></path><path d="M22 8l-6-5"></path></svg>
+                                                                </button>
+                                                                <button 
+                                                                    className={styles.actionButton} 
+                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Video', img, e); setActionsMenuOpenForId(null); }}
+                                                                    title="Create Video"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                                                                </button>
+                                                                <button 
+                                                                    className={styles.actionButton} 
+                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Upscale', img, e); setActionsMenuOpenForId(null); }}
+                                                                    title="Upscale Image"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="15 3 21 3 21 9"></polygon><polygon points="9 21 3 21 3 15"></polygon><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+                                                                </button>
+                                                                <button 
+                                                                    className={`${styles.actionButton}`} 
+                                                                    onClick={(e) => { e.stopPropagation(); handleDownloadImage(displayImageUrl, `image-${img.id}.png`, e); setActionsMenuOpenForId(null); }}
+                                                                    title="Download image"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            /* Кнопка с тремя точками, если меню закрыто */
+                                                            <div className={styles.menuButtonContainer}>
+                                                                <button 
+                                                                    className={styles.menuButton}
                                                                     onClick={(e) => { 
                                                                         e.stopPropagation(); 
                                                                         setActionsMenuOpenForId(img.id);
                                                                     }}
                                                                     title="Actions"
                                                                 >
-                                                                    {/* SVG for three dots (ellipsis-vertical) */}
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 14c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-7c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                                                 </button>
                                                             </div>
-                                                        )}
-
-                                                        {/* Блок с 4 кнопками, появляется если меню открыто для этой карточки */}
-                                                        {actionsMenuOpenForId === img.id && (
-                                                            // Этот блок остается с обычным .imageCardActions для распределения 4 кнопок
-                                                        <div className={styles.imageCardActions}>
-                                                            <button 
-                                                                className={styles.actionButton} 
-                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Try On', img, e); setActionsMenuOpenForId(null); }}
-                                                                title="Try On"
-                                                            >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8l4.5-5h11L22 8l-5 2v10c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V10L2 8z"></path><path d="M2 8l6-5"></path><path d="M22 8l-6-5"></path></svg>
-                                                            </button>
-                                                            <button 
-                                                                className={styles.actionButton} 
-                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Video', img, e); setActionsMenuOpenForId(null); }}
-                                                                title="Create Video"
-                                                            >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                                                            </button>
-                                                            <button 
-                                                                className={styles.actionButton} 
-                                                                    onClick={(e) => { e.stopPropagation(); handleImageAction('Upscale', img, e); setActionsMenuOpenForId(null); }}
-                                                                title="Upscale Image"
-                                                            >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="15 3 21 3 21 9"></polygon><polygon points="9 21 3 21 3 15"></polygon><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-                                                            </button>
-                                                            <button 
-                                                                className={`${styles.actionButton} ${styles.downloadButtonAction}`} 
-                                                                    onClick={(e) => { e.stopPropagation(); handleDownloadImage(displayImageUrl, `image-${img.id}.png`, e); setActionsMenuOpenForId(null); }}
-                                                                title="Download image"
-                                                            >
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                                            </button>
-                                                        </div>
                                                         )}
                                                     </>
                                                 ) : img.status === 'Ready' && !displayImageUrl && img.r2_object_key ? ( // УПРОЩЕННАЯ ПРОВЕРКА: если Ready, есть ключ, но нет URL - значит ошибка генерации URL на беке

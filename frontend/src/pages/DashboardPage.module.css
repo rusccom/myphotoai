@@ -697,25 +697,41 @@
     justify-content: space-around;
     align-items: center;
     padding: 4px;
-    background: rgba(18, 18, 18, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(18, 18, 18, 0.7);
+    backdrop-filter: blur(5px);
     border-radius: var(--radius-md);
     z-index: 15;
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
-.imageCard:hover .imageCardActions {
-    opacity: 1;
+/* Контейнер для ОДНОЙ кнопки с тремя точками */
+.menuButtonContainer {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 10;
 }
 
-.singleMenuButtonContainer {
-    justify-content: flex-end;
-    background: transparent;
-    backdrop-filter: none;
-    opacity: 1;
+/* Сама кнопка с тремя точками */
+.menuButton {
+    background: rgba(18, 18, 18, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
+.menuButton:hover {
+    background: rgba(38, 38, 38, 0.9);
+    transform: scale(1.1);
+}
+
+/* Общий стиль для кнопок в группе */
 .actionButton {
     background: transparent;
     color: var(--gray);
