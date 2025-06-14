@@ -1,165 +1,122 @@
 /* DashboardPage.module.css */
 
+/* --- ОСНОВНАЯ СТРУКТУРА ЛЭЙАУТА --- */
+
 .dashboardContainer {
-    /* display: flex; */ /* Keep flex, but direction handled by media query or inline style if needed */
-    gap: 0;
-    /* padding: 0.25rem; */ /* Padding is handled by mainContent now */
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 70px);
     width: 100%;
+    gap: 0;
+    padding: 0;
     box-sizing: border-box;
-    /* height: calc(100vh - 70px); */ /* CHANGED to 100% */
-    height: 100%;
-    display: flex; /* Ensure flex is applied */
-    flex-direction: column; /* Start with column layout */
+    overflow: hidden;
 }
 
-/* NEW: Wrapper for the two main panels */
+.topTabContainer {
+    display: flex;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.25rem;
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    box-sizing: border-box;
+    border: 1px solid rgba(75, 85, 99, 0.2);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
 .panelsWrapper {
     display: flex;
     flex-direction: row;
-    flex-grow: 1; /* Takes remaining vertical space */
-    gap: 0.25rem;
-    overflow: hidden; /* Prevent wrapper scrollbars */
-    width: 100%; /* Ensure it takes full width */
-}
-
-/* Adjust layout for wider screens */
-/* @media (min-width: 993px) {
-    .dashboardContainer {
-        flex-direction: row;
-        align-items: flex-start;
-    }
-} */
-/* Keep column layout for dashboardContainer based on previous step */
-
-
-/* Адаптивный макет для планшетов и мобильных */
-@media (max-width: 992px) {
-    /* .dashboardContainer {
-        flex-direction: column;
-        padding: 0.25rem;
-        align-items: stretch; /* Reset alignment for column layout */
-    /* } */
-    .panelsWrapper {
-        flex-direction: column;
-        overflow: visible; /* Allow content to expand vertically */
-        height: auto; /* Allow height to be determined by content */
-    }
+    flex-grow: 1;
+    gap: 0;
+    overflow: hidden;
+    width: 100%;
 }
 
 .leftPanel {
     flex: 0 0 400px;
-    min-width: 0; /* Prevent shrinking below basis */
-    /* position: sticky; */ /* Remove sticky for now, simpler layout */
-    /* top: calc(70px + 1rem); */
-    /* max-height: calc(100vh - 70px - 2rem); */
-    overflow-y: auto; /* Scroll left panel */
-    /* padding-bottom: 1rem; */
-    height: 100%; /* Fill wrapper height */
-    padding: 0.5rem; /* Add some padding */
+    min-width: 0;
+    overflow-y: auto;
+    height: 100%;
+    padding: 0.5rem;
     box-sizing: border-box;
-    background-color: rgba(18, 18, 18, 0.1); /* Slight background */
+    background-color: rgba(18, 18, 18, 0.1);
     border-radius: var(--radius-md);
+    border: none;
 }
 
 .rightPanel {
     flex: 1 1 auto;
     min-width: 0;
-    display: flex; /* ADDED: Make it a flex container */
-    flex-direction: column; /* ADDED: Stack children vertically */
-    height: 100%; /* ADDED: Fill parent height */
-    overflow: hidden; /* ADDED: Hide overflow, content will scroll */
-    background-color: rgba(18, 18, 18, 0.1); /* Slight background */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(18, 18, 18, 0.1);
     border-radius: var(--radius-md);
-    padding: 0.5rem; /* Add padding */
+    padding: 0.5rem;
     box-sizing: border-box;
+    border: none;
 }
 
-/* Reset sticky positioning on smaller screens where layout is column */
-@media (max-width: 992px) {
-    .leftPanel {
-        /* position: static; */
-        /* max-height: none; */
-        height: auto; /* Let height adjust */
-        overflow-y: visible;
-        padding-bottom: 0;
-        flex-basis: auto; /* Reset width constraints */
-        margin-bottom: 0.5rem; /* Add space between panels in column layout */
-    }
-    .rightPanel {
-        height: auto; /* Let height adjust */
-        overflow: visible; /* Allow content to expand */
-    }
-}
+/* --- КОНЕЦ ОСНОВНОЙ СТРУКТУРЫ --- */
 
-/* Custom scrollbar styling */
-/* REMOVED rightPanel scrollbar */
+
+/* --- СТИЛИ ДЛЯ СКРОЛЛБАРОВ --- */
 .leftPanel::-webkit-scrollbar,
-/* .rightPanel::-webkit-scrollbar, */
-.resultsSection::-webkit-scrollbar { /* Keep for results section */
+.resultsSection::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-/* REMOVED rightPanel scrollbar track */
 .leftPanel::-webkit-scrollbar-track,
-/* .rightPanel::-webkit-scrollbar-track, */
-.resultsSection::-webkit-scrollbar-track { /* Keep for results section */
+.resultsSection::-webkit-scrollbar-track {
     background: rgba(18, 18, 18, 0.2);
     border-radius: 4px;
 }
 
-/* REMOVED rightPanel scrollbar thumb */
 .leftPanel::-webkit-scrollbar-thumb,
-/* .rightPanel::-webkit-scrollbar-thumb, */
-.resultsSection::-webkit-scrollbar-thumb { /* Keep for results section */
+.resultsSection::-webkit-scrollbar-thumb {
     background: linear-gradient(to bottom, rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.6));
     border-radius: 4px;
     border: 2px solid transparent;
     background-clip: padding-box;
 }
 
-/* REMOVED rightPanel scrollbar thumb hover */
 .leftPanel::-webkit-scrollbar-thumb:hover,
-/* .rightPanel::-webkit-scrollbar-thumb:hover, */
-.resultsSection::-webkit-scrollbar-thumb:hover { /* Keep for results section */
+.resultsSection::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to bottom, rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8));
     background-clip: padding-box;
 }
 
 /* Firefox */
-/* REMOVED rightPanel scrollbar */
 .leftPanel,
-/* .rightPanel, */
-.resultsSection { /* Keep for results section */
+.resultsSection {
     scrollbar-width: thin;
     scrollbar-color: var(--primary) rgba(18, 18, 18, 0.2);
 }
+/* --- КОНЕЦ СТИЛЕЙ ДЛЯ СКРОЛЛБАРОВ --- */
 
-/* For body/html scrollbar */
-html::-webkit-scrollbar {
-    width: 8px;
+
+/* --- СТИЛИ КОНТЕНТА ВНУТРИ ПАНЕЛЕЙ --- */
+
+.sectionTitle {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin: 0;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
 }
 
-html::-webkit-scrollbar-track {
-    background: rgba(18, 18, 18, 0.2);
+.sectionTitle + p {
+    margin-top: 0;
 }
 
-html::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.6));
-    border-radius: 4px;
-}
+/* --- Левая панель --- */
 
-html::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8));
-}
-
-/* Firefox scrollbar for html */
-html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary) rgba(18, 18, 18, 0.2);
-}
-
-/* Контейнер для выбора модели */
 .modelSelectionContainer {
     background-color: var(--light-dark);
     border-radius: var(--radius-lg);
@@ -170,14 +127,6 @@ html {
     text-align: center;
 }
 
-.modelSelectionContainer h3 {
-    margin-bottom: 1.5rem;
-    color: var(--light);
-    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
-    padding-bottom: 0.5rem;
-}
-
-/* Стили для заголовка с кнопкой синхронизации */
 .modelSelectionHeader {
     display: flex;
     align-items: center;
@@ -226,7 +175,6 @@ html {
     box-shadow: 0 0 0 2px var(--primary);
 }
 
-/* Стили для неактивной/обучающейся модели */
 .disabledModel {
     cursor: not-allowed;
 }
@@ -235,11 +183,7 @@ html {
     box-shadow: none;
     border-color: transparent;
 }
-/* .trainingModel {
-    /* Дополнительные стили, если нужны */
-/* } */
 
-/* Оверлей и спиннер для обучения */
 .trainingOverlay {
     position: absolute;
     top: 0;
@@ -255,20 +199,15 @@ html {
 
 .trainingSpinner {
     display: inline-block;
-    box-sizing: border-box; /* Добавлено на всякий случай */
+    box-sizing: border-box;
     width: 40px;
     height: 40px;
     border: 4px solid rgba(139, 92, 246, 0.3);
     border-radius: 50%;
     border-top-color: var(--primary);
-    /* Используем linear вместо ease и явно указываем имя анимации */
-    animation-name: spin;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
+    animation: spin 1s linear infinite;
 }
 
-/* Явно указываем начальное состояние */
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -291,7 +230,6 @@ html {
     padding: 0;
 }
 
-/* Стиль для блока "Создайте модель" */
 .createModelPrompt {
     background-color: rgba(139, 92, 246, 0.08);
     border: 1px solid rgba(139, 92, 246, 0.3);
@@ -352,8 +290,6 @@ html {
     background: linear-gradient(to right, var(--primary), var(--accent));
 }
 
-/* Делаем селектор более специфичным */
-.leftPanel > h2, 
 .generationForm h3 {
     margin-bottom: 0.5rem;
     color: var(--light);
@@ -372,7 +308,6 @@ html {
     color: var(--gray);
 }
 
-/* Общие стили для полей ввода в форме */
 .generationForm textarea,
 .generationForm select {
     width: 100%;
@@ -398,15 +333,13 @@ html {
     min-height: 80px;
 }
 
-/* Сетка для селекторов */
 .selectorsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
-    margin-bottom: 0.5rem; /* Небольшой отступ снизу */
+    margin-bottom: 0.5rem;
 }
 
-/* Стиль для подсказки выбрать модель */
 .selectModelPrompt {
     background-color: rgba(75, 85, 99, 0.1);
     border: 1px dashed rgba(75, 85, 99, 0.4);
@@ -422,7 +355,6 @@ html {
     margin-top: 0;
 }
 
-/* Переименовываем правило для соответствия JSX */
 .submitButton {
     background: var(--gradient-primary);
     color: white;
@@ -431,7 +363,6 @@ html {
     font-weight: 600;
     transition: var(--transition);
     margin-top: 0.5rem;
-    /* Копируем общие стили полей для консистентности */
     width: 100%;
     padding: 0.85rem 1rem;
     border-radius: var(--radius-md);
@@ -462,39 +393,171 @@ html {
     text-align: center;
 }
 
+.rangeInput {
+    width: 100%;
+    cursor: pointer;
+    height: 8px;
+    background: var(--light-gray);
+    border-radius: var(--radius-full);
+    appearance: none;
+    outline: none;
+    transition: background 0.2s ease;
+}
+
+.rangeInput::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.rangeInput::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease;
+}
+
+.rangeInput:hover {
+    background: #5a6778;
+}
+
+.rangeInput:hover::-webkit-slider-thumb {
+    background: var(--primary-hover);
+}
+
+.rangeInput:hover::-moz-range-thumb {
+    background: var(--primary-hover);
+}
+
+.rangeInput:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.strengthValue {
+    display: inline-block;
+    margin-left: 0.75rem;
+    font-weight: 600;
+    color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.15);
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9em;
+}
+
+.numImageButtons {
+    display: flex;
+    gap: 0.25rem;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.numImageButton {
+    width: 60px;
+    max-width: 60px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--light-gray);
+    color: var(--dark);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.numImageButton:hover {
+    background-color: #e2e8f0;
+    border-color: var(--gray);
+    box-shadow: var(--shadow-md);
+}
+
+.numImageButton.activeNumImage {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow-md);
+    transform: scale(1.02);
+}
+
+.numImageButton:disabled {
+    background: var(--light-gray);
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+    transform: none;
+}
+
+
+/* --- Правая панель --- */
+
+.tabContainer {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+    flex-shrink: 0;
+    padding: 0 0.5rem;
+}
+
+.tabButton {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--gray);
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: var(--transition);
+    margin-bottom: -1px;
+}
+
+.tabButton:hover {
+    color: var(--light);
+    border-bottom-color: rgba(139, 92, 246, 0.3);
+}
+
+.activeTab {
+    color: var(--primary);
+    font-weight: 600;
+    border-bottom-color: var(--primary);
+}
+
+.tabContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
 .resultsSection {
     background-color: var(--light-dark);
     border-radius: var(--radius-lg);
-    /* padding: 1rem; */ /* Padding moved to rightPanel */
-    /* margin-bottom: 2rem; */ /* Remove margin, let parent handle spacing */
-    box-shadow: var(--shadow-md);
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
     border: 1px solid rgba(75, 85, 99, 0.2);
-    flex-grow: 1; /* ADDED: Allow section to grow */
-    overflow-y: auto; /* ADDED: Enable scrolling within this section */
-    /* Add internal padding if needed */
-     padding: 1rem;
-     margin: 0; /* Remove margin */
-}
-
-.resultsSection h3 {
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    color: var(--light);
-    text-align: center;
-    padding-bottom: 0.5rem;
-    /* Убираем отступы у заголовка, так как padding есть у секции */
-    margin-left: -1rem; 
-    margin-right: -1rem;
-    margin-top: -1rem; 
-    padding-left: 1rem;
-    padding-right: 1rem;
+    box-shadow: var(--shadow-md);
+    margin: 0;
 }
 
 .imageList {
     display: grid;
-    /* Увеличиваем минимальный размер карточки и уменьшаем расстояние */
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); /* Уменьшил min c 280px */
-    gap: 0.75rem; /* Уменьшаем расстояние между карточками */
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 0.75rem;
 }
 
 .imageCard {
@@ -513,28 +576,6 @@ html {
     box-shadow: var(--shadow-md);
 }
 
-.imageCard p {
-    padding: 1rem;
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--gray);
-    word-break: break-word;
-    border-top: 1px solid rgba(75, 85, 99, 0.2);
-}
-
-/* Стили для карточки в ожидании */
-.pendingCard .imagePlaceholder {
-    flex-direction: column; /* Размещаем текст и спиннер вертикально */
-    gap: 0.75rem;
-}
-
-.pendingCard .generationStatus {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    /* Используем существующие стили статуса */
-}
-
 .imagePlaceholder {
     background: linear-gradient(135deg, rgba(18, 18, 18, 0.8) 0%, rgba(38, 38, 38, 0.8) 100%);
     display: flex;
@@ -548,6 +589,8 @@ html {
     backdrop-filter: blur(8px);
     border-radius: var(--radius-md);
     transition: all 0.3s ease;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .imagePlaceholder::before {
@@ -558,10 +601,10 @@ html {
     width: 200%;
     height: 200%;
     background: linear-gradient(
-        45deg, 
+        45deg,
         transparent 0%,
-        rgba(139, 92, 246, 0.05) 30%, 
-        rgba(139, 92, 246, 0.1) 50%, 
+        rgba(139, 92, 246, 0.05) 30%,
+        rgba(139, 92, 246, 0.1) 50%,
         rgba(139, 92, 246, 0.05) 70%,
         transparent 100%
     );
@@ -587,14 +630,6 @@ html {
     transform: scale(1.05);
 }
 
-.imageCard small {
-    display: block;
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-    color: var(--gray);
-    background-color: rgba(18, 18, 18, 0.7);
-}
-
 .loadingSpinner {
     display: inline-block;
     width: 40px;
@@ -606,12 +641,6 @@ html {
     animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
     margin: 2rem auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    50% { transform: rotate(180deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .loadingText,
@@ -628,925 +657,20 @@ html {
     border: 1px solid rgba(139, 92, 246, 0.1);
 }
 
-.generationStatus {
-    display: inline-block;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-left: 0.5rem;
-}
-
-.statusPending {
-    background-color: rgba(245, 158, 11, 0.15);
-    color: var(--warning);
-}
-
-.statusCompleted {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: var(--success);
-}
-
-.statusFailed {
-    background-color: rgba(239, 68, 68, 0.15);
-    color: var(--error);
-}
-
-@media (max-width: 992px) {
-    .dashboardContainer {
-        flex-direction: column;
-    }
-
-    .leftPanel {
-        width: 100%;
-    }
-
-    .imageCard {
-        max-width: none;
-    }
-}
-
-@media (max-width: 576px) {
-    .imageCard {
-        max-width: 100%;
-    }
-
-    .generationForm,
-    .resultsSection {
-        padding: 1.5rem;
-    }
-}
-
-/* Styles for the right panel tabs */
-.tabContainer {
-    display: flex;
-    gap: 0.5rem; /* Небольшой промежуток между кнопками */
-    margin-bottom: 0.5rem; /* Отступ под вкладками */
-    border-bottom: 1px solid rgba(75, 85, 99, 0.2); /* Линия под вкладками */
-    padding-bottom: 0; /* Adjust if needed */
-    flex-shrink: 0; /* ADDED: Prevent tabs from shrinking */
-    padding-left: 0.5rem; /* Add some padding to align with content */
-    padding-right: 0.5rem;
-}
-
-/* NEW: Styles for the top-level tab container */
-.topTabContainer {
-    display: flex;
-    gap: 0.25rem; /* ADDED gap between buttons */
-    width: 100%;
-    margin-bottom: 0.5rem; /* Increased margin slightly */
-    padding: 0.25rem; /* Added small padding */
-    background-color: var(--light-dark); /* Use same as panels */
-    border-radius: var(--radius-md);
-    box-sizing: border-box;
-    border: 1px solid rgba(75, 85, 99, 0.2); /* Added border like panels */
-    box-shadow: var(--shadow-sm); /* Added subtle shadow */
-}
-
-/* Стили для кнопки синхронизации моделей */
-.syncButton {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    background-color: rgba(139, 92, 246, 0.15);
-    color: var(--primary);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-    font-weight: 500;
-    height: auto; /* Возвращаем авто-высоту */
-    width: auto; /* Возвращаем авто-ширину */
-    text-align: center; /* ADDED: Center text in grown button */
-}
-
-/* Убираем стили для иконки, т.к. теперь используется текст */
-.syncButton:not(:disabled)::before,
-.syncButton:not(:disabled)::after {
-    content: none;
-}
-
-/* Убираем анимацию */
-/*@keyframes rotateRefresh {
-    /* Пусто, т.к. анимация не нужна */
-/*}*/
-
-.syncButton:hover {
-    background-color: rgba(139, 92, 246, 0.25);
-    box-shadow: var(--shadow-md);
-}
-
-.syncButton:disabled {
-    background-color: rgba(75, 85, 99, 0.1);
-    color: var(--gray);
-    cursor: not-allowed;
-    border-color: transparent;
-    box-shadow: none;
-    opacity: 0.7;
-}
-
-/* Текст "Syncing..." */
-/* .syncButton:disabled {
-    /* Стили для disabled состояния уже покрывают это */
-/* } */
-
-.syncMessage {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    text-align: center;
-    background-color: rgba(139, 92, 246, 0.1);
-    color: var(--primary);
-    font-weight: 500;
-}
-
-/* Style for the new Add button */
-.addButton {
-    padding: 0.5rem 1rem; /* Match sync button padding for consistency */
-    border-radius: var(--radius-md);
-    background-color: transparent; /* No background */
-    color: var(--primary); /* Use primary color like active tab */
-    border: 1px solid transparent; /* No border initially */
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 600; /* Use bold weight like active tab */
-    font-size: 1rem; /* Match tab button font size */
-    text-decoration: none; /* Remove underline from Link */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.addButton:hover {
-    background-color: rgba(139, 92, 246, 0.1); /* Subtle background on hover */
-    border-color: rgba(139, 92, 246, 0.3); /* Subtle border on hover */
-    color: var(--primary); /* Keep color on hover */
-}
-
-.tabButton {
-    padding: 0.75rem 1.25rem;
-    cursor: pointer;
-    background-color: transparent;
-    color: var(--gray); /* Default for right panel tabs */
-    border: none;
-    border-bottom: 3px solid transparent; /* Линия под неактивной вкладкой */
-    font-weight: 500;
-    font-size: 1rem;
-    transition: var(--transition);
-    margin-bottom: -1px; /* Чтобы линия касалась нижней границы контейнера */
-}
-
-.tabButton:hover {
-    color: var(--light);
-    border-bottom-color: rgba(139, 92, 246, 0.3); /* Полупрозрачная линия при наведении */
-}
-
-.activeTab {
-    color: var(--primary);
-    font-weight: 600;
-    border-bottom-color: var(--primary); /* Яркая линия под активной вкладкой */
-}
-
-.tabContent {
-    /* Контейнер для содержимого вкладок */
-    /* min-height: calc(100vh - 70px - 2rem - 50px); */ /* REMOVED: Height handled by flex-grow on resultsSection */
-    display: flex; /* Ensure it behaves correctly in flex layout */
-    flex-direction: column; /* Stack content vertically */
-    flex-grow: 1; /* Allow tabContent itself to grow */
-    overflow: hidden; /* Hide direct overflow, resultsSection handles scrolling */
-}
-
-/* Стили для секций результатов и карточек изображений */
-/* margin-bottom: 2rem; */ /* Handled by parent spacing */
-/* Уменьшаем внутренние отступы секции, чтобы дать больше места сетке */
-/* padding: 1rem; */ /* Re-apply padding */
-/* ADDED properties from above */
-.resultsSection {
-    /* margin-bottom: 2rem; */ /* Handled by parent spacing */
-    /* Уменьшаем внутренние отступы секции, чтобы дать больше места сетке */
-    /* padding: 1rem; */ /* Re-apply padding */
-    /* ADDED properties from above */
-    background-color: var(--light-dark);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(75, 85, 99, 0.2);
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem; /* Ensure padding is present */
-    margin: 0; /* Remove margin */
-}
-
-.emptyText {
-    color: var(--gray);
-    text-align: center;
-    padding: 2rem 0;
-    font-style: italic;
-}
-
-.loadingText {
-    color: var(--gray);
-    text-align: center;
-    padding: 2rem 0;
-}
-
-/* Стили для Range Input (Finetune Strength) */
-.rangeInput {
-    width: 100%;
-    cursor: pointer;
-    height: 8px;
-    background: var(--light-gray);
-    border-radius: var(--radius-full);
-    appearance: none; /* Убираем стандартный вид */
-    outline: none;
-    transition: background 0.2s ease;
-}
-
-/* Стили для ползунка (Chrome, Edge, Safari) */
-.rangeInput::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-/* Стили для ползунка (Firefox) */
-.rangeInput::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-    transition: background 0.2s ease;
-}
-
-.rangeInput:hover {
-    background: #5a6778; /* Немного светлее при наведении */
-}
-
-.rangeInput:hover::-webkit-slider-thumb {
-    background: var(--primary-hover);
-}
-
-.rangeInput:hover::-moz-range-thumb {
-    background: var(--primary-hover);
-}
-
-.rangeInput:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/* Отображение текущего значения силы */
-.strengthValue {
-    display: inline-block;
-    margin-left: 0.75rem;
-    font-weight: 600;
-    color: var(--primary);
-    background-color: rgba(139, 92, 246, 0.15);
-    padding: 0.1rem 0.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.9em;
-}
-
-/* NEW styles specifically for top buttons */
-.topTabButton {
-    color: var(--light); /* Lighter text color for top buttons */
-    border-radius: var(--radius-sm); /* Rounded corners for buttons */
-    border-bottom: none; /* Remove bottom border */
-    margin-bottom: 0; /* Reset margin */
-    transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transition */
-    flex-grow: 1; /* ADDED: Make buttons grow equally */
-    text-align: center; /* ADDED: Center text in grown button */
-}
-
-.topTabButton:hover {
-    background-color: rgba(255, 255, 255, 0.05); /* Subtle background on hover */
-    color: white; /* White text on hover */
-    border-bottom-color: transparent; /* Ensure no border appears on hover */
-}
-
-/* Adjusted active state for top buttons */
-.topTabButton.activeTab {
-    color: white; /* White text for active */
-    font-weight: 600;
-    background: var(--gradient-primary); /* Use primary gradient for active background */
-    border-bottom-color: transparent; /* No bottom border for active top tabs */
-    box-shadow: var(--shadow-sm); /* Add shadow to active button */
-}
-
-/* --- HIDE TOP TABS ON MOBILE --- */
-@media (max-width: 768px) {
-    .topTabContainer {
-        display: none;
-    }
-}
-
-/* --- Стили для выбора количества изображений --- */
-.numImageButtons {
-    display: flex;
-    gap: 0.25rem; /* Оставляем небольшой gap */
-    width: 100%; /* Занимаем всю ширину */
-    justify-content: space-between; /* Распределяем кнопки */
-}
-
-.numImageButton {
-    width: 60px; /* Задаем фиксированную ширину */
-    max-width: 60px; /* Убедимся, что не превышает */
-    aspect-ratio: 1 / 1; /* Делаем кнопку квадратной */
-    height: auto; /* Высота будет определяться шириной через aspect-ratio */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    font-weight: 600;
-    /* Копируем базовые стили из submitButton */
-    background: var(--light-gray); /* Неактивный фон */
-    color: var(--dark);
-    border: 1px solid rgba(75, 85, 99, 0.3);
-    cursor: pointer;
-    transition: var(--transition);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-}
-
-.numImageButton:hover {
-    background-color: #e2e8f0; /* Светлее фон при наведении */
-    border-color: var(--gray);
-    box-shadow: var(--shadow-md);
-}
-
-.numImageButton.activeNumImage {
-    background: var(--gradient-primary);
-    color: white;
-    border-color: transparent;
-    box-shadow: var(--shadow-md);
-    /* Дополнительно для активного состояния */
-    transform: scale(1.02);
-}
-
-.numImageButton:disabled {
-    background: var(--light-gray);
-    cursor: not-allowed;
-    opacity: 0.5;
-    box-shadow: none;
-    transform: none;
-}
-/* --- Конец стилей для выбора количества изображений --- */
-
-/* Styles for the right panel tabs */
-.tabContainer {
-    display: flex;
-    gap: 0.5rem; /* Небольшой промежуток между кнопками */
-    margin-bottom: 0.5rem; /* Отступ под вкладками */
-    border-bottom: 1px solid rgba(75, 85, 99, 0.2); /* Линия под вкладками */
-    padding-bottom: 0; /* Adjust if needed */
-    flex-shrink: 0; /* ADDED: Prevent tabs from shrinking */
-    padding-left: 0.5rem; /* Add some padding to align with content */
-    padding-right: 0.5rem;
-}
-
-/* NEW: Styles for the top-level tab container */
-.topTabContainer {
-    display: flex;
-    gap: 0.25rem; /* ADDED gap between buttons */
-    width: 100%;
-    margin-bottom: 0.5rem; /* Increased margin slightly */
-    padding: 0.25rem; /* Added small padding */
-    background-color: var(--light-dark); /* Use same as panels */
-    border-radius: var(--radius-md);
-    box-sizing: border-box;
-    border: 1px solid rgba(75, 85, 99, 0.2); /* Added border like panels */
-    box-shadow: var(--shadow-sm); /* Added subtle shadow */
-}
-
-/* Стили для кнопки синхронизации моделей */
-.syncButton {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    background-color: rgba(139, 92, 246, 0.15);
-    color: var(--primary);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-    font-weight: 500;
-    height: auto; /* Возвращаем авто-высоту */
-    width: auto; /* Возвращаем авто-ширину */
-    text-align: center; /* ADDED: Center text in grown button */
-}
-
-/* Убираем стили для иконки, т.к. теперь используется текст */
-.syncButton:not(:disabled)::before,
-.syncButton:not(:disabled)::after {
-    content: none;
-}
-
-/* Убираем анимацию */
-/*@keyframes rotateRefresh {
-    /* Пусто, т.к. анимация не нужна */
-/*}*/
-
-.syncButton:hover {
-    background-color: rgba(139, 92, 246, 0.25);
-    box-shadow: var(--shadow-md);
-}
-
-.syncButton:disabled {
-    background-color: rgba(75, 85, 99, 0.1);
-    color: var(--gray);
-    cursor: not-allowed;
-    border-color: transparent;
-    box-shadow: none;
-    opacity: 0.7;
-}
-
-/* Текст "Syncing..." */
-/* .syncButton:disabled {
-    /* Стили для disabled состояния уже покрывают это */
-/* } */
-
-.syncMessage {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    text-align: center;
-    background-color: rgba(139, 92, 246, 0.1);
-    color: var(--primary);
-    font-weight: 500;
-}
-
-/* Style for the new Add button */
-.addButton {
-    padding: 0.5rem 1rem; /* Match sync button padding for consistency */
-    border-radius: var(--radius-md);
-    background-color: transparent; /* No background */
-    color: var(--primary); /* Use primary color like active tab */
-    border: 1px solid transparent; /* No border initially */
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 600; /* Use bold weight like active tab */
-    font-size: 1rem; /* Match tab button font size */
-    text-decoration: none; /* Remove underline from Link */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.addButton:hover {
-    background-color: rgba(139, 92, 246, 0.1); /* Subtle background on hover */
-    border-color: rgba(139, 92, 246, 0.3); /* Subtle border on hover */
-    color: var(--primary); /* Keep color on hover */
-}
-
-.tabButton {
-    padding: 0.75rem 1.25rem;
-    cursor: pointer;
-    background-color: transparent;
-    color: var(--gray); /* Default for right panel tabs */
-    border: none;
-    border-bottom: 3px solid transparent; /* Линия под неактивной вкладкой */
-    font-weight: 500;
-    font-size: 1rem;
-    transition: var(--transition);
-    margin-bottom: -1px; /* Чтобы линия касалась нижней границы контейнера */
-}
-
-.tabButton:hover {
-    color: var(--light);
-    border-bottom-color: rgba(139, 92, 246, 0.3); /* Полупрозрачная линия при наведении */
-}
-
-.activeTab {
-    color: var(--primary);
-    font-weight: 600;
-    border-bottom-color: var(--primary); /* Яркая линия под активной вкладкой */
-}
-
-.tabContent {
-    /* Контейнер для содержимого вкладок */
-    /* min-height: calc(100vh - 70px - 2rem - 50px); */ /* REMOVED: Height handled by flex-grow on resultsSection */
-    display: flex; /* Ensure it behaves correctly in flex layout */
-    flex-direction: column; /* Stack content vertically */
-    flex-grow: 1; /* Allow tabContent itself to grow */
-    overflow: hidden; /* Hide direct overflow, resultsSection handles scrolling */
-}
-
-/* Стили для секций результатов и карточек изображений */
-/* margin-bottom: 2rem; */ /* Handled by parent spacing */
-/* Уменьшаем внутренние отступы секции, чтобы дать больше места сетке */
-/* padding: 1rem; */ /* Re-apply padding */
-/* ADDED properties from above */
-.resultsSection {
-    /* margin-bottom: 2rem; */ /* Handled by parent spacing */
-    /* Уменьшаем внутренние отступы секции, чтобы дать больше места сетке */
-    /* padding: 1rem; */ /* Re-apply padding */
-    /* ADDED properties from above */
-    background-color: var(--light-dark);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(75, 85, 99, 0.2);
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 1rem; /* Ensure padding is present */
-    margin: 0; /* Remove margin */
-}
-
-.emptyText {
-    color: var(--gray);
-    text-align: center;
-    padding: 2rem 0;
-    font-style: italic;
-}
-
-.loadingText {
-    color: var(--gray);
-    text-align: center;
-    padding: 2rem 0;
-}
-
-/* Стили для Range Input (Finetune Strength) */
-.rangeInput {
-    width: 100%;
-    cursor: pointer;
-    height: 8px;
-    background: var(--light-gray);
-    border-radius: var(--radius-full);
-    appearance: none; /* Убираем стандартный вид */
-    outline: none;
-    transition: background 0.2s ease;
-}
-
-/* Стили для ползунка (Chrome, Edge, Safari) */
-.rangeInput::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-
-/* Стили для ползунка (Firefox) */
-.rangeInput::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    cursor: pointer;
-    border: none;
-    transition: background 0.2s ease;
-}
-
-.rangeInput:hover {
-    background: #5a6778; /* Немного светлее при наведении */
-}
-
-.rangeInput:hover::-webkit-slider-thumb {
-    background: var(--primary-hover);
-}
-
-.rangeInput:hover::-moz-range-thumb {
-    background: var(--primary-hover);
-}
-
-.rangeInput:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/* Отображение текущего значения силы */
-.strengthValue {
-    display: inline-block;
-    margin-left: 0.75rem;
-    font-weight: 600;
-    color: var(--primary);
-    background-color: rgba(139, 92, 246, 0.15);
-    padding: 0.1rem 0.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.9em;
-}
-
-/* NEW styles specifically for top buttons */
-.topTabButton {
-    color: var(--light); /* Lighter text color for top buttons */
-    border-radius: var(--radius-sm); /* Rounded corners for buttons */
-    border-bottom: none; /* Remove bottom border */
-    margin-bottom: 0; /* Reset margin */
-    transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transition */
-    flex-grow: 1; /* ADDED: Make buttons grow equally */
-    text-align: center; /* ADDED: Center text in grown button */
-}
-
-.topTabButton:hover {
-    background-color: rgba(255, 255, 255, 0.05); /* Subtle background on hover */
-    color: white; /* White text on hover */
-    border-bottom-color: transparent; /* Ensure no border appears on hover */
-}
-
-/* Adjusted active state for top buttons */
-.topTabButton.activeTab {
-    color: white; /* White text for active */
-    font-weight: 600;
-    background: var(--gradient-primary); /* Use primary gradient for active background */
-    border-bottom-color: transparent; /* No bottom border for active top tabs */
-    box-shadow: var(--shadow-sm); /* Add shadow to active button */
-}
-
-/* --- HIDE TOP TABS ON MOBILE --- */
-@media (max-width: 768px) {
-    .topTabContainer {
-        display: none;
-    }
-} 
-
-/* --- NEW Styles for Upscale File Input --- */
-.upscaleContainer {
-    /* Optional: Add specific padding/margins if needed */
-    margin-top: 1rem;
-}
-
-.upscaleFileInputContainer {
-    position: relative;
-    width: 100%;
-    min-height: 150px; /* Slightly smaller height maybe? */
-    border: 2px dashed var(--light-gray);
-    border-radius: var(--radius-md);
-    background-color: rgba(18, 18, 18, 0.2);
-    color: var(--gray);
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    margin-top: 0.5rem; /* Add margin after label */
-}
-
-/* Upscale Icon (using a different SVG - e.g., image plus) */
-.upscaleFileInputContainer::before {
-    content: '';
-    display: block;
-    width: 50px;
-    height: 50px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='rgba(139, 92, 246, 0.8)' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48'%3E%3C/path%3E%3C/svg%3E"); /* Simple link/attach icon */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    margin-bottom: 0.5rem;
-}
-
-/* Upscale Text */
-.upscaleFileInputContainer::after {
-    content: 'Click to select an image or drag it here';
-    display: block;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-top: 0.5rem;
-}
-
-.upscaleFileInputContainer:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background-color: rgba(139, 92, 246, 0.05);
-}
-
-/* Hidden file input */
-.upscaleFileInput {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    font-size: 0;
-}
-
-/* Style for the image preview inside the upscale tab */
-.imagePreviewContainer {
-    margin-top: 1rem;
-    /* text-align: center; */ /* Replaced by flex centering */
-    color: var(--gray);
-    font-size: 0.9rem;
-    /* Add flex centering */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.imagePreview {
-    max-width: 150px; /* Limit preview size */
-    max-height: 150px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--light-gray);
-    margin-top: 0.5rem;
-    object-fit: cover;
-}
-
-/* --- Styles for Generation Type Badges --- */
-.generationTypeBadge {
-    position: absolute;
-    top: 8px; /* Немного опустим */
-    left: 8px; /* Добавляем позиционирование слева */
-    color: white;
-    padding: 3px 8px; /* Сделаем чуть побольше */
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem; /* Немного увеличим шрифт */
-    font-weight: 600; /* Сделаем жирнее */
-    line-height: 1.2;
-    z-index: 2; /* Убедимся, что поверх изображения */
-    pointer-events: none; /* Не мешает кликам по изображению */
-}
-
-/* Цвет для Upscale */
-.badgeUpscale {
-    background-color: rgba(139, 92, 246, 0.85); /* Primary */
-}
-
-/* Цвет для Model Photo */
-.badgeModelPhoto {
-    background-color: rgba(16, 185, 129, 0.85); /* Success */
-}
-
-/* Цвет для Text to Image */
-.badgeTextToImage {
-    background-color: rgba(59, 130, 246, 0.85); /* Info Blue */
-}
-
-/* НОВЫЙ: Цвет для Try On */
-.badgeTryOn {
-    background-color: rgba(245, 158, 11, 0.85); /* Warning Yellow/Orange */
-}
-/* --- END Badge Styles --- */
-
-/* Стили для ссылки "Пополнить баланс?" в сообщениях об ошибках */
-.inlineLink {
-  color: var(--primary-light); /* Или другой подходящий цвет */
-  text-decoration: underline;
-  font-weight: 600;
-  /* margin-left: 0.5rem; */ /* Убираем левый отступ, т.к. центрируем */
-  transition: color 0.2s ease;
-}
-
-.inlineLink:hover {
-  color: var(--primary); /* Цвет при наведении */
-}
-
-/* Новый стиль для контейнера сообщения об ошибке 402 */
-.paymentRequiredMessage {
-  text-align: center; /* Центрируем текст и ссылку внутри */
-}
-
-/* Дополнительный отступ между строками, если нужен */
-.paymentRequiredMessage div:last-child {
-  margin-top: 0.5rem; 
-}
-
-/* --- END NEW Styles --- */
-
-/* Стиль для заголовков секций панели */
-.sectionTitle {
-    font-size: 1.3rem; /* Возвращаем адекватный размер */
-    color: var(--text-primary); /* Используем переменную цвета */
-    margin: 0; /* Убираем margin, особенно нижний */
-    font-weight: 600; /* Добавим насыщенность */
-    padding-bottom: 0.5rem; /* Оставляем паддинг для отступа до линии */
-    border-bottom: 1px solid rgba(75, 85, 99, 0.2); /* Добавим линию как у хедера */
-}
-
-/* Убираем отступ сверху у параграфа, идущего сразу после ЛЮБОГО sectionTitle */
-.sectionTitle + p {
-    margin-top: 0;
-}
-
-/* Стили для кнопки "три точки" (меню) */
-.menuButton {
-    /* Этот класс применяется к <button> внутри <div className={styles.imageCardActions}> */
-    /* Если кнопка "три точки" должна быть одна и не по центру (например, справа), */
-    /* то ее родительский div (который имеет класс .imageCardActions) */
-    /* должен иметь justify-content: flex-end; (это можно сделать через доп. класс в JSX) */
-    /* или сама кнопка .menuButton должна иметь margin-left: auto; */
-    /* Пока что с justify-content: space-around в .imageCardActions, одна кнопка будет по центру. */
-
-    /* Пример специфичного фона, если она должна отличаться от других .actionButton */
-    /* background: rgba(50, 50, 50, 0.7); */ 
-}
-
-/*
-.menuButton:hover {
-    background: rgba(70, 70, 70, 0.9);
-}
-*/
-
-/* 
-  Контейнер для кнопок действий на карточке изображения.
-  Этот класс теперь используется и для родительского div ОДИНОЧНОЙ кнопки "три точки", 
-  и для родительского div группы из 4-х кнопок.
-*/
-.imageCardActions {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    /* justify-content: space-around; */ /* Теперь управляется конкретным контейнером */
-    align-items: center;
-    padding: 8px 4px; 
-    /* background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)); */ /* Убираем фон */
-    background: transparent; /* Делаем фон прозрачным */
-    z-index: 15; 
-}
-
-/* Для контейнера с 4 кнопками - распределяем их */
-.imageCardActions:not(.singleMenuButtonContainer) {
-    justify-content: space-around;
-}
-
-/* Новый класс для контейнера одиночной кнопки "три точки" */
-.singleMenuButtonContainer {
-    justify-content: flex-end; /* Прижимаем кнопку "три точки" вправо */
-}
-
-/* Общий стиль для кнопок действий */
-.actionButton {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.7), rgba(236, 72, 153, 0.7));
-    color: white;
-    border: none;
-    border-radius: 50%; /* Круглые кнопки */
-    width: 36px;   /* Фиксированный размер */
-    height: 36px;  /* Фиксированный размер */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.8rem; /* Размер текста/иконки */
-    font-weight: bold;
-    text-transform: uppercase;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); /* Более плавная анимация */
-    position: relative; /* Для псевдоэлементов, если понадобятся */
-    overflow: hidden; /* Чтобы градиент не вылезал за круг */
-}
-
-.actionButton:hover {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(236, 72, 153, 0.9));
-    transform: scale(1.1) translateY(-1px); /* Небольшой подъем и увеличение */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
-}
-
-.actionButton:active {
-    transform: scale(1.05) translateY(0px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
-}
-
-/* Стили для кнопки скачивания */
-.downloadButton { /* Это старый стиль для кнопки скачать на карточке, не путать */
-/* ... existing code ... */
-}
-
-.imageCard:hover .downloadButton {
-/* ... existing code ... */
-}
-
-.imageCard p {
-    word-break: break-word; /* перенос длинных слов в prompt */
-    border-top: 1px solid rgba(75, 85, 99, 0.2);
-}
-
-/* --- Стили для кнопки "Загрузить еще" --- */
 .loadMoreContainer {
-    display: flex;
-    justify-content: center;
-    padding-top: 1rem; /* Отступ сверху от сетки изображений */
-    padding-bottom: 1rem; /* Отступ снизу */
+    text-align: center;
+    padding-top: 1rem;
 }
 
 .loadMoreButton {
-    /* Копируем стили из .submitButton для консистентности */
     background: var(--gradient-primary);
     color: white;
     border: none;
     cursor: pointer;
     font-weight: 600;
     transition: var(--transition);
-    /* Задаем свои размеры, а не 100% ширины */
     padding: 0.75rem 2rem;
     border-radius: var(--radius-md);
-    font-family: var(--font-sans);
     box-shadow: var(--shadow-sm);
 }
 
@@ -1561,140 +685,263 @@ html {
     opacity: 0.7;
     box-shadow: none;
 }
-/* --- Конец стилей для "Загрузить еще" --- */
 
-/* NEW Styles for Try-On Tab */
-.tryOnContainer {
-    /* Optional: Add specific padding/margins if needed */
+/* --- Стили для кнопок действий над картинкой --- */
+
+.imageCardActions {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 4px;
+    background: rgba(18, 18, 18, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius-md);
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.imageCard:hover .imageCardActions {
+    opacity: 1;
+}
+
+.singleMenuButtonContainer {
+    justify-content: flex-end;
+    background: transparent;
+    backdrop-filter: none;
+    opacity: 1;
+}
+
+.actionButton {
+    background: transparent;
+    color: var(--gray);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* --- Стили для бейджей --- */
+
+.generationTypeBadge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    color: white;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.badgeUpscale { background-color: rgba(139, 92, 246, 0.85); }
+.badgeModelPhoto { background-color: rgba(16, 185, 129, 0.85); }
+.badgeTextToImage { background-color: rgba(59, 130, 246, 0.85); }
+.badgeTryOn { background-color: rgba(245, 158, 11, 0.85); }
+
+/* --- Стили для форм TryOn и Upscale --- */
+
+.tryOnContainer, .upscaleContainer {
     margin-top: 1rem;
 }
 
 .fileInputSection {
-    /* ... existing code ... */
+    margin-bottom: 1rem;
 }
 
-/* ... остальной CSS ... */
-
-/* НОВЫЕ СТИЛИ для области загрузки с предпросмотром в центре */
 .imageUploadArea {
-    position: relative; /* Для позиционирования дочерних элементов, таких как кнопка Clear */
-    border: 2px dashed var(--input-border-color, #4A5568);
-    border-radius: var(--radius-md, 8px);
-    padding: 1rem;
-    background-color: #121212; /* ИЗМЕНЕНО: Почти черный фон */
-    min-height: 180px; 
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+    border: 2px dashed var(--light-gray);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.2);
+    color: var(--gray);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-    overflow: hidden; /* Чтобы предпросмотр не вылезал за рамки скругления */
+    padding: 1rem;
+    margin-top: 0.5rem;
 }
 
 .imageUploadArea:hover,
-.imageUploadArea.dragOver { /* Класс для подсветки при перетаскивании файла */
-    border-color: var(--primary-color, #8B5CF6); /* Accent color on hover/drag */
-    background-color: #1E1E1E; /* ИЗМЕНЕНО: Очень темный серый для hover/dragOver */
+.imageUploadArea.dragOver {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: rgba(139, 92, 246, 0.05);
 }
 
 .fileInputNative {
-    /* Полностью скрываем нативный инпут, но он остается функциональным */
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 5; /* Поверх текста-приглашения, но под предпросмотром */
+    display: none;
 }
 
 .uploadAreaPrompt {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    color: var(--text-muted-color, #A0AEC0);
-    pointer-events: none; /* Чтобы клики проходили на скрытый инпут */
+    gap: 0.5rem;
 }
 
 .imageUploadArea.hasPreview .uploadAreaPrompt {
-    display: none; /* Скрываем текст-приглашение, если есть предпросмотр */
+    display: none;
 }
 
 .uploadAreaPrompt svg {
-    width: 48px; /* Оставляем иконку подсказки достаточно крупной */
-    height: 48px;
-    margin-bottom: 0.75rem;
-    color: var(--primary-color-muted, #6B46C1); /* Slightly muted accent color */
+    width: 32px;
+    height: 32px;
+    stroke: currentColor;
 }
 
 .uploadAreaPrompt span {
-    display: block;
+    font-weight: 500;
 }
 
 .uploadAreaPrompt span:first-of-type {
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: var(--text-color, #E2E8F0);
-    margin-bottom: 0.25rem;
+    font-size: 1rem;
 }
 
 .uploadAreaPrompt span:last-of-type {
     font-size: 0.8rem;
+    opacity: 0.7;
 }
 
 .imagePreviewInArea {
-    max-width: 100%; /* Превью может быть шириной во всю область, если область узкая */
-    max-height: 120px; /* Ограничиваем максимальную высоту, чтобы сделать превью маленьким */
-    min-height: 80px;  /* Добавляем минимальную высоту для очень маленьких изображений */
-    object-fit: contain; 
-    border-radius: var(--radius-sm, 6px); 
-    z-index: 1; 
+    max-width: 100%;
+    max-height: 130px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
 }
 
 .imageUploadArea.hasPreview {
-    padding: 0.5rem; 
-    border-style: solid; 
-    /* Можно добавить flex-grow: 0; flex-shrink: 0; если нужно фиксировать размер области с превью */
+    border-style: solid;
+    border-color: var(--primary);
+    cursor: default;
 }
 
-/* Кнопка Clear для превью в области загрузки */
 .clearInAreaButton {
     position: absolute;
     top: 8px;
     right: 8px;
-    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10;
+    width: 28px;
+    height: 28px;
+    background: rgba(18, 18, 18, 0.7);
     color: white;
     border: none;
-    border-radius: 50%; /* Круглая */
-    width: 28px; /* Меньше, чем обычная */
-    height: 28px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10; /* Поверх превью */
-    transition: background-color 0.2s ease;
-    padding: 0; /* Убираем лишние паддинги */
+    transition: all 0.2s ease;
 }
 
 .clearInAreaButton:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background: var(--error);
+    transform: scale(1.1);
 }
 
 .clearInAreaButton svg {
-    width: 14px; /* Маленькая иконка крестика */
-    height: 14px;
+    width: 16px;
+    height: 16px;
 }
 
-/* Стили для контейнера превью из галереи, который был ранее (если он еще где-то используется) */
-.galleryPreviewContainer {
-/* ... existing code ... */
+.inlineLink {
+    color: var(--primary-light);
+    text-decoration: underline;
+    font-weight: 600;
+    transition: color 0.2s ease;
 }
 
-.clearSelectionButton { /* Это был общий стиль для кнопки Clear, .clearInAreaButton его расширяет */
-/* ... existing code ... */
+.inlineLink:hover {
+    color: var(--primary);
+}
+
+.paymentRequiredMessage {
+    text-align: center;
+}
+
+.paymentRequiredMessage div:last-child {
+    margin-top: 0.5rem;
+}
+
+
+/* --- Адаптивность --- */
+
+@media (max-width: 992px) {
+    .dashboardContainer {
+        height: auto;
+        overflow: visible;
+    }
+    
+    .panelsWrapper {
+        flex-direction: column;
+        overflow: visible;
+        height: auto;
+    }
+
+    .leftPanel, .rightPanel {
+        flex-basis: auto;
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .leftPanel {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .topTabContainer {
+        display: none;
+    }
+}
+
+/* --- Стили для верхних кнопок (возвращаем стиль с заливкой) --- */
+.topTabButton {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--light);
+    border: none;
+    border-radius: var(--radius-sm); /* Закругленные углы */
+    font-weight: 500;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.topTabButton:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.topTabButton.activeTab {
+    color: white;
+    font-weight: 600;
+    background: var(--gradient-primary); /* Стиль с заливкой для активной вкладки */
+    box-shadow: var(--shadow-sm);
+    border-bottom-color: transparent; /* Убедимся, что нет подчеркивания */
 } 
