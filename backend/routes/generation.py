@@ -10,6 +10,7 @@ import uuid
 import fal_client # <-- Добавить импорт в начало файла
 from io import BytesIO # Для загрузки файла апскейла в R2
 from urllib.parse import urlparse
+import json # <-- Импорт для работы с JSON
 
 from ..app import db
 from ..models import GeneratedImage, AIModel, ModelStatus, GenerationType
@@ -141,8 +142,8 @@ def start_lora_generation():
         except (ValueError, TypeError):
             return jsonify({"error": "Invalid finetuneStrength (scale) value."}), 400
             
-    if not isinstance(num_images, int) or not (1 <= num_images <= 4):
-        return jsonify({"error": "num_images must be an integer between 1 and 4"}), 400
+    if not isinstance(num_images, int) or not (1 <= num_images <= 8):
+        return jsonify({"error": "Number of images must be an integer between 1 and 8"}), 400
 
     # МАППИНГ aspectRatio в image_size
     image_size_for_fal = ASPECT_RATIO_TO_IMAGE_SIZE_MAP.get(aspect_ratio_from_frontend, 'landscape_4_3') # Дефолт, если нет в карте
@@ -352,8 +353,8 @@ def start_base_generation(): # Renamed for clarity, path remains /start for now
     if not prompt:
         return jsonify({"error": "Prompt is required"}), 400
             
-    if not isinstance(num_images, int) or not (1 <= num_images <= 4):
-        return jsonify({"error": "num_images must be an integer between 1 and 4"}), 400
+    if not isinstance(num_images, int) or not (1 <= num_images <= 8):
+        return jsonify({"error": "Number of images must be an integer between 1 and 8"}), 400
 
     logging.info(f"[Gen Base] Preparing base text-to-image generation. Num Images: {num_images}")
 
@@ -735,6 +736,26 @@ def handle_fal_generation_webhook():
         logging.exception("[Webhook Gen/Upscale/TryOn Fal] Unexpected error processing webhook.")
         return jsonify({"error": "Internal server error"}), 500
 # --- КОНЕЦ ВЕБХУКА ДЛЯ ГЕНЕРАЦИИ Fal.ai --- 
+
+# --- NEW: Endpoint to get generation costs ---
+@bp.route('/costs', methods=['GET'])
+def get_costs():
+    try:
+        # Получаем путь к текущей директории (routes) и поднимаемся на уровень выше к backend
+        backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        costs_file_path = os.path.join(backend_dir, 'costs_config.json')
+        
+        with open(costs_file_path, 'r') as f:
+            costs_data = json.load(f)
+        
+        return jsonify(costs_data)
+    except FileNotFoundError:
+        logging.error("[Costs] costs_config.json not found!")
+        return jsonify({"error": "Costs configuration not found"}), 500
+    except Exception as e:
+        logging.exception("[Costs] Error reading costs configuration")
+        return jsonify({"error": "An internal error occurred"}), 500
+# --- END NEW Endpoint ---
 
 # --- NEW ROUTE FOR UPSCALE --- 
 @bp.route('/upscale', methods=['POST'])

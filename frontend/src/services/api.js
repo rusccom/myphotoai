@@ -177,11 +177,12 @@ export const startTryOnGeneration = (formData) => {
 //     });
 // }; 
 
-// --- R2 Pre-signed URL Fetchers (УДАЛИТЬ) ---
-// export const getR2GeneratedImageUrl = (imageId) => {
-//     return fetchApi(`/r2/generated-image-url/${imageId}`, { method: 'GET' });
-// };
-//
-// export const getR2ModelPreviewUrl = (modelDbId) => {
-//     return fetchApi(`/r2/model-preview-url/${modelDbId}`, { method: 'GET' });
-// }; 
+// NEW: Function to fetch generation costs
+export const getCosts = async () => {
+    return await fetchApi('/generation/costs');
+};
+
+// --- R2 URL Generation Functions (Server-Side) ---
+// These functions are now handled by the backend by including the signed_url directly
+// in the to_dict() methods of the models. They are kept here for reference but are not used.
+// ... 

@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from datetime import datetime, timedelta
 import enum
 import uuid
-from sqlalchemy import Enum, func, String
+from sqlalchemy import Enum, func, String, text
 from flask import current_app # Добавляем current_app для доступа к конфигурации
 from .utils.r2_utils import generate_presigned_get_url # Импортируем функцию генерации URL
 from enum import Enum as PyEnum
@@ -85,6 +85,18 @@ class User(UserMixin, db.Model):
         return False
 
     def to_dict(self):
+        from sqlalchemy import text
+        balance = 0
+        try:
+            # Используем прямой SQL-запрос к представлению user_balance
+            sql = text("SELECT balance_points FROM user_balance WHERE user_id = :user_id")
+            result = db.session.execute(sql, {'user_id': self.id}).fetchone()
+            if result and result[0] is not None:
+                balance = int(result[0])
+        except Exception as e:
+            current_app.logger.error(f"Could not fetch balance for user {self.id} in to_dict: {e}")
+            # В случае ошибки баланс останется 0
+
         # Убираем информацию о модели отсюда
         return {
             'id': self.id,
@@ -92,6 +104,7 @@ class User(UserMixin, db.Model):
             'subscription_type': self.subscription_type.value if self.subscription_type else None,
             'subscription_end_date': self.subscription_end_date.isoformat() if self.subscription_end_date else None,
             'has_active_subscription': self.has_active_subscription(),
+            'balance_points': balance, # <-- Добавляем баланс
             # bfl_model_id и status убраны
         }
 

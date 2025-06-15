@@ -3,6 +3,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 // Страницы
 import HomePage from './pages/HomePage';
@@ -67,6 +68,7 @@ function AppContent() {
 
   return (
     <Layout>
+      <ScrollToTop />
       <main className={styles.mainContent}>
         {isLoading ? (
           <LoadingScreen />

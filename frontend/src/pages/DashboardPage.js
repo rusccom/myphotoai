@@ -8,6 +8,7 @@ import {
     getGenerationHistory,
     startImageUpscale, // <-- NEW: Import upscale function
     startTryOnGeneration, // <-- NEW: Import TryOn function
+    getCosts, // <-- NEW: Import getCosts
     // --- НОВЫЕ ИМПОРТЫ ДЛЯ R2 URL ---
     // getR2GeneratedImageUrl,
     // getR2ModelPreviewUrl,
@@ -17,6 +18,7 @@ import styles from './DashboardPage.module.css'; // Импортируем CSS �
 import ImageModal from '../components/ImageModal'; // <-- Импортируем новый компонент
 import GenerationTimer from '../components/GenerationTimer'; // <-- Импортируем таймер
 import NumImagesSelect from '../components/NumImagesSelect'; // <-- Импортируем новый компонент
+import UniversalSubmitButton from '../components/UniversalSubmitButton'; // <-- NEW: Import universal button
 
 // Options for selects (can be moved to constants)
 const STYLE_OPTIONS = ['Photorealistic', 'Fashion Magazine', 'Vintage Film', 'Dreamy Look', 'Golden Hour', 'Minimalist Style', 'Noir Film', 'Cyberpunk City', 'Fantasy Art', 'Gothic Vibe', 'Pop Art'];
@@ -62,6 +64,10 @@ function DashboardPage() {
     const [historyPage, setHistoryPage] = useState(1);
     const [hasMoreHistory, setHasMoreHistory] = useState(false);
     const [isHistoryLoadingMore, setIsHistoryLoadingMore] = useState(false);
+    const [costs, setCosts] = useState(null); // <-- NEW: State for costs
+
+    // --- NEW: Combined state for all images for unified rendering ---
+    const [allImages, setAllImages] = useState([]);
 
     // --- Состояния для новой формы Text-to-Image ---
     const [textPrompt, setTextPrompt] = useState('');
@@ -113,6 +119,34 @@ function DashboardPage() {
         // Dependency: location.hash. When the hash changes, this effect re-runs.
     }, [location.hash]);
 
+    // --- NEW: Scroll to top when left panel tab changes ---
+    useEffect(() => {
+        // This targets the main scrollable area of the window
+        window.scrollTo(0, 0);
+    }, [leftPanelTab]); // Dependency: re-run when the active tab changes
+
+    // --- NEW: useEffect to fetch costs on mount ---
+    useEffect(() => {
+        const fetchCosts = async () => {
+            try {
+                const costsData = await getCosts();
+                setCosts(costsData);
+            } catch (error) {
+                console.error("Failed to fetch costs:", error);
+                // Optionally set an error state to show in the UI
+            }
+        };
+        fetchCosts();
+    }, []); // Empty dependency array means it runs once on mount
+
+    // --- NEW: useEffect to combine pending and completed images for rendering ---
+    useEffect(() => {
+        const combined = [...pendingGenerations, ...completedHistory];
+        // Sort by creation date, newest first
+        combined.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setAllImages(combined);
+    }, [pendingGenerations, completedHistory]);
+
     // Авто-выбор первой ГОТОВОЙ модели при загрузке
     useEffect(() => {
         if (!modelsLoading && models && models.length > 0) {
@@ -163,8 +197,10 @@ function DashboardPage() {
             console.log("Filtered pending:", pending);
             console.log("Filtered completed:", completed);
             
+            // --- REFACTORED: Set both states here ---
             setPendingGenerations(pending);
             setCompletedHistory(completed);
+            
             setHasMoreHistory(historyData.has_next || false);
             setHistoryPage(historyData.current_page || 1);
 
@@ -218,50 +254,43 @@ function DashboardPage() {
             for (const img of pendingGenerations) {
                 try {
                     const result = await getGenerationResult(img.id);
-                    // Приводим статус от бэкенда к нижнему регистру для сравнения
-                    const backendStatus = result.status ? result.status.toLowerCase() : null;
+                    const backendStatus = result.status ? result.status.toLowerCase() : 'failed';
 
                     if (backendStatus === 'ready' || backendStatus === 'failed') {
+                        // This item is now complete
                         newlyCompleted.push(result);
                         updated = true;
-                    } else if (backendStatus === 'pending' || backendStatus === 'running') {
-                         // If status updated (e.g., from Pending to Running), update state
-                         // Сравниваем приведенный к нижнему регистру статус с текущим (который тоже должен быть в нижнем)
-                         if (backendStatus !== img.status.toLowerCase()) { 
-                             newPending.push({...img, status: backendStatus}); // Обновляем статус в объекте
-                             updated = true;
-                         } else {
-                             newPending.push(img); // Status unchanged, keep old object
-                         }
-                    } else {
-                        // 6в. Если БЭКЕНД вернул НЕОЖИДАННЫЙ статус (или null)
-                        console.error(`!!! FRONTEND: Unexpected status received from backend for image ${img.id}: Actual status='${result.status}' (normalized: '${backendStatus}'). Setting to 'failed'. Full result:`, result);
-                        console.warn(`Unexpected status for image ${img.id}: ${result.status}`);
-                        newlyCompleted.push({ ...img, status: 'failed' });
+                    } else if (backendStatus !== img.status.toLowerCase()) {
+                        // The status has changed (e.g., pending -> running), update it
+                        newPending.push({ ...img, status: backendStatus });
                         updated = true;
+                    } else {
+                        // No change, keep it in pending
+                        newPending.push(img);
                     }
                 } catch (err) { // Error polling a specific image
                     console.error(`Failed to poll status for image ${img.id}:`, err);
-                    newPending.push(img); // Keep in pending, try next time
+                    // Mark as failed on error to stop polling it
+                    newlyCompleted.push({ ...img, status: 'failed', error: 'Polling failed' });
+                    updated = true;
                 }
             }
 
             if (updated) {
-                // Вместо простого добавления, мы "умно" обновим оба списка.
-                // 1. Обновляем основной список завершенных.
-                setCompletedHistory(prevCompleted => {
-                    const newCompletedIds = new Set(newlyCompleted.map(img => img.id));
-                    // Фильтруем старые версии завершенных картинок
-                    const filteredPrev = prevCompleted.filter(img => !newCompletedIds.has(img.id));
-                    // Возвращаем новый массив: свежезавершенные + отфильтрованные старые
-                    return [...newlyCompleted, ...filteredPrev];
-                });
-
-                // 2. Удаляем завершенные из списка ожидания.
-                setPendingGenerations(prevPending => {
-                    const newCompletedIds = new Set(newlyCompleted.map(img => img.id));
-                    return prevPending.filter(img => !newCompletedIds.has(img.id));
-                });
+                // Add newly completed items to the history
+                if (newlyCompleted.length > 0) {
+                    setCompletedHistory(prevCompleted => {
+                        const existingIds = new Set(prevCompleted.map(item => item.id));
+                        const uniqueNew = newlyCompleted.filter(item => !existingIds.has(item.id));
+                        return [...uniqueNew, ...prevCompleted];
+                    });
+                }
+                // Update the pending list (remove completed, update statuses)
+                const completedIds = new Set(newlyCompleted.map(item => item.id));
+                setPendingGenerations(prevPending => prevPending
+                    .filter(p => !completedIds.has(p.id)) // Remove those that just completed
+                    .map(p => newPending.find(np => np.id === p.id) || p) // Update status if changed
+                );
             }
 
         }, 5000); // Poll every 5 seconds
@@ -371,6 +400,58 @@ function DashboardPage() {
         } catch (error) {
             console.error('Error downloading image:', error);
             // Optionally, set an error state here to inform the user
+        }
+    };
+
+    // --- NEW: Share Image Function ---
+    const handleShareImage = async (imageUrl, imageName, event) => {
+        if (event) event.stopPropagation();
+
+        const title = "Check out this image I created!";
+        const text = `I made this image with MyPhotoAI. You can create your own too!`;
+        const url = window.location.origin; // Ссылка на ваш сайт
+
+        try {
+            // Загружаем изображение как Blob
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], imageName, { type: blob.type });
+
+            // Проверяем, поддерживается ли Web Share API и можем ли мы поделиться файлом
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: title,
+                    text: text,
+                    url: url, // Можно добавить URL, если платформа его поддерживает
+                });
+                console.log('Image shared successfully');
+            } else if (navigator.share) {
+                // Фоллбэк: если нельзя поделиться файлом, делимся ссылкой на сайт
+                await navigator.share({
+                    title: title,
+                    text: text,
+                    url: url,
+                });
+                console.log('Shared site link successfully');
+            } else {
+                // Фоллбэк для десктопных браузеров без поддержки Share API
+                await navigator.clipboard.writeText(imageUrl);
+                alert('Image link copied to clipboard!');
+            }
+        } catch (error) {
+            // Игнорируем ошибку "AbortError", которая возникает, когда пользователь закрывает окно "Поделиться"
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing image:', error);
+                // Как крайний фоллбэк, копируем ссылку в буфер
+                try {
+                    await navigator.clipboard.writeText(imageUrl);
+                    alert('Could not share, but the image link was copied to your clipboard!');
+                } catch (copyError) {
+                    console.error('Failed to copy link to clipboard:', copyError);
+                    alert('Sharing failed and could not copy link to clipboard.');
+                }
+            }
         }
     };
 
@@ -486,65 +567,54 @@ function DashboardPage() {
             case 'Photo':
                 return (
                     <section className={styles.resultsSection}>
-                        {(pendingGenerations.length === 0 && completedHistory.length === 0 && !isHistoryLoading) ? (
+                        {(allImages.length === 0 && !isHistoryLoading) ? (
                             <p className={styles.emptyText}>Your photo generations and upscales will appear here.</p>
                         ) : (
                             <div className={styles.imageList}>
-                                {/* Сначала рендерим текущие генерации */} 
-                                {pendingGenerations.map(img => {
-                                    // Determine placeholder based on type
-                                    let placeholderText = 'Processing...';
-                                    if (img.generation_type === 'upscale') {
-                                        placeholderText = 'Upscaling...';
-                                    }
-                                    if (img.generation_type === 'try_on') {
-                                        placeholderText = 'Trying on...';
-                                    }
-                                    console.log(`[Pending Render] Image ID: ${img.id}, Type: ${img.generation_type}, Aspect Ratio for CSS: ${img.aspect_ratio}, Formatted: ${formatCssAspectRatio(img.aspect_ratio)}`); // DEBUG LOG
-                                    return (
-                                        <div key={`pending-${img.id}`} className={`${styles.imageCard} ${styles.pendingCard}`}> 
-                                            <div 
-                                                className={styles.imagePlaceholder}
-                                                style={{ aspectRatio: formatCssAspectRatio(img.aspect_ratio) }} // Применяем aspect-ratio
-                                            >
-                                                 <GenerationTimer startTime={img.created_at} prefixText={placeholderText} />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-
-                                {/* Затем рендерим историю */} 
-                                {isHistoryLoading && pendingGenerations.length === 0 && completedHistory.length === 0 ? (
-                                     <div className={styles.loadingSpinner}></div>
+                                {isHistoryLoading && allImages.length === 0 ? (
+                                    <div className={styles.loadingSpinner}></div>
                                 ) : (
-                                    completedHistory.map(img => {
-                                        // --- URL ТЕПЕРЬ ПРИХОДИТ НАПРЯМУЮ В img.signed_url ---
-                                        const displayImageUrl = img.signed_url; 
-                                        // --- КОНЕЦ ---
-                                        
-                                        let altText = img.prompt || 'Generated Image';
+                                    allImages.map(img => {
+                                        const isPending = img.status.toLowerCase() === 'pending' || img.status.toLowerCase() === 'running';
+                                        const isReady = img.status.toLowerCase() === 'ready';
+                                        const isFailed = img.status.toLowerCase() === 'failed';
+
+                                        const displayImageUrl = isReady ? img.signed_url : null;
+
+                                        let altText = img.prompt || 'Generated content';
                                         if (img.generation_type === 'upscale') {
-                                            altText = 'Upscaled Image';
+                                            altText = 'Upscaled result';
                                             if (img.prompt) altText += ` (${img.prompt})`;
                                         }
-                                            
-                                        return (
-                                            <div key={`completed-${img.id}`} className={styles.imageCard}>
-                                                {img.status === 'Ready' && displayImageUrl ? (
-                                                    <>
-                                                        <img 
-                                                            src={displayImageUrl} 
-                                                            alt={altText}
-                                                            className={styles.generatedImage} 
-                                                            loading="lazy" 
-                                                            onClick={() => openImageModal(displayImageUrl)}
-                                                            style={{ cursor: 'pointer' }}
-                                                        />
 
-                                                        {/* Условное отображение: Либо 4 кнопки, либо одна. */}
+                                        return (
+                                            <div key={img.id} className={`${styles.imageCard} ${isPending ? styles.pendingCard : ''}`}>
+                                                {isPending && (
+                                                    <div
+                                                        className={styles.imagePlaceholder}
+                                                        style={{ aspectRatio: formatCssAspectRatio(img.aspect_ratio) }}
+                                                    >
+                                                        <GenerationTimer startTime={img.created_at} prefixText={`${img.status}...`} />
+                                                    </div>
+                                                )}
+
+                                                {isReady && displayImageUrl && (
+                                                    <>
+                                                        <img
+                                                            src={displayImageUrl}
+                                                            alt={altText}
+                                                            className={`${styles.generatedImage} ${styles.fadeIn}`}
+                                                            loading="lazy"
+                                                            onClick={() => openImageModal(displayImageUrl)}
+                                                            style={{ 
+                                                                cursor: 'pointer',
+                                                                aspectRatio: formatCssAspectRatio(img.aspect_ratio) 
+                                                            }}
+                                                        />
+                                                        {/* Actions Menu logic remains the same */}
                                                         {actionsMenuOpenForId === img.id ? (
-                                                            /* Блок с 4 кнопками, если меню открыто */
                                                             <div className={styles.imageCardActions}>
+                                                                {/* ... buttons ... */}
                                                                 <button 
                                                                     className={styles.actionButton} 
                                                                     onClick={(e) => { e.stopPropagation(); handleImageAction('Try On', img, e); setActionsMenuOpenForId(null); }}
@@ -567,6 +637,13 @@ function DashboardPage() {
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="15 3 21 3 21 9"></polygon><polygon points="9 21 3 21 3 15"></polygon><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
                                                                 </button>
                                                                 <button 
+                                                                    className={styles.actionButton}
+                                                                    onClick={(e) => { e.stopPropagation(); handleShareImage(displayImageUrl, `image-${img.id}.png`, e); setActionsMenuOpenForId(null); }}
+                                                                    title="Share Image"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                                                                </button>
+                                                                <button 
                                                                     className={`${styles.actionButton}`} 
                                                                     onClick={(e) => { e.stopPropagation(); handleDownloadImage(displayImageUrl, `image-${img.id}.png`, e); setActionsMenuOpenForId(null); }}
                                                                     title="Download image"
@@ -575,7 +652,6 @@ function DashboardPage() {
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            /* Кнопка с тремя точками, если меню закрыто */
                                                             <div className={styles.menuButtonContainer}>
                                                                 <button 
                                                                     className={styles.menuButton}
@@ -589,50 +665,40 @@ function DashboardPage() {
                                                                 </button>
                                                             </div>
                                                         )}
+                                                        {img.status === 'Ready' && img.generation_type && (
+                                                            <span 
+                                                                className={`
+                                                                    ${styles.generationTypeBadge}
+                                                                    ${img.generation_type === 'upscale' ? styles.badgeUpscale : ''}
+                                                                    ${img.generation_type === 'model_photo' ? styles.badgeModelPhoto : ''}
+                                                                    ${img.generation_type === 'text_to_image' ? styles.badgeTextToImage : ''}
+                                                                    ${img.generation_type === 'try_on' ? styles.badgeTryOn : ''}
+                                                                `}
+                                                            >
+                                                                {/* Dynamically set badge text */}
+                                                                {img.generation_type === 'upscale' ? 'Upscaled' : 
+                                                                 img.generation_type === 'model_photo' ? 'Model Gen' : 
+                                                                 img.generation_type === 'text_to_image' ? 'Text Gen' :
+                                                                 img.generation_type === 'try_on' ? 'Try-On' : 'Generated'}
+                                                            </span>
+                                                        )}
                                                     </>
-                                                ) : img.status === 'Ready' && !displayImageUrl && img.r2_object_key ? ( // УПРОЩЕННАЯ ПРОВЕРКА: если Ready, есть ключ, но нет URL - значит ошибка генерации URL на беке
-                                                    <div 
-                                                        className={styles.imagePlaceholder}
-                                                        style={{ aspectRatio: formatCssAspectRatio(img.aspect_ratio) || '1 / 1' }}
-                                                    >
-                                                        Error loading image URL.
-                                                    </div>
-                                                ) : (
-                                                    <div 
-                                                        className={styles.imagePlaceholder}
-                                                        style={{ aspectRatio: formatCssAspectRatio(img.aspect_ratio) || '1 / 1' }}
-                                                    >
-                                                        {img.status === 'Failed' ? 
-                                                          (img.generation_type === 'upscale' ? 'Upscale Failed' : 'Generation Failed') 
-                                                          : (img.status === 'Ready' && !img.r2_object_key ? 'Error: Key Missing' : 'Image Unavailable')}
-                                                    </div>
                                                 )}
-                                                {/* Optional: Add a badge or indicator for upscaled images */}
-                                                {img.status === 'Ready' && img.generation_type && (
-                                                    <span 
-                                                        className={`
-                                                            ${styles.generationTypeBadge}
-                                                            ${img.generation_type === 'upscale' ? styles.badgeUpscale : ''}
-                                                            ${img.generation_type === 'model_photo' ? styles.badgeModelPhoto : ''}
-                                                            ${img.generation_type === 'text_to_image' ? styles.badgeTextToImage : ''}
-                                                            ${img.generation_type === 'try_on' ? styles.badgeTryOn : ''}
-                                                        `}
+
+                                                {(isFailed || (isReady && !displayImageUrl)) && (
+                                                    <div 
+                                                        className={styles.imagePlaceholder}
+                                                        style={{ aspectRatio: formatCssAspectRatio(img.aspect_ratio) }}
                                                     >
-                                                        {/* Dynamically set badge text */}
-                                                        {img.generation_type === 'upscale' ? 'Upscaled' : 
-                                                         img.generation_type === 'model_photo' ? 'Model Gen' : 
-                                                         img.generation_type === 'text_to_image' ? 'Text Gen' :
-                                                         img.generation_type === 'try_on' ? 'Try-On' : 'Generated'}
-                                                    </span>
+                                                        {isFailed ? 'Generation Failed' : 'Image Unavailable'}
+                                                    </div>
                                                 )}
                                             </div>
                                         );
                                     })
                                 )}
-                                {/* Конец рендера истории */}
                             </div>
                         )}
-                        {/* Кнопка "Загрузить еще" */}
                         {hasMoreHistory && (
                             <div className={styles.loadMoreContainer}>
                                 <button 
@@ -1211,9 +1277,13 @@ function DashboardPage() {
                                             {error && <div className={styles.errorMessage}>{error}</div>}
 
                                             {/* Кнопка Submit */} 
-                                            <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
-                                                {isSubmitting ? 'Starting...' : 'Start Generation'} 
-                                            </button>
+                                            <UniversalSubmitButton
+                                                actionType="model_photo"
+                                                numImages={modelNumImages}
+                                                costs={costs}
+                                                isSubmitting={isSubmitting}
+                                                isDisabled={!selectedModelId || !prompt.trim()}
+                                            />
                                         </form>
                                     </>
                                 ) : (
@@ -1277,9 +1347,14 @@ function DashboardPage() {
                                  {textError && <div className={styles.errorMessage}>{textError}</div>}
 
                                  {/* Кнопка Submit */}
-                                 <button type="submit" disabled={isSubmittingText} className={styles.submitButton}>
-                                     {isSubmittingText ? 'Starting...' : 'Start Text-to-Image Generation'}
-                                 </button>
+                                 <UniversalSubmitButton
+                                     actionType="text_to_image"
+                                     numImages={textNumImages}
+                                     costs={costs}
+                                     isSubmitting={isSubmittingText}
+                                     isDisabled={!textPrompt.trim()}
+                                     baseText="Start Text-to-Image"
+                                 />
                              </form>
                          </div>
                     )}
@@ -1376,14 +1451,13 @@ function DashboardPage() {
                                  {upscaleError && <div className={styles.errorMessage}>{upscaleError}</div>}
 
                                  {/* Submit Button */} 
-                                 <button 
-                                     type="submit" 
-                                     disabled={isSubmittingUpscale || (!upscaleFile && !upscaleImageFromGallery) || !isUpscaleSizeValid} // MODIFIED
-                                     className={styles.submitButton}
-                                     title={!isUpscaleSizeValid && (upscaleFile || upscaleImageFromGallery) ? (upscaleError || 'Image too large or dimensions undetermined') : undefined} // MODIFIED
-                                 >
-                                     {isSubmittingUpscale ? 'Upscaling...' : 'Start Upscale'} 
-                                 </button>
+                                 <UniversalSubmitButton
+                                     actionType="upscale"
+                                     costs={costs}
+                                     isSubmitting={isSubmittingUpscale}
+                                     isDisabled={(!upscaleFile && !upscaleImageFromGallery) || !isUpscaleSizeValid}
+                                     customText="Start Upscale"
+                                 />
                              </form>
                          </div>
                      )}
@@ -1560,13 +1634,14 @@ function DashboardPage() {
 
                                 {clothingTryOnError && <div className={styles.errorMessage}>{typeof clothingTryOnError === 'string' ? clothingTryOnError : JSON.stringify(clothingTryOnError)}</div>}
 
-                                <button
-                                    type="submit"
-                                    disabled={isSubmittingClothingTryOn || (!tryOnModelFile && !tryOnModelFromGallery) || !tryOnGarmentFile}
-                                    className={styles.submitButton}
-                                >
-                                    {isSubmittingClothingTryOn ? 'Trying On...' : 'Start Try-On'} 
-                                 </button>
+                                <UniversalSubmitButton
+                                    actionType="virtual_try_on"
+                                    numImages={tryOnNumImages}
+                                    costs={costs}
+                                    isSubmitting={isSubmittingClothingTryOn}
+                                    isDisabled={(!tryOnModelFile && !tryOnModelFromGallery) || !tryOnGarmentFile}
+                                    customText="Start Try-On"
+                                />
                              </form>
                          </div>
                      )}

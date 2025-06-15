@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './NumImagesSelect.module.css'; // Можно добавить стили, если нужно
 
-const NUM_IMAGE_OPTIONS = [1, 2, 4, 8, 16, 32];
+const NUM_IMAGE_OPTIONS = [1, 2, 4, 8];
 
 function NumImagesSelect({ id, label, value, onChange, disabled }) {
     
