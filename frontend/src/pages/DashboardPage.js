@@ -403,47 +403,54 @@ function DashboardPage() {
         }
     };
 
-    // --- NEW: Share Image Function ---
+    // --- NEW: Share Image Function (Updated for iOS) ---
     const handleShareImage = async (imageUrl, imageName, event) => {
         if (event) event.stopPropagation();
 
         const title = "Check out this image I created!";
-        const text = `I made this image with MyPhotoAI. You can create your own too!`;
-        const url = window.location.origin; // Ссылка на ваш сайт
+        const text = `I made this image with MyPhotoAI. You can create your own too! Check it out:`;
+        const siteUrl = window.location.origin;
 
         try {
-            // Загружаем изображение как Blob
             const response = await fetch(imageUrl);
             const blob = await response.blob();
             const file = new File([blob], imageName, { type: blob.type });
 
-            // Проверяем, поддерживается ли Web Share API и можем ли мы поделиться файлом
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: title,
-                    text: text,
-                    url: url, // Можно добавить URL, если платформа его поддерживает
-                });
-                console.log('Image shared successfully');
+            // Data for sharing
+            const shareDataWithFile = {
+                files: [file],
+                title: title,
+                text: text,
+            };
+             const shareDataWithUrl = {
+                title: title,
+                text: text,
+                url: siteUrl,
+            };
+
+            let canShareFiles = false;
+            if (navigator.canShare) {
+                canShareFiles = navigator.canShare(shareDataWithFile);
+            }
+
+            if (canShareFiles) {
+                // Если браузер говорит, что может поделиться файлом, делимся только файлом.
+                // Не добавляем 'url', чтобы заставить iOS использовать файл.
+                await navigator.share(shareDataWithFile);
+                console.log('Image file shared successfully.');
             } else if (navigator.share) {
-                // Фоллбэк: если нельзя поделиться файлом, делимся ссылкой на сайт
-                await navigator.share({
-                    title: title,
-                    text: text,
-                    url: url,
-                });
-                console.log('Shared site link successfully');
+                // Если файл нельзя, но можно поделиться ссылкой
+                await navigator.share(shareDataWithUrl);
+                console.log('Shared site link successfully (fallback).');
             } else {
-                // Фоллбэк для десктопных браузеров без поддержки Share API
+                // Крайний случай для старых браузеров
                 await navigator.clipboard.writeText(imageUrl);
                 alert('Image link copied to clipboard!');
             }
         } catch (error) {
-            // Игнорируем ошибку "AbortError", которая возникает, когда пользователь закрывает окно "Поделиться"
             if (error.name !== 'AbortError') {
-                console.error('Error sharing image:', error);
-                // Как крайний фоллбэк, копируем ссылку в буфер
+                console.error('Error sharing:', error);
+                 // Если основная попытка поделиться не удалась, пробуем скопировать ссылку
                 try {
                     await navigator.clipboard.writeText(imageUrl);
                     alert('Could not share, but the image link was copied to your clipboard!');
