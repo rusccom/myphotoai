@@ -29,6 +29,7 @@ class GenerationType(PyEnum):
     TEXT_TO_IMAGE = 'text_to_image'
     UPSCALE = 'upscale'
     TRY_ON = 'try_on'
+    NANO_BANANA = 'nano_banana'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

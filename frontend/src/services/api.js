@@ -168,6 +168,16 @@ export const startTryOnGeneration = (formData) => {
     }, true); // <-- Set isFormData to true
 };
 
+// NEW: Function to start Nano Banana editing
+export const startNanoBananaGeneration = (formData) => {
+    // formData should contain 'image_urls' (multiple files), 'prompt', and other optional parameters
+    return fetchApi('/generation/nano-banana', {
+        method: 'POST',
+        body: formData, 
+        // Headers are not needed for FormData, browser sets it with boundary
+    }, true); // <-- Set isFormData to true
+};
+
 // Удаляем эту функцию, т.к. startImageGeneration теперь общая
 // export const startTextToImageGeneration = (params) => {
 //     // params = { prompt, aspectRatio, num_images, seed? }

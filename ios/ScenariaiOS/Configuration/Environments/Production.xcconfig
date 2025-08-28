@@ -1,0 +1,27 @@
+// Production Environment Configuration
+
+// App Configuration
+PRODUCT_NAME = Scenaria
+PRODUCT_BUNDLE_IDENTIFIER = com.scenaria.ios
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+
+// API Configuration
+API_BASE_URL = https://api.scenaria.app
+API_TIMEOUT = 15.0
+
+// Features Flags
+ENABLE_LOGGING = NO
+ENABLE_ANALYTICS = YES
+ENABLE_CRASH_REPORTING = YES
+
+// Build Configuration
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = RELEASE
+SWIFT_COMPILATION_MODE = wholemodule
+SWIFT_OPTIMIZATION_LEVEL = -O
+
+// Code Signing
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = iPhone Distribution
+
+// App Transport Security
+ENABLE_ATS = YES

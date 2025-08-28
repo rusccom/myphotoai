@@ -5,6 +5,7 @@ import styles from './Navbar.module.css'; // Импортируем CSS моду
 
 // NEW: Dashboard button definitions
 const dashboardButtons = [
+    { key: 'nanoBanana', label: '⭐ Nano Banana', path: '/dashboard#nanoBanana' },
     { key: 'modelPhoto', label: 'Model Photo', path: '/dashboard#modelPhoto' },
     { key: 'descriptionGeneration', label: 'Text to Image', path: '/dashboard#descriptionGeneration' },
     { key: 'clothingTryOn', label: 'Clothing Try-On', path: '/dashboard#clothingTryOn' },

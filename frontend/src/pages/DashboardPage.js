@@ -8,6 +8,7 @@ import {
     getGenerationHistory,
     startImageUpscale, // <-- NEW: Import upscale function
     startTryOnGeneration, // <-- NEW: Import TryOn function
+    startNanoBananaGeneration, // <-- NEW: Import Nano Banana function
     getCosts, // <-- NEW: Import getCosts
     // --- НОВЫЕ ИМПОРТЫ ДЛЯ R2 URL ---
     // getR2GeneratedImageUrl,
@@ -43,7 +44,7 @@ function DashboardPage() {
     const { user, models, modelsLoading, refreshModels, isLoading: authLoading, updateUser } = useAuth();
     const [selectedModelId, setSelectedModelId] = useState(null); // Наш ID модели (не BFL)
     const [activeTab, setActiveTab] = useState('Photo'); // Right panel tab
-    const [leftPanelTab, setLeftPanelTab] = useState('modelPhoto'); // New state for left panel tabs
+    const [leftPanelTab, setLeftPanelTab] = useState('nanoBanana'); // New state for left panel tabs
 
     // Generation form state
     const [prompt, setPrompt] = useState('');
@@ -100,6 +101,17 @@ function DashboardPage() {
     const [clothingTryOnError, setClothingTryOnError] = useState(null);
     const [tryOnModelFromGallery, setTryOnModelFromGallery] = useState(null); // <-- НОВОЕ СОСТОЯНИЕ
 
+    // --- State for Nano Banana ---
+    const [nanoBananaFiles, setNanoBananaFiles] = useState([]); // Array of files
+    const [nanoBananaPreviews, setNanoBananaPreviews] = useState([]); // Array of preview URLs
+    const [nanoBananaPrompt, setNanoBananaPrompt] = useState('');
+    const [nanoBananaNumImages, setNanoBananaNumImages] = useState(1);
+    const [nanoBananaOutputFormat, setNanoBananaOutputFormat] = useState('jpeg');
+    const [nanoBananaSyncMode, setNanoBananaSyncMode] = useState(false);
+    const [isSubmittingNanoBanana, setIsSubmittingNanoBanana] = useState(false);
+    const [nanoBananaError, setNanoBananaError] = useState(null);
+    // --- End State for Nano Banana ---
+
     // --- НОВОЕ СОСТОЯНИЕ для модального окна --- 
     const [selectedImageUrl, setSelectedImageUrl] = useState(null);
     const [actionsMenuOpenForId, setActionsMenuOpenForId] = useState(null); // <-- NEW STATE for actions menu
@@ -109,12 +121,12 @@ function DashboardPage() {
     // NEW: Effect to handle hash changes for left panel tab
     useEffect(() => {
         const hash = location.hash.substring(1); // Remove #
-        const validTabs = ['modelPhoto', 'descriptionGeneration', 'upscale', 'clothingTryOn', 'livePhoto']; 
+        const validTabs = ['nanoBanana', 'modelPhoto', 'descriptionGeneration', 'upscale', 'clothingTryOn', 'livePhoto']; 
         if (hash && validTabs.includes(hash)) {
             setLeftPanelTab(hash);
         } else {
             // Optionally set a default if hash is invalid or missing
-             setLeftPanelTab('modelPhoto');
+             setLeftPanelTab('nanoBanana');
         }
         // Dependency: location.hash. When the hash changes, this effect re-runs.
     }, [location.hash]);
@@ -882,7 +894,69 @@ function DashboardPage() {
         }
          event.target.value = null; // Reset input value to allow selecting the same file again
     };
-    // --- END Handle file selection --- 
+    // --- END Handle file selection ---
+
+    // --- Nano Banana File Handlers ---
+    const handleNanoBananaFilesChange = (event) => {
+        const files = Array.from(event.target.files);
+        setNanoBananaError(null);
+        
+        if (files.length === 0) {
+            setNanoBananaFiles([]);
+            setNanoBananaPreviews([]);
+            return;
+        }
+
+        if (files.length > 10) {
+            setNanoBananaError('Maximum 10 images allowed.');
+            return;
+        }
+
+        // Validate file types
+        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp'];
+        const invalidFiles = files.filter(file => !allowedTypes.includes(file.type));
+        
+        if (invalidFiles.length > 0) {
+            setNanoBananaError(`Invalid file types: ${invalidFiles.map(f => f.name).join(', ')}. Allowed: PNG, JPG, JPEG, WEBP`);
+            return;
+        }
+
+        setNanoBananaFiles(files);
+        
+        // Create previews for all files
+        const previews = [];
+        let loadedCount = 0;
+        
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                previews[index] = reader.result;
+                loadedCount++;
+                
+                // Update previews state when all files are loaded
+                if (loadedCount === files.length) {
+                    setNanoBananaPreviews([...previews]);
+                }
+            };
+            reader.onerror = () => {
+                console.error(`Error reading file: ${file.name}`);
+                loadedCount++;
+                if (loadedCount === files.length) {
+                    setNanoBananaPreviews([...previews]);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        event.target.value = null; // Reset input to allow selecting same files again
+    };
+
+    const removeNanoBananaFile = (index) => {
+        setNanoBananaFiles(prev => prev.filter((_, i) => i !== index));
+        setNanoBananaPreviews(prev => prev.filter((_, i) => i !== index));
+        setNanoBananaError(null);
+    };
+    // --- END Nano Banana File Handlers --- 
 
     // --- NEW Handler for starting Image Upscale --- 
     const handleStartUpscale = async (event) => {
@@ -1068,6 +1142,83 @@ function DashboardPage() {
     };
     // --- END Clothing Try-On Handler ---
 
+    // --- Handler for starting Nano Banana Generation ---
+    const handleNanoBananaSubmit = async (event) => {
+        event.preventDefault();
+        setNanoBananaError(null);
+
+        if (!nanoBananaPrompt.trim()) {
+            setNanoBananaError('Please enter a prompt for editing.');
+            return;
+        }
+
+        if (nanoBananaFiles.length === 0) {
+            setNanoBananaError('Please select at least one image file.');
+            return;
+        }
+
+        if (nanoBananaFiles.length > 10) {
+            setNanoBananaError('Maximum 10 images allowed.');
+            return;
+        }
+
+        setIsSubmittingNanoBanana(true);
+        try {
+            const formData = new FormData();
+            
+            // Add all image files
+            nanoBananaFiles.forEach((file, index) => {
+                formData.append('image_urls', file);
+            });
+            
+            // Add other parameters
+            formData.append('prompt', nanoBananaPrompt);
+            formData.append('num_images', nanoBananaNumImages);
+            formData.append('output_format', nanoBananaOutputFormat);
+            formData.append('sync_mode', nanoBananaSyncMode);
+
+            const response = await startNanoBananaGeneration(formData);
+            
+            if (response.images && Array.isArray(response.images)) {
+                // Add to pending generations for real-time status updates
+                const newPendingImages = response.images.map(img => ({
+                    ...img,
+                    isNew: true // Flag for highlighting
+                }));
+                setPendingGenerations(prev => [...newPendingImages, ...prev]);
+                
+                // Update user balance if provided
+                if (response.new_balance !== undefined) {
+                    updateUser({ ...user, balance: response.new_balance });
+                }
+                
+                // Reset form
+                setNanoBananaPrompt('');
+                setNanoBananaFiles([]);
+                setNanoBananaNumImages(1);
+                setNanoBananaOutputFormat('jpeg');
+                setNanoBananaSyncMode(false);
+                
+                // Show success message
+                console.log('Nano Banana generation started successfully');
+            } else {
+                throw new Error('Unexpected response format from server');
+            }
+        } catch (err) {
+            console.error('Nano Banana generation failed:', err);
+            let displayError = 'Nano Banana generation failed. Please try again.';
+            if (err.message && err.message.includes('balance')) {
+                displayError = err.message;
+            } else if (err.data?.error) {
+                displayError = err.data.error; 
+            }
+            setNanoBananaError(displayError);
+        } finally {
+            setIsSubmittingNanoBanana(false);
+        }
+    };
+    // --- END Nano Banana Handler ---
+
     // Render loading state
     if (authLoading && !user) {
         return <div className={styles.loadingText}>Loading dashboard...</div>;
@@ -1077,6 +1228,13 @@ function DashboardPage() {
         <div className={styles.dashboardContainer}>
             {/* Top Tab Navigation (Moved from Left Panel) */}
             <div className={styles.topTabContainer}>
+                {/* New Nano Banana Tab - первым и со звездочкой */}
+                <button
+                    className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'nanoBanana' ? styles.activeTab : ''}`}
+                    onClick={() => setLeftPanelTab('nanoBanana')}
+                >
+                    ⭐ Nano Banana
+                </button>
                 <button
                     className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'modelPhoto' ? styles.activeTab : ''}`}
                     onClick={() => setLeftPanelTab('modelPhoto')}
@@ -1120,6 +1278,146 @@ function DashboardPage() {
                     {/* <div className={styles.tabContainer} style={{ marginBottom: '1rem' }}> ... buttons ... </div> */}
 
                     {/* Conditional Rendering based on leftPanelTab */}
+                    {leftPanelTab === 'nanoBanana' && (
+                         <div className={styles.nanoBananaContainer}>
+                            <form onSubmit={handleNanoBananaSubmit} className={styles.generationForm}>
+                                {/* Header and description */}
+                                <div>
+                                    <h3 className={styles.sectionTitle}>Nano Banana - AI Image Editor</h3>
+                                    <p>Advanced Google AI model for intelligent image editing. Transform your photos with natural language instructions - change backgrounds, lighting, add elements, or completely reimagine scenes while preserving character consistency.</p>
+                                </div>
+
+                                {/* Multiple Image Upload */}
+                                <div>
+                                    <label htmlFor="nanoBananaImages" className={styles.label}>
+                                        Images to Edit ({nanoBananaFiles.length} selected):
+                                    </label>
+                                    
+                                    {nanoBananaFiles.length > 0 && (
+                                        <div className={styles.fileCountInfo}>
+                                            Selected files: {nanoBananaFiles.length}
+                                        </div>
+                                    )}
+                                    
+                                    <div className={styles.fileInputContainer}>
+                                        <input
+                                            type="file"
+                                            id="nanoBananaImages"
+                                            multiple
+                                            accept=".png,.jpg,.jpeg,.webp"
+                                            onChange={handleNanoBananaFilesChange}
+                                            className={styles.fileInput}
+                                            disabled={isSubmittingNanoBanana}
+                                        />
+                                    </div>
+                                    
+                                    {nanoBananaFiles.length > 0 && (
+                                        <div className={styles.nanoBananaPreviewGrid}>
+                                            {nanoBananaFiles.map((file, index) => (
+                                                <div key={index} className={styles.nanoBananaPreviewItem}>
+                                                    {nanoBananaPreviews[index] ? (
+                                                        <img
+                                                            src={nanoBananaPreviews[index]}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className={styles.nanoBananaPreviewImage}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.nanoBananaPreviewLoading}>
+                                                            Loading...
+                                                        </div>
+                                                    )}
+                                                    <div className={styles.nanoBananaPreviewOverlay}>
+                                                        <span className={styles.nanoBananaFileName}>{file.name}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeNanoBananaFile(index)}
+                                                            className={styles.nanoBananaRemoveButton}
+                                                            disabled={isSubmittingNanoBanana}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Prompt Input */}
+                                <div>
+                                    <label htmlFor="nanoBananaPrompt" className={styles.label}>
+                                        Editing Prompt:
+                                    </label>
+                                    <textarea
+                                        id="nanoBananaPrompt"
+                                        placeholder="Describe how you want to edit the images (e.g., make a photo of the man driving the car down the california coastline)"
+                                        value={nanoBananaPrompt}
+                                        onChange={(e) => setNanoBananaPrompt(e.target.value)}
+                                        rows={4}
+                                        disabled={isSubmittingNanoBanana}
+                                        required
+                                    />
+                                </div>
+
+                                {/* Settings */}
+                                <div className={styles.settingsRow}>
+                                    <NumImagesSelect 
+                                        id="nanoBananaNumImages"
+                                        label="Number of Images:"
+                                        value={nanoBananaNumImages}
+                                        onChange={setNanoBananaNumImages}
+                                        disabled={isSubmittingNanoBanana}
+                                        max={8}
+                                    />
+
+                                    <div className={styles.selectGroup}>
+                                        <label htmlFor="nanoBananaOutputFormat" className={styles.label}>
+                                            Output Format:
+                                        </label>
+                                        <select
+                                            id="nanoBananaOutputFormat"
+                                            value={nanoBananaOutputFormat}
+                                            onChange={(e) => setNanoBananaOutputFormat(e.target.value)}
+                                            className={styles.select}
+                                            disabled={isSubmittingNanoBanana}
+                                        >
+                                            <option value="jpeg">JPEG</option>
+                                            <option value="png">PNG</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.checkboxGroup}>
+                                        <label className={styles.checkboxLabel}>
+                                            <input
+                                                type="checkbox"
+                                                checked={nanoBananaSyncMode}
+                                                onChange={(e) => setNanoBananaSyncMode(e.target.checked)}
+                                                className={styles.checkbox}
+                                                disabled={isSubmittingNanoBanana}
+                                            />
+                                            <span>Sync Mode (faster, data URIs)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {nanoBananaError && (
+                                    <div className={styles.errorMessage}>
+                                        {typeof nanoBananaError === 'string' ? nanoBananaError : JSON.stringify(nanoBananaError)}
+                                    </div>
+                                )}
+
+                                <UniversalSubmitButton
+                                    actionType="nano_banana"
+                                    numImages={nanoBananaNumImages}
+                                    costs={costs}
+                                    isSubmitting={isSubmittingNanoBanana}
+                                    isDisabled={!nanoBananaPrompt.trim() || nanoBananaFiles.length === 0}
+                                    customText="Start Nano Banana Edit"
+                                />
+                             </form>
+                         </div>
+                     )}
+
                     {leftPanelTab === 'modelPhoto' && (
                         <>
                             {/* Выбор модели */}
@@ -1652,6 +1950,8 @@ function DashboardPage() {
                              </form>
                          </div>
                      )}
+
+
 
                      {leftPanelTab === 'livePhoto' && (
                          <div className={styles.tabPlaceholder}>

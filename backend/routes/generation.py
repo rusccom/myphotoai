@@ -497,13 +497,17 @@ def handle_fal_generation_webhook():
                             img.updated_at = datetime.utcnow()
                     db.session.commit()
                     return jsonify({"message": "Webhook processed, but upscale payload invalid."}), 200
-            # Для Генерации (MODEL_PHOTO, TEXT_TO_IMAGE) и Примерки (TRY_ON) ожидаем список "images"
-            elif generation_type == GenerationType.MODEL_PHOTO or generation_type == GenerationType.TEXT_TO_IMAGE or generation_type == GenerationType.TRY_ON:
+            # Для Генерации (MODEL_PHOTO, TEXT_TO_IMAGE) и Примерки (TRY_ON) и Nano Banana (NANO_BANANA) ожидаем список "images"
+            elif generation_type == GenerationType.MODEL_PHOTO or generation_type == GenerationType.TEXT_TO_IMAGE or generation_type == GenerationType.TRY_ON or generation_type == GenerationType.NANO_BANANA:
                  generated_images_list = fal_payload.get("images", []) # Common key for generators and try-on
                  if isinstance(generated_images_list, list):
                      result_images = generated_images_list
                  else:
-                     log_prefix = "Gen" if generation_type != GenerationType.TRY_ON else "TryOn"
+                     log_prefix = "Gen"
+                     if generation_type == GenerationType.TRY_ON:
+                         log_prefix = "TryOn"
+                     elif generation_type == GenerationType.NANO_BANANA:
+                         log_prefix = "NanoBanana"
                      logging.error(f"[Webhook {log_prefix} Fal] Payload for request {request_id} does not contain a valid 'images' list.")
                      for img in db_images:
                          if img.status != 'Failed':
@@ -624,6 +628,8 @@ def handle_fal_generation_webhook():
                 original_action_type = 'text_to_image'
             elif current_gen_type == GenerationType.TRY_ON: # Добавлено
                 original_action_type = 'virtual_try_on'
+            elif current_gen_type == GenerationType.NANO_BANANA:
+                original_action_type = 'nano_banana'
             
             needs_refund = any(img.status != 'Failed' for img in db_images)
             
@@ -695,6 +701,8 @@ def handle_fal_generation_webhook():
                  original_action_type = 'text_to_image'
              elif current_gen_type == GenerationType.TRY_ON: # Добавлено
                  original_action_type = 'virtual_try_on'
+             elif current_gen_type == GenerationType.NANO_BANANA:
+                 original_action_type = 'nano_banana'
 
              needs_refund = any(img.status != 'Failed' for img in db_images)
 
@@ -1147,5 +1155,156 @@ def start_try_on():
         return jsonify({"error": "Database error saving try-on record(s)"}), 500
 
 # --- END NEW ROUTE FOR VIRTUAL TRY-ON --- 
+
+# --- NEW ROUTE FOR NANO BANANA (Edit multiple images using Gemini) --- 
+@bp.route('/nano-banana', methods=['POST'])
+@login_required
+def start_nano_banana():
+    logging.info(f"[NanoBanana] Route hit by user {current_user.id}")
+
+    action_type = 'nano_banana'
+    
+    # Check for prompt in form data
+    prompt = request.form.get('prompt')
+    if not prompt:
+        return jsonify({"error": "Prompt is required for nano banana editing"}), 400
+
+    # Check for image files
+    image_files = request.files.getlist('image_urls')
+    if not image_files or len(image_files) == 0:
+        return jsonify({"error": "At least one image file is required"}), 400
+
+    if len(image_files) > 10:  # Limit number of images
+        return jsonify({"error": "Maximum 10 images allowed"}), 400
+
+    # Get optional parameters
+    num_images = int(request.form.get('num_images', 1))
+    output_format = request.form.get('output_format', 'jpeg')
+    sync_mode = request.form.get('sync_mode', 'false').lower() == 'true'
+
+    if not (1 <= num_images <= 8):
+        return jsonify({"error": "Number of images must be between 1 and 8"}), 400
+
+    # --- Balance check and deduction --- 
+    can_proceed, error_message, balance_info = check_balance_and_deduct(
+        current_user.id, action_type, quantity=num_images
+    )
+    if not can_proceed:
+        logging.warning(f"[NanoBanana] User {current_user.id} failed balance check for {num_images}x '{action_type}': {error_message}")
+        response_body = {"error": error_message or "Payment required or insufficient balance."}
+        if balance_info is not None: 
+            response_body['current_balance'] = balance_info
+        return jsonify(response_body), 402
+    
+    new_balance_after_deduct = balance_info
+    logging.info(f"[NanoBanana] User {current_user.id} passed balance check for '{action_type}' x{num_images}. New balance: {new_balance_after_deduct}. Proceeding.")
+
+    # --- Upload images to Fal temporary storage ---
+    uploaded_image_urls = []
+    try:
+        for i, image_file in enumerate(image_files):
+            if image_file.filename == '':
+                continue
+            
+            # Validate file type
+            allowed_extensions = {'png', 'jpg', 'jpeg', 'webp'}
+            if '.' not in image_file.filename or image_file.filename.rsplit('.', 1)[1].lower() not in allowed_extensions:
+                logging.warning(f"[NanoBanana] Invalid file type: {image_file.filename}")
+                refund_action_cost(current_user.id, action_type, quantity=num_images, reason="Invalid file type")
+                return jsonify({"error": f"Invalid file type for {image_file.filename}. Allowed: png, jpg, jpeg, webp"}), 400
+
+            logging.info(f"[NanoBanana] Uploading file {i+1}/{len(image_files)}: {image_file.filename}")
+            file_content_bytes = image_file.read()
+            image_file.seek(0)
+            
+            upload_url = fal_client.upload(file_content_bytes, content_type=image_file.content_type)
+            if not upload_url:
+                raise Exception(f"Fal client upload returned no URL for image {image_file.filename}")
+            
+            uploaded_image_urls.append(upload_url)
+            logging.info(f"[NanoBanana] Successfully uploaded {image_file.filename} to Fal")
+
+    except Exception as upload_exc:
+        logging.exception("[NanoBanana] Failed to upload files to Fal temporary storage")
+        try:
+            refund_action_cost(current_user.id, action_type, quantity=num_images, reason="Fal temp upload failed")
+        except Exception as refund_err:
+            logging.exception(f"[NanoBanana] CRITICAL: Failed to refund points after upload failure for user {current_user.id}.")
+        return jsonify({"error": "Failed to upload images for nano banana editing"}), 500
+
+    if not uploaded_image_urls:
+        return jsonify({"error": "No valid images were uploaded"}), 400
+
+    # --- Submit job to Fal.ai --- 
+    try:
+        fal_webhook_url = None
+        webhook_base_url = current_app.config.get('WEBHOOK_BASE_URL')
+        if webhook_base_url:
+            fal_webhook_url = f"{webhook_base_url.rstrip('/')}/api/generation/webhook"
+            logging.info(f"[NanoBanana] Webhook URL configured: {fal_webhook_url}")
+        else:
+            logging.warning("[NanoBanana] Webhook base URL not configured.")
+
+        model_identifier = "fal-ai/nano-banana/edit"
+        fal_arguments = {
+            "prompt": prompt,
+            "image_urls": uploaded_image_urls,
+            "num_images": num_images,
+            "output_format": output_format,
+            "sync_mode": sync_mode
+        }
+        
+        logging.info(f"[NanoBanana] Submitting job to {model_identifier} with args: {fal_arguments}")
+        handler = fal_client.submit(
+            model_identifier,
+            arguments=fal_arguments,
+            webhook_url=fal_webhook_url
+        )
+        fal_request_id = handler.request_id
+        logging.info(f"[NanoBanana] Job submitted. Fal Request ID: {fal_request_id}")
+
+    except Exception as e_submit:
+        logging.exception(f"[NanoBanana] Failed to submit job to Fal.ai: {e_submit}")
+        try:
+            refund_action_cost(current_user.id, action_type, quantity=num_images, reason="Fal submit failed for nano banana")
+        except Exception as refund_err:
+            logging.exception(f"[NanoBanana] CRITICAL: Failed to refund points after submit failure for user {current_user.id}.")
+        return jsonify({"error": "Failed to start nano banana editing job"}), 500
+
+    # --- Create DB Records --- 
+    try:
+        created_images = []
+        for i in range(num_images):
+            prompt_text = f"Nano Banana Edit: {prompt} (Image {i+1}/{num_images})"
+            new_image = GeneratedImage(
+                user_id=current_user.id,
+                ai_model_id=None,
+                generation_type=GenerationType.NANO_BANANA,
+                prompt=prompt_text,
+                request_id=fal_request_id,
+                status='Pending',
+                r2_object_key=None
+            )
+            created_images.append(new_image)
+
+        if not created_images:
+            raise ValueError("No image records created before commit")
+
+        db.session.add_all(created_images)
+        db.session.commit()
+        logging.info(f"[NanoBanana] Started task {fal_request_id}. Created {len(created_images)} DB record(s). IDs: {[img.id for img in created_images]}")
+        
+        response_data = {
+            'images': [img.to_dict() for img in created_images],
+            'new_balance': new_balance_after_deduct
+        }
+        return jsonify(response_data), 201
+
+    except Exception as e_commit:
+        db.session.rollback()
+        logging.exception(f"[NanoBanana] Failed to commit image record(s) for request {fal_request_id}: {e_commit}")
+        return jsonify({"error": "Database error saving nano banana record(s)"}), 500
+
+# --- END NEW ROUTE FOR NANO BANANA --- 
 
 # --- Existing Webhook Handler (Needs Update) --- 
