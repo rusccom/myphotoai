@@ -35,8 +35,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
-    # Дополнительные поля, если нужна регистрация через Google
-    # google_id = db.Column(db.String(255), unique=True, nullable=True)
+    # Google OAuth integration
+    google_id = db.Column(db.String(255), unique=True, nullable=True, index=True)
 
     # Информация о подписке
     subscription_type = db.Column(db.Enum(SubscriptionType), default=SubscriptionType.FREE, nullable=False)

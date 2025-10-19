@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, request, jsonify, abort
@@ -6,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user, login_required
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from dotenv import load_dotenv
 
 # Вызываем load_dotenv() ДО импорта Config и создания app
@@ -17,6 +19,7 @@ from .config import Config
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
+socketio = SocketIO()
 # Указываем Flask-Login, где находится view-функция для входа
 # Это нужно, чтобы @login_required мог перенаправлять неаутентифицированных пользователей
 login.login_view = 'auth.login' # Мы определим 'auth.login' позже в auth.py
@@ -77,6 +80,23 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     
+    # Инициализация SocketIO только если НЕ выполняется команда миграции
+    # Это позволяет flask db upgrade работать на Windows где gevent имеет проблемы
+    skip_socketio = any(cmd in sys.argv for cmd in ['db', 'migrate', 'upgrade', 'downgrade', 'revision', 'heads', 'history'])
+    
+    if not skip_socketio:
+        socketio.init_app(
+            app,
+            cors_allowed_origins=app.config['CORS_ORIGINS'],
+            async_mode='gevent',  # Используем gevent для Python 3.13+
+            logger=True,
+            engineio_logger=True,
+            manage_session=False  # Flask-Login управляет сессиями
+        )
+        app.logger.info('SocketIO initialized with gevent')
+    else:
+        app.logger.info('SocketIO initialization skipped (migration command detected)')
+    
     # --- Упрощенная глобальная конфигурация CORS --- 
     # Применяем ко всем маршрутам, берем origins из конфига
     CORS(app, supports_credentials=True, origins=app.config['CORS_ORIGINS'])
@@ -101,8 +121,11 @@ def create_app(config_class=Config):
 
     # Регистрация Blueprints (маршрутов)
     # Используем относительные импорты для Blueprints и моделей
-    from .routes.auth import bp as auth_bp
+    from .routes.auth import bp as auth_bp, init_google_oauth
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    # Инициализация Google OAuth
+    init_google_oauth(app)
 
     from .routes.payment import bp as payment_bp
     app.register_blueprint(payment_bp, url_prefix='/api/payment')
@@ -112,6 +135,9 @@ def create_app(config_class=Config):
 
     from .routes.generation import bp as generation_bp
     app.register_blueprint(generation_bp, url_prefix='/api/generation')
+
+    # Импортируем WebSocket обработчики (не blueprint, просто регистрируем события)
+    from .routes import websocket
 
     # Убедимся, что модели импортируются после инициализации db
     with app.app_context():

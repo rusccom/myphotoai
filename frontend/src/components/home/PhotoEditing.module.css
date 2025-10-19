@@ -1,0 +1,380 @@
+.section {
+    padding: 120px 0;
+    position: relative;
+    background: linear-gradient(180deg, 
+        rgba(13, 13, 25, 0.8) 0%,
+        rgba(20, 20, 35, 0.95) 50%,
+        rgba(13, 13, 25, 0.8) 100%
+    );
+    overflow: hidden;
+}
+
+.section :global(.container) {
+    padding-left: 40px;
+    padding-right: 40px;
+    max-width: 100%;
+}
+
+.section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, 
+        rgba(16, 185, 129, 0.15) 0%, 
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+}
+
+.section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, 
+        rgba(6, 182, 212, 0.12) 0%, 
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 25s ease-in-out infinite reverse;
+}
+
+/* Section Header */
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.sectionTitle {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.sectionSubtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Content Layout - ОБРАТНЫЙ ПОРЯДОК */
+.contentWrapper {
+    display: grid;
+    grid-template-columns: 1fr 25%;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Grid Container - Левая сторона */
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.gridItem {
+    position: relative;
+}
+
+/* Шахматный порядок - смещение четных колонок */
+.gridItemOffset {
+    transform: translateY(60px);
+}
+
+.gridImageWrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gridImageWrapper:hover {
+    transform: translateY(-4px) scale(1.05);
+    border-color: rgba(6, 182, 212, 0.3);
+    box-shadow: 
+        0 20px 40px rgba(6, 182, 212, 0.2),
+        0 0 0 1px rgba(6, 182, 212, 0.3);
+}
+
+.gridImage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.gridOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gridImageWrapper:hover .gridOverlay {
+    opacity: 0;
+}
+
+.gridBadge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* Main Image - Правая сторона */
+.mainImageContainer {
+    position: relative;
+}
+
+.mainImageWrapper {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(16, 185, 129, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mainImageWrapper:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 30px 80px rgba(16, 185, 129, 0.3),
+        0 0 0 1px rgba(16, 185, 129, 0.4);
+}
+
+.mainImage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.mainImageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.1) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.mainImageWrapper:hover .mainImageOverlay {
+    opacity: 0;
+}
+
+.badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(16, 185, 129, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+
+.badgeIcon {
+    font-size: 1.2rem;
+}
+
+/* Label Badges - Original/Generated */
+.labelBadge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(16, 185, 129, 0.35);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    z-index: 2;
+}
+
+.gridLabelBadge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(6, 182, 212, 0.35);
+    backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    z-index: 2;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .contentWrapper {
+        grid-template-columns: 1fr 30%;
+        gap: 30px;
+    }
+
+    .gridContainer {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    /* Шахматный порядок для планшетов (3 колонки) */
+    .gridItemOffset {
+        transform: translateY(50px);
+    }
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 80px 0;
+    }
+
+    .section :global(.container) {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .sectionHeader {
+        margin-bottom: 50px;
+    }
+
+    .contentWrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mainImageWrapper {
+        max-width: 260px;
+        margin: 0 auto;
+        order: -1;
+    }
+
+    .gridContainer {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        max-width: 100%;
+        margin: 0 auto;
+        order: 1;
+    }
+
+    /* Убираем шахматный порядок для мобильных */
+    .gridItemOffset {
+        transform: translateY(0);
+    }
+
+    /* Уменьшаем стикеры на мобильных */
+    .labelBadge {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+    }
+
+    .gridLabelBadge {
+        font-size: 0.6rem;
+        padding: 3px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        padding: 60px 0;
+    }
+
+    .section :global(.container) {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .mainImageWrapper {
+        max-width: 200px;
+    }
+
+    .gridContainer {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* Убираем шахматный порядок для маленьких экранов */
+    .gridItemOffset {
+        transform: translateY(0);
+    }
+
+    .badge {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+
+    .gridBadge {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+}
+

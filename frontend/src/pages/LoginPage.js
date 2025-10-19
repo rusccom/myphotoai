@@ -8,7 +8,8 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { login, isAuthenticated } = useAuth();
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const { login, loginWithGoogle, isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -32,6 +33,20 @@ function LoginPage() {
             setError(err.message || 'Failed to login. Please check your credentials.');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setError(null);
+        setIsGoogleLoading(true);
+        console.log('[LoginPage] Attempting Google login...');
+        try {
+            await loginWithGoogle();
+            // После успешного вызова произойдет редирект на Google
+        } catch (err) {
+            console.error('[LoginPage] Google login failed:', err);
+            setError(err.message || 'Failed to initiate Google login.');
+            setIsGoogleLoading(false);
         }
     };
 
@@ -91,8 +106,8 @@ function LoginPage() {
                 <button 
                     type="button" 
                     className={styles.socialButton} 
-                    disabled={isSubmitting}
-                    onClick={() => alert('Google authentication will be available soon!')}
+                    disabled={isSubmitting || isGoogleLoading}
+                    onClick={handleGoogleLogin}
                 >
                     {/* Google SVG Icon */}
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +116,7 @@ function LoginPage() {
                         <path d="M9.99999 20C12.583 20 14.93 19.0115 16.7045 17.404L13.6095 14.785C12.5718 15.5742 11.3037 16.001 9.99999 16C7.39949 16 5.19049 14.3415 4.35649 12.027L1.09799 14.5395C2.75249 17.778 6.11349 20 9.99999 20Z" fill="#4CAF50"/>
                         <path d="M19.8055 8.0415H19V8H10V12H15.6515C15.2571 13.1082 14.5467 14.0766 13.608 14.7855L13.6095 14.7845L16.7045 17.4035C16.4855 17.6025 20 15 20 10C20 9.3295 19.931 8.675 19.8055 8.0415Z" fill="#1976D2"/>
                     </svg>
-                    Sign In with Google
+                    {isGoogleLoading ? 'Redirecting to Google...' : 'Sign In with Google'}
                 </button>
             </form>
             

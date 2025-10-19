@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate /*, Link */ } from 'react-router-dom'; // REMOVE Link import
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// import { useNotification } from '../context/NotificationContext'; // Already removed
 import { createModel } from '../services/api';
-import styles from './CreateModelPage.module.css'; // Используем CSS-модули
+import FileUploader from '../components/FileUploader';
+import CustomSelect from '../components/CustomSelect';
+import styles from './CreateModelPage.module.css';
 
 // Options for dropdowns
 const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
@@ -36,21 +37,6 @@ function CreateModelPage() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // File selection handler
-    const handleFileChange = (event) => {
-        setError(null);
-        if (event.target.files) {
-            const fileArray = Array.from(event.target.files);
-            if (fileArray.length < MIN_FILES || fileArray.length > MAX_FILES) {
-                 setError(`Please upload between ${MIN_FILES} and ${MAX_FILES} photos.`);
-                 setPhotos([]);
-                 event.target.value = null;
-                 return;
-            }
-            // TODO: Проверить типы файлов еще раз? (уже есть accept в input)
-            setPhotos(fileArray);
-        }
-    };
 
     // Form submission handler
     const handleSubmit = async (event) => {
@@ -147,22 +133,24 @@ function CreateModelPage() {
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="mode" className={styles.label}>Model Mode (Concept Type):</label>
-                        <select
-                            id="mode"
+                        <CustomSelect
+                            label="Model Mode (Concept Type)"
                             value={mode}
-                            onChange={(e) => setMode(e.target.value)}
+                            onChange={setMode}
+                            options={MODE_OPTIONS}
                             disabled={isLoading}
-                            className="select-custom"
-                        >
-                            {MODE_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-                        </select>
+                            allowEmpty={false}
+                        />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="gender" className={styles.label}>Subject Gender:</label>
-                        <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)} disabled={isLoading} className="select-custom">
-                            {GENDER_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
+                        <CustomSelect
+                            label="Subject Gender"
+                            value={gender}
+                            onChange={setGender}
+                            options={GENDER_OPTIONS}
+                            disabled={isLoading}
+                            allowEmpty={false}
+                        />
                     </div>
                     <div className={styles.formGroup}>
                         <label htmlFor="age" className={styles.label}>Age:</label>
@@ -180,40 +168,56 @@ function CreateModelPage() {
                         />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="eyeColor" className={styles.label}>Eye Color:</label>
-                        <select id="eyeColor" value={eyeColor} onChange={(e) => setEyeColor(e.target.value)} disabled={isLoading} className="select-custom">
-                            {EYE_COLOR_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
+                        <CustomSelect
+                            label="Eye Color"
+                            value={eyeColor}
+                            onChange={setEyeColor}
+                            options={EYE_COLOR_OPTIONS}
+                            disabled={isLoading}
+                            allowEmpty={false}
+                        />
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="appearance" className={styles.label}>Appearance:</label>
-                        <select id="appearance" value={appearance} onChange={(e) => setAppearance(e.target.value)} disabled={isLoading} className="select-custom">
-                            {APPEARANCE_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
+                        <CustomSelect
+                            label="Appearance"
+                            value={appearance}
+                            onChange={setAppearance}
+                            options={APPEARANCE_OPTIONS}
+                            disabled={isLoading}
+                            allowEmpty={false}
+                        />
                     </div>
                 </div>
 
                 <div className={styles.formGroupFull}>
-                    <label htmlFor="photos" className={styles.label}>Upload Photos ({MIN_FILES} to {MAX_FILES} required):</label>
+                    <FileUploader
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        multiple={true}
+                        maxFiles={MAX_FILES}
+                        maxSizeMB={10}
+                        onChange={(fileArray) => {
+                            if (fileArray && fileArray.length > 0) {
+                                if (fileArray.length < MIN_FILES || fileArray.length > MAX_FILES) {
+                                    setError(`Please upload between ${MIN_FILES} and ${MAX_FILES} photos.`);
+                                    setPhotos([]);
+                                } else {
+                                    setError(null);
+                                    setPhotos(fileArray);
+                                }
+                            } else {
+                                setPhotos([]);
+                            }
+                        }}
+                        disabled={isLoading}
+                        label={`Upload Photos (${MIN_FILES} to ${MAX_FILES} required)`}
+                        showPreview={true}
+                    />
                     
                     {photos.length > 0 && (
                         <p className={styles.fileCountInfo}>
-                            Selected files: {photos.length}
+                            ✓ Selected {photos.length} file{photos.length !== 1 ? 's' : ''}
                         </p>
                     )}
-                    
-                    <div className={styles.fileInputContainer}>
-                        <input
-                            type="file"
-                            id="photos"
-                            multiple
-                            accept=".png, .jpg, .jpeg, .webp"
-                            onChange={handleFileChange}
-                            required
-                            disabled={isLoading}
-                            className={styles.fileInput}
-                        />
-                    </div>
                 </div>
 
                 {error && <p className={styles.errorMessage}>{error}</p>}

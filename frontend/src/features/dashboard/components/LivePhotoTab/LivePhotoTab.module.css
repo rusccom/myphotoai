@@ -1,0 +1,83 @@
+/* LivePhotoTab.module.css */
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    padding: 1rem;
+}
+
+.comingSoon {
+    max-width: 500px;
+    text-align: center;
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.comingSoon h3 {
+    color: var(--light);
+    margin-bottom: 0.4rem;
+    font-size: 1.2rem;
+}
+
+.comingSoon > p {
+    color: var(--gray);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-size: 0.9rem;
+}
+
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(139, 92, 246, 0.05);
+    border-radius: var(--radius-md);
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+.featureIcon {
+    font-size: 1.1rem;
+}
+
+.notifyText {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+.link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+

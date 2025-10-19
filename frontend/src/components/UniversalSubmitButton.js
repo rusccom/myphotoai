@@ -2,48 +2,64 @@ import React from 'react';
 import styles from './UniversalSubmitButton.module.css';
 
 function UniversalSubmitButton({
-  actionType,
-  numImages = 1,
-  costs,
+  actionType, // Legacy prop
+  numImages = 1, // Legacy prop
+  costs, // Legacy prop
   isSubmitting,
-  isDisabled,
-  baseText = "Start Generation",
-  customText, // For buttons like "Upscale" that don't depend on numImages
+  isDisabled, // Legacy prop
+  disabled, // New prop
+  baseText = "Start Generation", // Legacy prop
+  customText, // Legacy prop
+  actionCost, // New prop - cost in points
+  actionName = "Start", // New prop - name of action
+  submitText, // New prop - custom button text
 }) {
 
-  // Функция для расчета стоимости
+  // Функция для расчета стоимости (legacy mode)
   const calculateCost = () => {
     if (!costs || !actionType || !costs[actionType]) {
-      return null; // Если цены не загружены или тип действия не найден
+      return null;
     }
-    // Для апскейла и других действий, где стоимость не зависит от кол-ва, считаем за 1
     if (actionType === 'upscale') {
         return costs[actionType];
     }
     return costs[actionType] * numImages;
   };
 
-  const cost = calculateCost();
+  // Определяем стоимость: либо из нового пропса, либо из старого расчета
+  const cost = actionCost !== undefined ? actionCost : calculateCost();
+  
+  // Определяем disabled состояние
+  const isButtonDisabled = isSubmitting || disabled || isDisabled || (cost === null && actionCost === undefined);
 
   // Формируем текст для кнопки
   const getButtonText = () => {
     if (isSubmitting) {
-      return "Starting...";
+      return `${actionName}ing...`;
     }
-    // Используем единый текст для всех кнопок
-    const baseTextToShow = "Start";
-    if (cost !== null) {
+    
+    // Если передан submitText, используем его
+    if (submitText) {
+      if (cost !== null && cost !== undefined) {
+        return `${submitText} (Cost: ${cost} ${cost === 1 ? 'point' : 'points'})`;
+      }
+      return submitText;
+    }
+    
+    // Legacy mode: используем старый формат
+    const baseTextToShow = customText || baseText || "Start";
+    if (cost !== null && cost !== undefined) {
       return `${baseTextToShow} (Cost: ${cost} ${cost === 1 ? 'point' : 'points'})`;
     }
-    return baseTextToShow; // Fallback, если цена не может быть рассчитана
+    return baseTextToShow;
   };
 
   return (
     <button
       type="submit"
-      disabled={isSubmitting || isDisabled || cost === null}
+      disabled={isButtonDisabled}
       className={styles.submitButton}
-      title={isDisabled ? "Please fill out all required fields" : ""}
+      title={isButtonDisabled ? "Please fill out all required fields" : ""}
     >
       {getButtonText()}
     </button>

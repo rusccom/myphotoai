@@ -1,1 +1,2 @@
-web: flask run
+web: python run_dev.py
+# Для gevent worker используется: gunicorn --worker-class gevent -w 1 backend.wsgi:app

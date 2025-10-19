@@ -58,9 +58,10 @@ class Config:
     # Настройки CORS (можно настроить более гранулярно)
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS') or "*" # Разрешить все источники по умолчанию для разработки
 
-    # TODO: Добавить конфигурацию для Google OAuth, если требуется
-    # GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
-    # GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') 
+    # Google OAuth Configuration
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+    GOOGLE_OAUTH_REDIRECT_URI = os.environ.get('GOOGLE_OAUTH_REDIRECT_URI', 'http://localhost:5000/api/auth/google/callback') 
 
     # Cloudflare R2 Configuration
     R2_ENDPOINT_URL = os.environ.get('R2_ENDPOINT')

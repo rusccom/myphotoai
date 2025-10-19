@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, session, url_for, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from ..app import db # Используем .. для импорта из родительской папки (backend)
 from ..models import User, SubscriptionType, Payment
@@ -6,6 +6,8 @@ from ..utils.notifications import send_telegram_message # <--- Добавляе�
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text # <-- Добавляем импорт text
 import logging # Импортируем logging
+from authlib.integrations.flask_client import OAuth
+import secrets
 
 bp = Blueprint('auth', __name__)
 
@@ -192,8 +194,135 @@ def payment_history():
         logging.exception(f"[PaymentHistory] Error fetching payment history for user {current_user.id}")
         return jsonify({"error": "Failed to retrieve payment history"}), 500
 
-# TODO: Добавить маршруты для регистрации, входа, выхода и т.д.
-# Пример:
-# @bp.route('/register', methods=['POST'])
-# def register():
-#     pass 
+# ==================== Google OAuth ====================
+
+# Инициализация OAuth (lazy initialization)
+oauth = None
+
+def get_oauth():
+    """Lazy initialization of OAuth client"""
+    global oauth
+    if oauth is None:
+        oauth = OAuth()
+    return oauth
+
+def init_google_oauth(app):
+    """Initialize Google OAuth with app config"""
+    oauth_client = get_oauth()
+    oauth_client.init_app(app)
+    oauth_client.register(
+        name='google',
+        client_id=app.config.get('GOOGLE_CLIENT_ID'),
+        client_secret=app.config.get('GOOGLE_CLIENT_SECRET'),
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'}
+    )
+    return oauth_client
+
+def find_or_create_user(google_id, email, name=None):
+    """Find existing user or create new one"""
+    # Проверяем по google_id
+    user = User.query.filter_by(google_id=google_id).first()
+    if user:
+        return user, False  # Существующий пользователь
+    
+    # Проверяем по email (для связывания аккаунтов)
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.google_id = google_id
+        db.session.commit()
+        logging.info(f"[GoogleOAuth] Linked Google account to existing user {user.id}")
+        return user, False  # Связали аккаунт
+    
+    # Создаем нового пользователя
+    new_user = User(email=email, google_id=google_id)
+    new_user.set_subscription(SubscriptionType.FREE)
+    db.session.add(new_user)
+    db.session.commit()
+    logging.info(f"[GoogleOAuth] Created new user {new_user.id} via Google OAuth")
+    
+    # Отправляем уведомление в Telegram
+    try:
+        message = f"🎉 Новый пользователь через Google OAuth!\nEmail: {new_user.email}\nUserID: {new_user.id}"
+        send_telegram_message(message)
+    except Exception as e_notify:
+        logging.error(f"Failed to send Telegram notification: {e_notify}")
+    
+    return new_user, True  # Новый пользователь
+
+@bp.route('/google/login', methods=['GET'])
+def google_login():
+    """Initiate Google OAuth flow"""
+    try:
+        oauth_client = get_oauth()
+        redirect_uri = current_app.config.get('GOOGLE_OAUTH_REDIRECT_URI')
+        
+        # Генерируем state для CSRF защиты
+        state = secrets.token_urlsafe(32)
+        session['oauth_state'] = state
+        
+        # Получаем authorization URL
+        authorization_url = oauth_client.google.create_authorization_url(
+            redirect_uri,
+            state=state
+        )
+        
+        logging.info(f"[GoogleOAuth] Generated authorization URL")
+        return jsonify({'authorization_url': authorization_url['url']}), 200
+    
+    except Exception as e:
+        logging.exception(f"[GoogleOAuth] Error generating authorization URL: {e}")
+        return jsonify({"error": "Failed to initiate Google login"}), 500
+
+@bp.route('/google/callback', methods=['GET'])
+def google_callback():
+    """Handle Google OAuth callback"""
+    try:
+        # Проверяем state для CSRF защиты
+        state = request.args.get('state')
+        if state != session.get('oauth_state'):
+            logging.warning("[GoogleOAuth] Invalid state parameter")
+            return redirect(f"{current_app.config.get('CORS_ORIGINS', 'http://localhost:3000')}/login?error=invalid_state")
+        
+        # Получаем authorization code
+        code = request.args.get('code')
+        if not code:
+            logging.warning("[GoogleOAuth] No authorization code received")
+            return redirect(f"{current_app.config.get('CORS_ORIGINS', 'http://localhost:3000')}/login?error=no_code")
+        
+        # Обмениваем code на token
+        oauth_client = get_oauth()
+        redirect_uri = current_app.config.get('GOOGLE_OAUTH_REDIRECT_URI')
+        token = oauth_client.google.authorize_access_token(redirect_uri=redirect_uri)
+        
+        # Получаем информацию о пользователе
+        user_info = token.get('userinfo')
+        if not user_info:
+            user_info = oauth_client.google.parse_id_token(token)
+        
+        google_id = user_info.get('sub')
+        email = user_info.get('email')
+        name = user_info.get('name')
+        
+        if not google_id or not email:
+            logging.error("[GoogleOAuth] Missing google_id or email in user info")
+            return redirect(f"{current_app.config.get('CORS_ORIGINS', 'http://localhost:3000')}/login?error=missing_info")
+        
+        # Находим или создаем пользователя
+        user, is_new = find_or_create_user(google_id, email, name)
+        
+        # Логиним пользователя
+        login_user(user, remember=True)
+        logging.info(f"[GoogleOAuth] User {user.id} logged in successfully")
+        
+        # Очищаем state из сессии
+        session.pop('oauth_state', None)
+        
+        # Редиректим на фронтенд
+        frontend_url = current_app.config.get('CORS_ORIGINS', 'http://localhost:3000')
+        return redirect(f"{frontend_url}/dashboard")
+    
+    except Exception as e:
+        logging.exception(f"[GoogleOAuth] Error in callback: {e}")
+        frontend_url = current_app.config.get('CORS_ORIGINS', 'http://localhost:3000')
+        return redirect(f"{frontend_url}/login?error=oauth_failed") 

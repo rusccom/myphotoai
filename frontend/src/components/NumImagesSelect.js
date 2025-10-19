@@ -1,33 +1,29 @@
 import React from 'react';
-import styles from './NumImagesSelect.module.css'; // Можно добавить стили, если нужно
+import CustomSelect from './CustomSelect';
 
 const NUM_IMAGE_OPTIONS = [1, 2, 4, 8];
 
-function NumImagesSelect({ id, label, value, onChange, disabled }) {
-    
-    // Обработчик для преобразования значения в число перед вызовом onChange
-    const handleChange = (event) => {
-        const newValue = parseInt(event.target.value, 10);
-        onChange(newValue);
+function NumImagesSelect({ id, label, value, onChange, disabled, max }) {
+    // Filter options based on max if provided
+    const availableOptions = max 
+        ? NUM_IMAGE_OPTIONS.filter(num => num <= max)
+        : NUM_IMAGE_OPTIONS;
+
+    // CustomSelect returns string, convert to number
+    const handleChange = (newValue) => {
+        const numValue = parseInt(newValue, 10);
+        onChange(numValue);
     };
 
     return (
-        <div>
-            <label htmlFor={id} className={styles.label}>{label}</label>
-            <select 
-                id={id} 
-                value={value} 
-                onChange={handleChange} 
-                disabled={disabled} 
-                className="select-custom" // Используем существующий класс для стилей
-            >
-                {NUM_IMAGE_OPTIONS.map(num => (
-                    <option key={num} value={num}>
-                        {num}
-                    </option>
-                ))}
-            </select>
-        </div>
+        <CustomSelect
+            label={label}
+            value={String(value)}
+            onChange={handleChange}
+            options={availableOptions.map(num => String(num))}
+            disabled={disabled}
+            allowEmpty={false}
+        />
     );
 }
 

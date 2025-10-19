@@ -1,4 +1,4 @@
-# Scenaria - Personalized AI Model Creation and Generation Service
+# MyPhotoAI - Personalized AI Model Creation and Generation Service
 
 A modern web application for creating AI models based on your photos and generating images featuring you in various styles and scenarios.
 
@@ -41,7 +41,7 @@ The project features a modern UI using:
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd Scenaria
+cd MyPhotoAI
 ```
 
 2. Create and activate a virtual environment:
@@ -108,7 +108,7 @@ http://localhost:3000
 ## Project Structure
 
 ```
-Scenaria/
+MyPhotoAI/
 ├── backend/            # Backend code (Flask)
 ├── frontend/           # Frontend code (React)
 │   ├── public/         # Static files

@@ -1,0 +1,26 @@
+{
+  "categories": ["All", "Portraits", "Fashion", "Professional", "Creative"],
+  "presets": [
+    {
+      "category": "Portraits",
+      "title": "Portrait Presets",
+      "images": ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"]
+    },
+    {
+      "category": "Fashion",
+      "title": "Fashion Presets",
+      "images": ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"]
+    },
+    {
+      "category": "Professional",
+      "title": "Professional Presets",
+      "images": ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"]
+    },
+    {
+      "category": "Creative",
+      "title": "Creative Presets",
+      "images": ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"]
+    }
+  ]
+}
+

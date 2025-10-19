@@ -1,0 +1,9 @@
+.section { padding-block: 4rem; }
+.sectionTitle { margin: 0 0 2rem; font-size: 2rem; text-align: center; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+.item { margin: 0; background: var(--light-dark); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+.item img { display: block; width: 100%; height: auto; }
+
+

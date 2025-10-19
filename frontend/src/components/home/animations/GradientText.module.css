@@ -1,0 +1,23 @@
+/* GradientText.module.css */
+
+.gradientText {
+    background: linear-gradient(135deg, var(--primary), var(--accent-pink), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% 200%;
+}
+
+.gradientText.animated {
+    animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+

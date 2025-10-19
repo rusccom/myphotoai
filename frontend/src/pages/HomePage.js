@@ -1,131 +1,46 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Добавил useNavigate
-import { useAuth } from '../context/AuthContext'; // Добавил useAuth
-import styles from './HomePage.module.css'; // Импортируем CSS модуль
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import styles from './HomePage.module.css';
+
+// New components
+import Hero from '../components/home/Hero';
+import FeaturesShowcase from '../components/home/FeaturesShowcase';
+import ModelGeneration from '../components/home/ModelGeneration';
+import PhotoEditing from '../components/home/PhotoEditing';
+import ClothingTryOn from '../components/home/ClothingTryOn';
+import LivePhoto from '../components/home/LivePhoto';
+import Capabilities from '../components/home/Capabilities';
+import Faq from '../components/home/Faq';
+import FinalCTA from '../components/home/FinalCTA';
 
 function HomePage() {
-    const { isAuthenticated } = useAuth(); // Получаем статус аутентификации
-    const navigate = useNavigate(); // Получаем функцию навигации
+    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
 
-    // Эффект для редиректа, если пользователь аутентифицирован
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/dashboard', { replace: true }); // Перенаправляем на дашборд
+            navigate('/dashboard', { replace: true });
         }
-    }, [isAuthenticated, navigate]); // Зависимости эффекта
+    }, [isAuthenticated, navigate]);
 
-    // Если пользователь аутентифицирован, можно вернуть null или лоадер, 
-    // чтобы избежать рендера HomePage перед редиректом
     if (isAuthenticated) {
-        return null; 
+        return null;
     }
 
-    // Заглушки для фото с улучшенным качеством
-    const placeholderImage = (width = 400, height = 250) => {
-        return `https://placehold.co/${width}x${height}/1a1a1a/4ade80?text=MyPhotoAI`;
-    };
-
     return (
-        <div className={styles.homeContainer}>
-            {/* Hero Section */}
-            <section className={styles.heroSection}>
-                <h1 className={styles.heroTitle}>
-                    Create Your Digital Twin with MyPhotoAI
-                </h1>
-                <p className={styles.heroSubtitle}>
-                    Personalized AI models for creating photorealistic images 
-                    and videos featuring you in any style or scenario.
-                </p>
-                <Link to="/pricing" className={styles.button}>
-                    Start Creating Model
-                </Link>
-            </section>
-
-            {/* Секция 1: Создание AI модели */}
-            <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Create Your AI Model</h2>
-                <div className={styles.contentRow}>
-                    <div className={styles.textBlock}>
-                        <h3>Upload a few of your photos</h3>
-                        <p>
-                            To create a personalized model, upload 5 to 20 high-quality 
-                            photos of your face from different angles. Our system will 
-                            automatically process the images, extract key facial features, 
-                            and create your unique AI model.
-                        </p>
-                        <Link to="/create-model" className={styles.button}>
-                            Create Model
-                        </Link>
-                    </div>
-                    <div className={styles.imageBlock}>
-                        <img src={placeholderImage()} alt="Diagram of the AI model creation process from user uploads" />
-                    </div>
-                </div>
-            </section>
-
-            {/* Секция 2: Генерация фото по промпту */}
-            <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Generate Photos from Prompts</h2>
-                <div className={styles.contentRow}>
-                    <div className={styles.imageBlock}>
-                        <img src={placeholderImage()} alt="Example of AI generation from a text prompt" />
-                    </div>
-                    <div className={styles.textBlock}>
-                        <h3>Create realistic images featuring you</h3>
-                        <p>
-                            Use text descriptions (prompts) to create photorealistic 
-                            images featuring you. You can specify the style, setting, 
-                            lighting, clothing, and much more - the AI will create the image 
-                            based on your description.
-                        </p>
-                        <Link to="/dashboard" className={styles.button}>
-                            Try Generation
-                        </Link>
-                    </div>
-                </div>
-                
-                <h3 style={{textAlign: 'center', marginTop: '3rem', marginBottom: '1.5rem'}}>Example Prompts</h3>
-                <div className={styles.promptExamples}>
-                    <div className={styles.promptItem}>
-                        <img src={placeholderImage(200, 150)} alt="Example of an AI-generated studio setting" />
-                        <p>"Photorealistic portrait in a studio, professional lighting"</p>
-                    </div>
-                    <div className={styles.promptItem}>
-                        <img src={placeholderImage(200, 150)} alt="Example of a person stylized as a medieval knight by AI" />
-                        <p>"As a medieval knight, fantasy, realistic"</p>
-                    </div>
-                    <div className={styles.promptItem}>
-                        <img src={placeholderImage(200, 150)} alt="Example of a person in a colorful anime style generated by AI" />
-                        <p>"Anime style, colorful background, detailed"</p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Секция 3: Генерация видео из фото */}
-            <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Create Videos from Photos</h2>
-                <div className={styles.contentRow}>
-                    <div className={styles.textBlock}>
-                        <h3>Coming Soon: Animate Your Images</h3>
-                        <p>
-                            We are working on technology that will allow you to bring 
-                            generated images to life and create short video clips featuring 
-                            you. Subscribe to our updates to be the first to know about 
-                            the launch of this feature.
-                        </p>
-                        <Link to="/pricing" className={styles.button}>
-                            Learn About Plans
-                        </Link>
-                    </div>
-                    <div className={styles.imageBlock}>
-                        <div className={styles.videoPlaceholder}>
-                            <span>Coming Soon</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div className={styles.page}>
+            <Hero />
+            <FeaturesShowcase />
+            <ModelGeneration />
+            <PhotoEditing />
+            <ClothingTryOn />
+            <LivePhoto />
+            <Capabilities />
+            <Faq />
+            <FinalCTA />
         </div>
     );
 }
 
-export default HomePage; 
+export default HomePage;

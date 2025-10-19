@@ -410,13 +410,6 @@ def start_base_generation(): # Renamed for clarity, path remains /start for now
              status_code_to_client = e.response.status_code
         return jsonify({"error": error_message_to_client}), status_code_to_client
 
-@bp.route('/result/<int:image_id>', methods=['GET'])
-@login_required
-def get_generation_result(image_id):
-    gen_image = GeneratedImage.query.filter_by(id=image_id, user_id=current_user.id).first_or_404()
-    logging.info(f"[Gen Result] Checking image {image_id}, current status: {gen_image.status}, R2 key: {gen_image.r2_object_key}")
-    return jsonify(gen_image.to_dict()), 200
-
 @bp.route('/history', methods=['GET'])
 @login_required
 def get_generation_history():
@@ -604,6 +597,22 @@ def handle_fal_generation_webhook():
             try:
                  db.session.commit()
                  logging.info(f"[Webhook Gen/Upscale/TryOn Fal] Finished processing request {request_id}. Processed: {processed_count}, Failed Downloads: {failed_download_count}. Committed.")
+                 
+                 # Отправляем WebSocket уведомления для обновленных изображений
+                 from ..app import socketio
+                 for db_record in db_images:
+                     if db_record.status in ['Ready', 'Failed']:
+                         try:
+                             user_room = f"user_{db_record.user_id}"
+                             socketio.emit(
+                                 'image_updated',
+                                 db_record.to_dict(),
+                                 room=user_room
+                             )
+                             logging.info(f"[WebSocket] Sent 'image_updated' event for image {db_record.id} to room {user_room}")
+                         except Exception as ws_exc:
+                             logging.error(f"[WebSocket] Failed to emit image_updated for image {db_record.id}: {ws_exc}")
+                 
             except Exception as commit_exc:
                  db.session.rollback()
                  logging.exception(f"[Webhook Gen/Upscale/TryOn Fal] Failed to commit changes for request {request_id}")
@@ -664,6 +673,21 @@ def handle_fal_generation_webhook():
             if updated_count > 0:
                  db.session.commit()
                  logging.info(f"[Webhook Gen/Upscale/TryOn Fal] Marked {updated_count} records as Failed for request {request_id}.")
+                 
+                 # Отправляем WebSocket уведомления для Failed изображений
+                 from ..app import socketio
+                 for db_record in db_images:
+                     if db_record.status == 'Failed':
+                         try:
+                             user_room = f"user_{db_record.user_id}"
+                             socketio.emit(
+                                 'image_updated',
+                                 db_record.to_dict(),
+                                 room=user_room
+                             )
+                             logging.info(f"[WebSocket] Sent 'image_updated' event for failed image {db_record.id} to room {user_room}")
+                         except Exception as ws_exc:
+                             logging.error(f"[WebSocket] Failed to emit image_updated for failed image {db_record.id}: {ws_exc}")
             else:
                  logging.info(f"[Webhook Gen/Upscale/TryOn Fal] No records needed update for failed request {request_id}.")
 
@@ -736,6 +760,21 @@ def handle_fal_generation_webhook():
              if updated_count > 0:
                  db.session.commit()
                  logging.info(f"[Webhook Gen/Upscale/TryOn Fal] Marked {updated_count} records as Failed due to status '{fal_status}'.")
+                 
+                 # Отправляем WebSocket уведомления для Failed изображений
+                 from ..app import socketio
+                 for db_record in db_images:
+                     if db_record.status == 'Failed':
+                         try:
+                             user_room = f"user_{db_record.user_id}"
+                             socketio.emit(
+                                 'image_updated',
+                                 db_record.to_dict(),
+                                 room=user_room
+                             )
+                             logging.info(f"[WebSocket] Sent 'image_updated' event for failed image {db_record.id} to room {user_room}")
+                         except Exception as ws_exc:
+                             logging.error(f"[WebSocket] Failed to emit image_updated for failed image {db_record.id}: {ws_exc}")
              
         return jsonify({"message": "Fal webhook received successfully"}), 200
 

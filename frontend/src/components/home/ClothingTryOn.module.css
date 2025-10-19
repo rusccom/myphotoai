@@ -1,0 +1,442 @@
+.section {
+    padding: 120px 0;
+    position: relative;
+    background: linear-gradient(180deg, 
+        rgba(13, 13, 25, 0.8) 0%,
+        rgba(20, 20, 35, 0.95) 50%,
+        rgba(13, 13, 25, 0.8) 100%
+    );
+    overflow: hidden;
+}
+
+.section :global(.container) {
+    padding-left: 40px;
+    padding-right: 40px;
+    max-width: 100%;
+}
+
+.section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, 
+        rgba(245, 158, 11, 0.15) 0%, 
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+}
+
+.section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, 
+        rgba(249, 115, 22, 0.12) 0%, 
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 25s ease-in-out infinite reverse;
+}
+
+/* Section Header */
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.sectionTitle {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.sectionSubtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Blocks Grid - 4 в ряд */
+.blocksGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Single Block */
+.block {
+    display: grid;
+    grid-template-columns: 40% 58%;
+    gap: 2%;
+    padding: 8px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.block:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 
+        0 20px 60px rgba(245, 158, 11, 0.2),
+        0 0 0 1px rgba(245, 158, 11, 0.2);
+    transform: translateY(-4px);
+}
+
+/* Left Column - 2 фото вертикально */
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Right Column - 1 большое фото */
+.rightColumn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Image Wrapper (для маленьких фото слева) */
+.imageWrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.imageWrapper:hover {
+    transform: scale(1.05);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 
+        0 20px 40px rgba(245, 158, 11, 0.2),
+        0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+.image {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.1) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.imageWrapper:hover .imageOverlay {
+    opacity: 0;
+}
+
+/* Main Image Wrapper (для большого фото справа) */
+.mainImageWrapper {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(249, 115, 22, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.mainImageWrapper:hover {
+    transform: scale(1.03);
+    box-shadow: 
+        0 30px 80px rgba(249, 115, 22, 0.3),
+        0 0 0 1px rgba(249, 115, 22, 0.4);
+}
+
+.mainImage {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+}
+
+.mainImageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.1) 0%,
+        transparent 40%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.mainImageWrapper:hover .mainImageOverlay {
+    opacity: 0;
+}
+
+/* Badges */
+.badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(245, 158, 11, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 6px 12px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+}
+
+.mainBadge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(249, 115, 22, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);
+}
+
+.badgeIcon {
+    font-size: 1rem;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .blocksGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 35px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .blocksGrid {
+        gap: 30px;
+    }
+
+    .block {
+        padding: 8px;
+        gap: 2%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .section {
+        padding: 80px 0;
+    }
+
+    .blocksGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .block {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 40px 0;
+    }
+
+    .section :global(.container) {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .sectionHeader {
+        margin-bottom: 24px;
+    }
+
+    .sectionTitle {
+        font-size: 1.75rem;
+        margin-bottom: 12px;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.95rem;
+    }
+
+    .blocksGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .block {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 6px;
+        border-radius: 16px;
+    }
+
+    .leftColumn {
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .rightColumn {
+        margin-top: 6px;
+    }
+
+    .imageWrapper {
+        border-radius: 12px;
+    }
+
+    .mainImageWrapper {
+        border-radius: 14px;
+    }
+
+    .badge {
+        top: 8px;
+        left: 8px;
+        padding: 4px 8px;
+        font-size: 0.65rem;
+        gap: 4px;
+    }
+
+    .mainBadge {
+        top: 10px;
+        left: 10px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        gap: 6px;
+    }
+
+    .badgeIcon {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        padding: 32px 0;
+    }
+
+    .section :global(.container) {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .sectionHeader {
+        margin-bottom: 20px;
+    }
+
+    .sectionTitle {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.85rem;
+    }
+
+    .blocksGrid {
+        gap: 8px;
+    }
+
+    .block {
+        padding: 5px;
+        border-radius: 12px;
+        gap: 5px;
+    }
+
+    .leftColumn {
+        gap: 5px;
+    }
+
+    .rightColumn {
+        margin-top: 5px;
+    }
+
+    .imageWrapper {
+        border-radius: 10px;
+    }
+
+    .mainImageWrapper {
+        border-radius: 12px;
+    }
+
+    .badge {
+        top: 6px;
+        left: 6px;
+        padding: 3px 6px;
+        font-size: 0.6rem;
+        gap: 3px;
+    }
+
+    .mainBadge {
+        top: 8px;
+        left: 8px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .badgeIcon {
+        font-size: 0.7rem;
+    }
+}
+

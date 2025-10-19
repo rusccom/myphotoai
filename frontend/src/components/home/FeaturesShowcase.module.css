@@ -1,0 +1,155 @@
+/* FeaturesShowcase.module.css */
+
+.section {
+    padding: 120px 0;
+    position: relative;
+    background: linear-gradient(180deg, 
+        rgba(10, 10, 20, 1) 0%,
+        rgba(15, 15, 30, 0.98) 50%,
+        rgba(10, 10, 20, 1) 100%
+    );
+    overflow: hidden;
+}
+
+.section :global(.container) {
+    padding-left: 40px;
+    padding-right: 40px;
+    max-width: 100%;
+}
+
+/* Animated background elements */
+.section::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -15%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, 
+        rgba(139, 92, 246, 0.15) 0%, 
+        rgba(168, 85, 247, 0.08) 30%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 25s ease-in-out infinite;
+}
+
+.section::after {
+    content: '';
+    position: absolute;
+    bottom: -25%;
+    left: -10%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, 
+        rgba(236, 72, 153, 0.12) 0%, 
+        rgba(219, 39, 119, 0.06) 30%,
+        transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+        transform: translate(50px, -50px) rotate(120deg);
+    }
+    66% {
+        transform: translate(-30px, 30px) rotate(240deg);
+    }
+}
+
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 80px;
+    position: relative;
+    z-index: 1;
+}
+
+.sectionTitle {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    color: var(--light);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.sectionSubtitle {
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 400;
+}
+
+.featuresGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 1024px) {
+    .section {
+        padding: 80px 0;
+    }
+
+    .sectionHeader {
+        margin-bottom: 60px;
+    }
+
+    .featuresGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 60px 0;
+    }
+
+    .section :global(.container) {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .sectionHeader {
+        margin-bottom: 40px;
+    }
+
+    .sectionTitle {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .featuresGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section :global(.container) {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .featuresGrid {
+        gap: 0.75rem;
+    }
+}
+

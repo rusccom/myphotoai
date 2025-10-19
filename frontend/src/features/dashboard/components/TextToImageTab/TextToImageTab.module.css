@@ -1,0 +1,119 @@
+/* TextToImageTab.module.css */
+
+.generationForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background-color: var(--light-dark);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(75, 85, 99, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.generationForm::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, var(--accent), var(--primary));
+}
+
+.generationForm h3 {
+    margin-bottom: 0.2rem;
+    color: var(--light);
+    text-align: center;
+    font-size: 1rem;
+}
+
+.description {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+}
+
+.generationForm > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.generationForm label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.generationForm textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.5);
+    color: var(--light);
+    transition: var(--transition);
+    font-family: var(--font-sans);
+    box-shadow: var(--shadow-sm);
+}
+
+.generationForm textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+}
+
+.generationForm textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+.selectorsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.errorMessage {
+    color: var(--error);
+    background-color: rgba(239, 68, 68, 0.15);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.infoBox {
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-md);
+    padding: 0.6rem;
+    margin-top: 0.25rem;
+}
+
+.infoBox p {
+    margin: 0;
+    color: var(--gray);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.infoBox a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.infoBox a:hover {
+    text-decoration: underline;
+}
+

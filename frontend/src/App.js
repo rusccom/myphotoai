@@ -16,6 +16,7 @@ import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentCancelPage from './pages/PaymentCancelPage';
 import AccountPage from './pages/AccountPage';
 import BillingPage from './pages/BillingPage';
+import TermsAndPrivacyPage from './pages/TermsAndPrivacyPage';
 
 // Импортируем CSS модуль для App
 import styles from './App.module.css';
@@ -78,6 +79,7 @@ function AppContent() {
             <Route path="/pricing" element={<PricePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/terms-and-privacy" element={<TermsAndPrivacyPage />} />
             <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/payment/cancel" element={<PaymentCancelPage />} />
             <Route

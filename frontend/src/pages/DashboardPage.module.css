@@ -40,7 +40,7 @@
     min-width: 0;
     overflow-y: auto;
     height: 100%;
-    padding: 0.5rem;
+    padding: 0.25rem;
     box-sizing: border-box;
     background-color: rgba(18, 18, 18, 0.1);
     border-radius: var(--radius-md);
@@ -321,12 +321,6 @@
     box-shadow: var(--shadow-sm);
 }
 
-.generationForm textarea:focus,
-.generationForm select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-}
 
 .generationForm textarea {
     resize: vertical;

@@ -83,6 +83,11 @@ export const checkAuthStatus = () => {
     return fetchApi('/auth/status'); // Больше не возвращает модель
 };
 
+// Google OAuth functions
+export const initiateGoogleLogin = () => {
+    return fetchApi('/auth/google/login');
+};
+
 // Новая функция для смены пароля
 export const changePassword = (currentPassword, newPassword) => {
     return fetchApi('/auth/change-password', {
@@ -130,10 +135,6 @@ export const startLoraImageGeneration = (params) => {
         method: 'POST',
         body: params, 
     });
-};
-
-export const getGenerationResult = (imageId) => {
-    return fetchApi(`/generation/result/${imageId}`);
 };
 
 export const getGenerationHistory = (page = 1, perPage = 20) => {

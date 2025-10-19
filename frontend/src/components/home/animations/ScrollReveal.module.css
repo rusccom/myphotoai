@@ -1,0 +1,52 @@
+/* ScrollReveal.module.css */
+
+.scrollReveal {
+    opacity: 0;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scrollReveal.visible {
+    opacity: 1;
+}
+
+/* Fade Up */
+.fadeUp {
+    transform: translateY(40px);
+}
+
+.fadeUp.visible {
+    transform: translateY(0);
+}
+
+/* Fade In */
+.fadeIn.visible {
+    opacity: 1;
+}
+
+/* Slide Left */
+.slideLeft {
+    transform: translateX(-40px);
+}
+
+.slideLeft.visible {
+    transform: translateX(0);
+}
+
+/* Slide Right */
+.slideRight {
+    transform: translateX(40px);
+}
+
+.slideRight.visible {
+    transform: translateX(0);
+}
+
+/* Scale */
+.scale {
+    transform: scale(0.9);
+}
+
+.scale.visible {
+    transform: scale(1);
+}
+

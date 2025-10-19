@@ -1,0 +1,92 @@
+/* CustomSelect.module.css */
+
+.selectWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.selectContainer {
+    position: relative;
+    width: 100%;
+}
+
+.select {
+    width: 100%;
+    padding: 0.6rem 2.5rem 0.6rem 0.8rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    background-color: rgba(18, 18, 18, 0.5);
+    color: var(--light);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.select:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    background-color: rgba(18, 18, 18, 0.7);
+}
+
+.select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    background-color: rgba(18, 18, 18, 0.8);
+}
+
+.select:focus + .arrow {
+    color: var(--primary);
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.select.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.arrow {
+    position: absolute;
+    right: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--gray);
+    transition: all 0.3s ease;
+}
+
+.select:hover + .arrow {
+    color: var(--primary);
+}
+
+/* Стили для option элементов */
+.select option {
+    background-color: rgba(18, 18, 18, 0.95);
+    color: var(--light);
+    padding: 0.5rem;
+}
+
+.select option:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+}
+
+.select option:checked {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3));
+    color: white;
+    font-weight: 600;
+}
+

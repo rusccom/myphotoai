@@ -7,15 +7,8 @@ function Footer() {
 
     return (
         <footer className={styles.footer}>
-            <div className={styles.footerContent}>
-                <div className={styles.footerSection}>
-                    <div className={styles.footerLogo}>
-                        <span className={styles.logoText}>Scenaria</span>
-                    </div>
-                    <p className={styles.footerDescription}>
-                        Create personalized AI models and generate photos 
-                        and videos in any style or scenario.
-                    </p>
+            <div className={styles.footerBottom}>
+                <div className={styles.footerLeft}>
                     <div className={styles.socialLinks}>
                         <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className={styles.socialIcon}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -33,47 +26,10 @@ function Footer() {
                             </svg>
                         </a>
                     </div>
+                    <p>© {currentYear} <span className={styles.footerHighlight}>MyPhotoAI</span>. All rights reserved.</p>
                 </div>
-
-                <div className={styles.footerLinks}>
-                    <div className={styles.linkGroup}>
-                        <h3>Product</h3>
-                        <ul>
-                            <li><Link to="/pricing">Pricing</Link></li>
-                            <li><Link to="/dashboard">Photo Generation</Link></li>
-                            <li><Link to="/create-model">Create Model</Link></li>
-                            <li><a href="#future">Video Generation</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div className={styles.linkGroup}>
-                        <h3>Company</h3>
-                        <ul>
-                            <li><a href="#about">About Us</a></li>
-                            <li><a href="#careers">Careers</a></li>
-                            <li><a href="#blog">Blog</a></li>
-                            <li><a href="#contact">Contact</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div className={styles.linkGroup}>
-                        <h3>Legal</h3>
-                        <ul>
-                            <li><a href="#terms">Terms of Use</a></li>
-                            <li><a href="#privacy">Privacy Policy</a></li>
-                            <li><a href="#cookies">Cookie Policy</a></li>
-                            <li><a href="#licensing">Licensing</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div className={styles.footerBottom}>
-                <p>© {currentYear} <span className={styles.footerHighlight}>Scenaria</span>. All rights reserved.</p>
                 <div className={styles.footerBottomLinks}>
-                    <Link to="/sitemap">Sitemap</Link>
-                    <span className={styles.divider}>|</span>
-                    <Link to="/accessibility">Accessibility</Link>
+                    <Link to="/terms-and-privacy">Terms & Privacy</Link>
                 </div>
             </div>
         </footer>

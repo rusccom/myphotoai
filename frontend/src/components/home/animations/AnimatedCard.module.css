@@ -1,0 +1,47 @@
+/* AnimatedCard.module.css */
+
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-8px) perspective(1000px);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+}
+
+.glass {
+    background: rgba(18, 18, 18, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.gradientBorder {
+    position: relative;
+    background: rgba(18, 18, 18, 0.8);
+}
+
+.gradientBorder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--accent-pink), var(--accent));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    background-size: 200% 200%;
+    animation: gradientBorderShift 3s ease infinite;
+}
+
+@keyframes gradientBorderShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+

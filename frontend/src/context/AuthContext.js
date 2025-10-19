@@ -6,7 +6,8 @@ import {
     logoutUser,
     checkAuthStatus,
     listModels,
-    fetchApi
+    fetchApi,
+    initiateGoogleLogin
 } from '../services/api';
 
 // 1. Создаем контекст
@@ -121,6 +122,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const loginWithGoogle = async () => {
+        try {
+            // Получаем authorization URL от бэкенда
+            const data = await initiateGoogleLogin();
+            const authUrl = data.authorization_url;
+            
+            // Открываем Google OAuth в том же окне
+            window.location.href = authUrl;
+            
+            // После редиректа пользователь вернется на /dashboard
+            // и checkStatusAndLoadModels() обновит состояние
+        } catch (error) {
+            console.error("AuthContext: Google login error:", error);
+            throw error;
+        }
+    };
+
     // Функция для обновления списка моделей (например, после создания новой)
     const refreshModels = useCallback(async () => {
         if (!isAuthenticated) return; // Не обновляем, если не авторизован
@@ -158,6 +176,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         register,
+        loginWithGoogle, // <-- Добавляем Google OAuth функцию
         checkStatus: checkStatusAndLoadModels, // Переименовываем для ясности
         updateUser, // <-- Добавляем новую функцию в контекст
         api: fetchApi // <-- Добавляем fetchApi под ключом api
@@ -184,6 +203,7 @@ export const useAuth = () => {
             login: async () => {},
             register: async () => {},
             logout: async () => {},
+            loginWithGoogle: async () => {},
             checkStatus: async () => {},
             updateUser: () => {},
             api: async () => {} // <-- Добавляем заглушку для api

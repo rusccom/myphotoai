@@ -1,0 +1,212 @@
+/* ModelManagement.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    margin: 0;
+    color: var(--light);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.addButton {
+    padding: 0.4rem 0.9rem;
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.addButton:hover {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+}
+
+.loadingText {
+    text-align: center;
+    padding: 1rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+
+.emptyState {
+    background-color: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    text-align: center;
+}
+
+.emptyState h4 {
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+    font-size: 1rem;
+}
+
+.emptyState p {
+    color: var(--gray);
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.createButton {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.createButton:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-md);
+}
+
+.modelList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.5rem;
+}
+
+.modelCard {
+    position: relative;
+    background-color: rgba(18, 18, 18, 0.5);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.modelCard:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.modelCard.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.modelCard.training {
+    cursor: not-allowed;
+}
+
+.modelCard.failed {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.modelCard.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.spinner {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(139, 92, 246, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.statusText {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.modelImage {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.modelInfo {
+    padding: 0.5rem;
+    background-color: rgba(18, 18, 18, 0.7);
+}
+
+.modelName {
+    margin: 0;
+    font-weight: 500;
+    color: var(--gray);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conceptType {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 2px 6px;
+    background-color: rgba(139, 92, 246, 0.2);
+    color: var(--primary);
+    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-transform: capitalize;
+}
+
+.selectedBadge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+}
+
