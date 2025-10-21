@@ -71,27 +71,63 @@ cd ..
 ```
 FLASK_APP="backend.app:create_app()"
 SECRET_KEY=your_secret_key
+DATABASE_URL=your_mysql_database_url
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret
-BFL_API_KEY=your_bfl_api_key
-CORS_ORIGINS=http://localhost:3000
+FAL_KEY=your_fal_api_key
+CORS_ORIGINS=http://localhost:3000,http://localhost:5000
+R2_ENDPOINT=your_cloudflare_r2_endpoint
+R2_ACCESS_KEY=your_r2_access_key
+R2_SECRET_KEY=your_r2_secret_key
+R2_BUCKET=your_r2_bucket_name
 ```
 
-6. Create a `.env` file in the `frontend` directory with the following variables:
+6. Create a `.env.local` file in the `frontend` directory with the following variables:
 ```
 REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+REACT_APP_WS_BASE_URL=http://localhost:5000
+```
+
+**⚠️ Important:** Create `frontend/.env.local` manually:
+```bash
+# Windows (PowerShell)
+cd frontend
+echo "REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_key" > .env.local
+echo "REACT_APP_WS_BASE_URL=http://localhost:5000" >> .env.local
+
+# Linux/Mac
+cd frontend
+cat > .env.local << EOF
+REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_your_key
+REACT_APP_WS_BASE_URL=http://localhost:5000
+EOF
 ```
 
 ### Running the Application
 
 1. Apply database migrations:
 ```bash
+# Windows
+.\venv\Scripts\Activate.ps1
+flask --app "backend.app:create_app()" db upgrade
+
+# Linux/Mac
+source venv/bin/activate
 flask --app "backend.app:create_app()" db upgrade
 ```
 
-2. Start the backend:
+2. Start the backend with WebSocket support:
 ```bash
-flask --app "backend.app:create_app()" run
+# ⚠️ IMPORTANT: Use run_dev.py, NOT flask run!
+# flask run doesn't support WebSocket connections
+
+# Windows
+.\venv\Scripts\Activate.ps1
+python run_dev.py
+
+# Linux/Mac
+source venv/bin/activate
+python run_dev.py
 ```
 
 3. In a separate terminal, start the frontend:
@@ -104,6 +140,33 @@ npm start
 ```
 http://localhost:3000
 ```
+
+### Verifying WebSocket Connection
+
+After starting both backend and frontend:
+
+1. Open browser Developer Console (F12)
+2. Navigate to Dashboard page
+3. Look for WebSocket connection logs:
+   ```
+   [WebSocket] Initializing connection to: http://localhost:5000 for user: XXX
+   [WebSocket] Connected. Socket ID: YYYY
+   [WebSocket] Joined room: user_XXX
+   ```
+4. Start an image generation
+5. When generation completes, you should see:
+   ```
+   [WebSocket] Received image_updated event: {...}
+   ```
+6. The image should appear automatically without page refresh
+
+**Troubleshooting:**
+- If WebSocket fails to connect, check:
+  - Backend is running via `python run_dev.py` (NOT `flask run`)
+  - `frontend/.env.local` exists with `REACT_APP_WS_BASE_URL=http://localhost:5000`
+  - No firewall blocking port 5000
+  - Browser console for CORS errors
+  - Backend logs for connection attempts
 
 ## Project Structure
 

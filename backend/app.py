@@ -84,10 +84,18 @@ def create_app(config_class=Config):
     # Это позволяет flask db upgrade работать на Windows где gevent имеет проблемы
     skip_socketio = any(cmd in sys.argv for cmd in ['db', 'migrate', 'upgrade', 'downgrade', 'revision', 'heads', 'history'])
     
+    # Обрабатываем CORS_ORIGINS: может быть строка с запятыми или список
+    cors_origins = app.config['CORS_ORIGINS']
+    if isinstance(cors_origins, str):
+        # Разделяем по запятым и убираем пробелы
+        cors_origins = [origin.strip() for origin in cors_origins.split(',')]
+    
+    app.logger.info(f'CORS Origins configured: {cors_origins}')
+    
     if not skip_socketio:
         socketio.init_app(
             app,
-            cors_allowed_origins=app.config['CORS_ORIGINS'],
+            cors_allowed_origins=cors_origins,
             async_mode='gevent',  # Используем gevent для Python 3.13+
             logger=True,
             engineio_logger=True,
@@ -99,7 +107,7 @@ def create_app(config_class=Config):
     
     # --- Упрощенная глобальная конфигурация CORS --- 
     # Применяем ко всем маршрутам, берем origins из конфига
-    CORS(app, supports_credentials=True, origins=app.config['CORS_ORIGINS'])
+    CORS(app, supports_credentials=True, origins=cors_origins)
     # --- Конец упрощенной конфигурации --- 
 
     # --- ЛОГИРОВАНИЕ ПЕРЕД КАЖДЫМ ЗАПРОСОМ (ВКЛЮЧАЯ OPTIONS) ---

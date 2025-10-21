@@ -56,7 +56,9 @@ class Config:
     # --- Конец Telegram Bot ---
 
     # Настройки CORS (можно настроить более гранулярно)
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS') or "*" # Разрешить все источники по умолчанию для разработки
+    # ВАЖНО: Не используйте "*" с supports_credentials=True - это блокирует WebSocket!
+    # Для локальной разработки используем конкретные origins
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS') or "http://localhost:3000,http://localhost:5000"
 
     # Google OAuth Configuration
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')

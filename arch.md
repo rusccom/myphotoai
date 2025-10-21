@@ -934,6 +934,59 @@ gunicorn --worker-class gevent -w 1 backend.wsgi:app --bind 0.0.0.0:5000
 - ✅ Для продакшена: 1 gevent worker
 - ✅ Gevent совместим с Python 3.13+ (eventlet - нет)
 
+**⚠️ ИЗВЕСТНАЯ ПРОБЛЕМА И РЕШЕНИЕ (2025-10-21):**
+
+**Проблема:** WebSocket не подключается из-за CORS ошибки.
+
+**Причина:** В `backend/config.py` использовался `CORS_ORIGINS = "*"` (wildcard) вместе с `supports_credentials=True` в `backend/app.py`. Браузеры блокируют такую комбинацию по соображениям безопасности - нельзя разрешить любому домену получать credentials (cookies).
+
+**Решение:**
+1. ✅ Изменен `backend/config.py`: `CORS_ORIGINS` теперь по умолчанию `"http://localhost:3000,http://localhost:5000"` вместо `"*"`
+2. ✅ Обновлен `backend/app.py`: добавлен парсинг строки CORS_ORIGINS в список origins
+3. ✅ Добавлено логирование конфигурации CORS при старте приложения
+
+**Настройка для локальной разработки:**
+
+Создайте файл `frontend/.env.local` (он в .gitignore):
+```env
+# WebSocket connection URL for backend
+REACT_APP_WS_BASE_URL=http://localhost:5000
+```
+
+Команды для создания:
+```bash
+# Windows (PowerShell)
+cd frontend
+echo "REACT_APP_WS_BASE_URL=http://localhost:5000" > .env.local
+
+# Linux/Mac
+cd frontend
+echo "REACT_APP_WS_BASE_URL=http://localhost:5000" > .env.local
+```
+
+**Настройка для продакшена:**
+
+Установите переменную окружения `CORS_ORIGINS` в списке разрешенных доменов:
+```bash
+# Пример для Heroku/DigitalOcean
+CORS_ORIGINS=https://myphotoai.net,https://www.myphotoai.net
+```
+
+Frontend также нужно указать реальный WebSocket URL:
+```env
+# В продакшен .env файле
+REACT_APP_WS_BASE_URL=https://myphotoai.net
+```
+
+**Проверка работоспособности:**
+1. Откройте браузер Console (F12)
+2. Перейдите на Dashboard
+3. Должны увидеть:
+   - `[WebSocket] Initializing connection to: http://localhost:5000 for user: XXX`
+   - `[WebSocket] Connected. Socket ID: YYYY`
+   - `[WebSocket] Joined room: user_XXX`
+4. Запустите генерацию - изображение должно обновиться автоматически без перезагрузки
+
 ---
 
 ### 2025-10-18: Исправление кнопок "старт" в дашборде
