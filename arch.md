@@ -1071,6 +1071,69 @@ emitting event "image_updated" to user_X [/]
 
 ---
 
+### 2025-10-25: Исправление Gunicorn Worker для WebSocket
+
+**Проблема:** После добавления ingress правила для `/socket.io/` в DigitalOcean App Spec, WebSocket запросы доходили до backend, но получали ошибку:
+```
+RuntimeError: The gevent-websocket server is not configured appropriately.
+```
+
+**Причина:** 
+- Gunicorn использовал `--worker-class gevent` (обычный async worker)
+- Для WebSocket нужен специальный worker: `GeventWebSocketWorker`
+- Без этого worker'а gevent не может обработать WebSocket Upgrade запросы
+
+**Решение:**
+
+Изменен `Procfile`:
+```bash
+# Было:
+gunicorn --worker-class gevent -w 1 ...
+
+# Стало:
+gunicorn --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 ...
+```
+
+**Зависимости (уже были в requirements.txt):**
+- `gevent==24.11.1` - async библиотека
+- `gevent-websocket==0.10.1` - WebSocket поддержка для gevent
+- `flask-socketio==5.3.6` - Flask интеграция
+
+**Дополнительное исправление в App Spec:**
+
+Добавлено ingress правило для маршрутизации `/socket.io/` на backend:
+```yaml
+ingress:
+  rules:
+  - component:
+      name: myphotoai
+      preserve_path_prefix: true
+    match:
+      path:
+        prefix: /socket.io    # ← WebSocket на backend
+  - component:
+      name: myphotoai
+      preserve_path_prefix: true
+    match:
+      path:
+        prefix: /api          # ← API на backend
+  - component:
+      name: myphotoai-frontend
+    match:
+      path:
+        prefix: /              # ← Frontend (catchall)
+```
+
+**Важно:** Порядок правил имеет значение! Backend правила должны быть ПЕРЕД frontend catchall правилом.
+
+**Результат:**
+- ✅ WebSocket запросы доходят до backend через ingress
+- ✅ Gunicorn правильно обрабатывает WebSocket Upgrade
+- ✅ Соединения устанавливаются успешно
+- ✅ Real-time обновления работают
+
+---
+
 ### 2025-10-18: Исправление кнопок "старт" в дашборде
 
 **Проблема 1: Несоответствие API компонента UniversalSubmitButton**
