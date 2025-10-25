@@ -28,6 +28,7 @@ function DashboardPage() {
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [activeTab, setActiveTab] = useState('Photo');
     const [leftPanelTab, setLeftPanelTab] = useState('nanoBanana');
+    const [mobileGalleryView, setMobileGalleryView] = useState('double'); // 'single' or 'double'
 
     // Costs
     const [costs, setCosts] = useState(null);
@@ -224,6 +225,7 @@ function DashboardPage() {
                         onLoadMore={loadMoreHistory}
                         onImageAction={handleImageAction}
                         onOpenModal={setSelectedImageUrl}
+                        mobileGalleryView={mobileGalleryView}
                     />
                 );
 
@@ -301,26 +303,54 @@ function DashboardPage() {
 
                 {/* Right panel */}
                 <div className={styles.rightPanel}>
-                    {/* Right Panel Tabs */}
-                    <div className={styles.tabContainer}>
-                        <button
-                            onClick={() => setActiveTab('Photo')}
-                            className={`${styles.tabButton} ${activeTab === 'Photo' ? styles.activeTab : ''}`}
-                        >
-                            Photo
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('Video')}
-                            className={`${styles.tabButton} ${activeTab === 'Video' ? styles.activeTab : ''}`}
-                        >
-                            Video
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('Favorite')}
-                            className={`${styles.tabButton} ${activeTab === 'Favorite' ? styles.activeTab : ''}`}
-                        >
-                            Favorite
-                        </button>
+                    {/* Right Panel Tabs with View Controls */}
+                    <div className={styles.tabContainerWithControls}>
+                        <div className={styles.tabContainer}>
+                            <button
+                                onClick={() => setActiveTab('Photo')}
+                                className={`${styles.tabButton} ${activeTab === 'Photo' ? styles.activeTab : ''}`}
+                            >
+                                Photo
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('Video')}
+                                className={`${styles.tabButton} ${activeTab === 'Video' ? styles.activeTab : ''}`}
+                            >
+                                Video
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('Favorite')}
+                                className={`${styles.tabButton} ${activeTab === 'Favorite' ? styles.activeTab : ''}`}
+                            >
+                                Favorite
+                            </button>
+                        </div>
+                        
+                        {/* Mobile View Toggle Buttons */}
+                        <div className={styles.mobileViewControls}>
+                            <button
+                                onClick={() => setMobileGalleryView('single')}
+                                className={`${styles.viewButton} ${mobileGalleryView === 'single' ? styles.activeViewButton : ''}`}
+                                title="Single column"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="5" y="3" width="14" height="8" rx="1"/>
+                                    <rect x="5" y="13" width="14" height="8" rx="1"/>
+                                </svg>
+                            </button>
+                            <button
+                                onClick={() => setMobileGalleryView('double')}
+                                className={`${styles.viewButton} ${mobileGalleryView === 'double' ? styles.activeViewButton : ''}`}
+                                title="Two columns"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="3" width="8" height="8" rx="1"/>
+                                    <rect x="13" y="3" width="8" height="8" rx="1"/>
+                                    <rect x="3" y="13" width="8" height="8" rx="1"/>
+                                    <rect x="13" y="13" width="8" height="8" rx="1"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Right Panel Content */}

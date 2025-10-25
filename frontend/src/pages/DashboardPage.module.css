@@ -497,13 +497,19 @@
 
 /* --- Правая панель --- */
 
-.tabContainer {
+.tabContainerWithControls {
     display: flex;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 0.5rem;
     border-bottom: 1px solid rgba(75, 85, 99, 0.2);
     flex-shrink: 0;
     padding: 0 0.5rem;
+}
+
+.tabContainer {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .tabButton {
@@ -528,6 +534,53 @@
     color: var(--primary);
     font-weight: 600;
     border-bottom-color: var(--primary);
+}
+
+/* Mobile View Controls */
+.mobileViewControls {
+    display: none; /* Hidden on desktop */
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.viewButton {
+    background-color: rgba(18, 18, 18, 0.5);
+    color: var(--gray);
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: var(--radius-md);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.viewButton:hover {
+    background-color: rgba(38, 38, 38, 0.7);
+    border-color: var(--primary);
+    color: var(--light);
+}
+
+.activeViewButton {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.activeViewButton:hover {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* Show mobile controls only on mobile devices */
+@media (max-width: 768px) {
+    .mobileViewControls {
+        display: flex;
+    }
 }
 
 .tabContent {

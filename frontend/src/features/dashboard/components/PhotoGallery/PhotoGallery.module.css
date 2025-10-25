@@ -41,6 +41,17 @@
     gap: 0.75rem;
 }
 
+/* Mobile view options - only apply on mobile devices */
+@media (max-width: 768px) {
+    .imageListSingle {
+        grid-template-columns: 1fr !important;
+    }
+
+    .imageListDouble {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
 .imageCard {
     background-color: rgba(18, 18, 18, 0.5);
     border-radius: var(--radius-md);

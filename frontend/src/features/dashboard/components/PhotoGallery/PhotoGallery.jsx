@@ -9,7 +9,8 @@ const PhotoGallery = ({
     isHistoryLoadingMore,
     onLoadMore,
     onImageAction,
-    onOpenModal
+    onOpenModal,
+    mobileGalleryView = 'double' // 'single' or 'double'
 }) => {
     const [actionsMenuOpenForId, setActionsMenuOpenForId] = useState(null);
 
@@ -91,9 +92,14 @@ const PhotoGallery = ({
         );
     }
 
+    // Determine the CSS class based on mobile view preference
+    const imageListClass = `${styles.imageList} ${
+        mobileGalleryView === 'single' ? styles.imageListSingle : styles.imageListDouble
+    }`;
+
     return (
         <section className={styles.resultsSection}>
-            <div className={styles.imageList}>
+            <div className={imageListClass}>
                 {isHistoryLoading && allImages.length === 0 ? (
                     <div className={styles.loadingSpinner}></div>
                 ) : (
