@@ -34,10 +34,12 @@ export const useWebSocket = (userId, onImageUpdate, onReconnect) => {
         console.log('[WebSocket] Initializing connection to:', WS_BASE_URL, 'for user:', userId);
 
         // Создаем WebSocket соединение
+        // ВАЖНО: Используем ТОЛЬКО websocket transport для DigitalOcean App Platform
         const socket = io(WS_BASE_URL, {
             path: '/socket.io',  // Путь к Socket.IO на сервере
             withCredentials: true,
-            transports: ['websocket', 'polling'], // Попробуем WebSocket сначала, потом polling
+            transports: ['websocket'], // Только WebSocket, без polling
+            upgrade: false, // Отключаем upgrade с polling на websocket
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,

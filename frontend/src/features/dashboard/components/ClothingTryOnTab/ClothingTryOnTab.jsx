@@ -147,9 +147,8 @@ const ClothingTryOnTab = ({
 
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
-                actionCost={costs?.virtual_try_on || 0}
-                actionName="Try On"
-                submitText="Generate Try-On"
+                baseCost={costs?.virtual_try_on}
+                quantity={numImages}
                 disabled={!hasModelImage || !hasGarmentImage}
             />
         </form>

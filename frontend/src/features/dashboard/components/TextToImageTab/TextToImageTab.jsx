@@ -84,9 +84,8 @@ const TextToImageTab = ({
 
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
-                actionCost={costs?.text_to_image || 0}
-                actionName="Generate"
-                submitText="Generate Images"
+                baseCost={costs?.text_to_image}
+                quantity={textNumImages}
             />
 
             <div className={styles.infoBox}>

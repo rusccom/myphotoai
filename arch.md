@@ -101,14 +101,17 @@ components/
 - Footer.js: 38 строк (было 40, -5%)
 - Footer.module.css: 100 строк (без изменений)
 
-**🔧 UniversalSubmitButton** (обновлено 2025-10-18):
-- Универсальная кнопка для отправки форм генерации
+**🔧 UniversalSubmitButton** (обновлено 2025-10-24):
+- Универсальная кнопка для отправки форм генерации с единым форматом "GO (Cost: X points)"
 - Поддержка двух режимов пропсов:
-  - **Новый режим**: `actionCost`, `actionName`, `submitText`, `disabled` (используется в компонентах дашборда)
-  - **Legacy режим**: `actionType`, `costs`, `numImages`, `isDisabled` (обратная совместимость)
-- Автоматический расчет стоимости и отображение в тексте кнопки
+  - **Стандартный режим**: `baseCost`, `quantity`, `isSubmitting`, `disabled` (централизованный расчет)
+  - **Сложные расчеты**: `actionCost`, `isSubmitting`, `disabled` (для NanoBanana: файлы × изображения × стоимость)
+- Автоматический расчет стоимости: `baseCost × quantity`
+- Текст кнопки: "GO (Cost: X points)" / "GOing..." при отправке
+- Приоритет расчета: actionCost → baseCost×quantity
 - Состояния: обычное, submitting (с анимацией), disabled
 - Используется во всех вкладках генерации: NanoBanana, ModelPhoto, TextToImage, Upscale, ClothingTryOn
+- Legacy код удален - только чистый современный API
 
 **🆕 FileUploader** (258 строк JSX + 259 CSS):
 - Drag & Drop поддержка
@@ -473,7 +476,7 @@ GROUP BY user_id
 - `POST /start-base` - базовая text-to-image генерация
 - `POST /start-upscale` - увеличение изображения
 - `POST /start-tryon` - примерка одежды
-- `POST /start-nano-banana` - Nano Banana генерация
+- `POST /start-nano-banana` - Nano Banana генерация (обновлено 2025-10-24: добавлен параметр aspect_ratio)
 - `GET /result/<request_id>` - результат генерации
 - `GET /history` - история генераций (пагинация)
 - `GET /costs` - получение стоимости операций
@@ -756,7 +759,10 @@ features/dashboard/
 - Отображение одной карточки изображения
 - Состояния: Pending (с таймером), Ready, Failed
 - Меню действий (3 dots menu)
-- Badges для типа генерации
+- **Универсальная система badges** для типа генерации:
+  - Конфигурация `BADGE_CONFIG` - централизованное определение текста и стилей
+  - 5 типов: Upscale (фиолетовый), Model Gen (зеленый), Text Gen (синий), Try-On (оранжевый), Edit Photo (золотой)
+  - Default fallback для новых типов (серый)
 - Aspect ratio для правильного отображения
 
 #### `ModelPhotoTab` (193 строки)
@@ -765,6 +771,19 @@ features/dashboard/
 - Slider для Finetune Strength
 - Интеграция с NumImagesSelect
 - Валидация и обработка ошибок
+
+#### `NanoBananaTab` (196 строк → ~210 строк после обновления 2025-10-24)
+- Форма редактирования нескольких изображений одновременно (Gemini AI)
+- FileUploader для загрузки 1-10 изображений
+- Селекторы: Output Format, **Aspect Ratio** (обновлено 2025-10-24), Number of Output Images
+- **Aspect Ratio опции**:
+  - Поддержка 10 форматов: 4:5, 3:4, 9:16, 16:9, 1:1, 4:3, 2:3, 3:2, 5:4, 21:9
+  - Опция "Auto (from images)" - использует соотношение входных изображений
+  - Понятные английские названия (Portrait, Instagram, Stories/Reels, Widescreen и т.д.)
+- Sync Mode checkbox (ожидание завершения всех изображений)
+- Расчет стоимости: файлы × выходные изображения × стоимость за действие
+- Интеграция с UniversalSubmitButton
+- Валидация типов файлов и обработка ошибок
 
 ### ✅ Этап 2: Все компоненты созданы - ЗАВЕРШЕН
 Полный список созданных компонентов:
@@ -986,6 +1005,69 @@ REACT_APP_WS_BASE_URL=https://myphotoai.net
    - `[WebSocket] Connected. Socket ID: YYYY`
    - `[WebSocket] Joined room: user_XXX`
 4. Запустите генерацию - изображение должно обновиться автоматически без перезагрузки
+
+---
+
+### 2025-10-25: Исправление WebSocket на DigitalOcean App Platform
+
+**Проблема:** WebSocket не подключается на продакшене (DigitalOcean App Platform). В консоли браузера:
+```
+WebSocket connection to 'wss://myphotoai.net/socket.io/?EIO=4&transport=websocket' failed
+```
+
+**Причина:** 
+1. Клиент пытался использовать `transports: ['websocket', 'polling']` с fallback на polling
+2. DigitalOcean App Platform поддерживает WebSocket, но требует:
+   - Использование ТОЛЬКО `websocket` transport (без polling)
+   - Правильные таймауты для long-lived connections
+   - Только 1 gevent worker (уже было настроено)
+
+**Решение:**
+
+1. ✅ **Frontend** (`frontend/src/hooks/useWebSocket.js`):
+   - Изменен `transports: ['websocket', 'polling']` → `transports: ['websocket']`
+   - Добавлен `upgrade: false` для отключения upgrade с polling
+   - Теперь клиент использует ТОЛЬКО WebSocket, без fallback на polling
+
+2. ✅ **Backend WSGI** (`backend/wsgi.py`):
+   - Добавлена документация о том, как Flask-SocketIO работает с Gunicorn
+   - Flask-SocketIO автоматически оборачивает app своим middleware при init_app()
+   - Gunicorn может запускать app напрямую с поддержкой WebSocket
+
+3. ✅ **Gunicorn настройки** (`Procfile`):
+   ```bash
+   # Было:
+   gunicorn --worker-class gevent -w 1 --worker-tmp-dir /dev/shm backend.wsgi:app
+   
+   # Стало:
+   gunicorn --worker-class gevent -w 1 --worker-tmp-dir /dev/shm \
+     --timeout 120 \          # Увеличен таймаут для long-lived connections
+     --graceful-timeout 30 \  # Graceful shutdown для активных WebSocket
+     --keep-alive 75 \        # Keep-alive для устойчивости соединений
+     backend.wsgi:app
+   ```
+
+**Ключевые моменты для DigitalOcean App Platform:**
+- ✅ Используется `gevent-websocket` (есть в requirements.txt)
+- ✅ Только 1 worker (`-w 1`) - важно для WebSocket rooms
+- ✅ Клиент использует ТОЛЬКО `websocket` transport
+- ✅ Увеличены таймауты для long-lived WebSocket connections
+- ✅ CORS правильно настроен для конкретных доменов
+
+**Проверка на продакшене:**
+```bash
+# В логах DigitalOcean должно быть видно:
+emitting event "image_updated" to user_X [/]
+```
+
+**В консоли браузера (F12):**
+```
+[WebSocket] Initializing connection to: https://myphotoai.net for user: X
+[WebSocket] Connected. Socket ID: YYYY
+[WebSocket] Joined room: user_X
+```
+
+**⚠️ Важно:** Если WebSocket не подключается, приложение продолжит работать! Пользователь увидит сгенерированные изображения после обновления страницы (они сохраняются в БД через webhook независимо от WebSocket).
 
 ---
 
@@ -1242,5 +1324,36 @@ CORS_ORIGINS=https://yourdomain.com
 
 ---
 
-_Последнее обновление: 2025-10-19_
+### 2025-10-24: Добавлен выбор Aspect Ratio для Nano Banana
+
+**Что добавлено:**
+- ✅ Frontend: константы `ASPECT_RATIO_OPTIONS` и `ASPECT_RATIO_LABELS` в NanoBananaTab.jsx
+- ✅ Frontend: state переменная `aspectRatio` с дефолтным значением `''` (Auto)
+- ✅ Frontend: CustomSelect компонент для выбора aspect ratio в UI
+- ✅ Backend: обработка параметра `aspect_ratio` в `/api/generation/nano-banana`
+- ✅ Backend: валидация допустимых значений aspect ratio
+- ✅ Обновлена документация в arch.md
+
+**Поддерживаемые форматы (в порядке популярности):**
+- `4:5` - Portrait (Instagram)
+- `3:4` - Tall Portrait
+- `9:16` - Vertical (Stories/Reels)
+- `16:9` - Widescreen
+- `1:1` - Square (Instagram Post)
+- `4:3` - Classic Landscape
+- `2:3` - Portrait Photo
+- `3:2` - Standard Photo
+- `5:4` - Medium Format
+- `21:9` - Ultrawide
+- `Auto` - использует aspect ratio входных изображений (дефолт)
+
+**Технические детали:**
+- NanoBananaTab.jsx: 196 строк → ~210 строк (+7%)
+- Параметр `aspect_ratio` опциональный, передается в Fal.ai API только если указан
+- Консистентность с другими вкладками (ModelPhotoTab)
+- Соблюдение правила ≤300 строк на файл ✅
+
+---
+
+_Последнее обновление: 2025-10-24_
 

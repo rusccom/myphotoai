@@ -7,6 +7,19 @@ import CustomSelect from '../../../../components/CustomSelect';
 import styles from './NanoBananaTab.module.css';
 
 const OUTPUT_FORMATS = ['jpeg', 'png'];
+const ASPECT_RATIO_OPTIONS = ['4:5', '3:4', '9:16', '16:9', '1:1', '4:3', '2:3', '3:2', '5:4', '21:9'];
+const ASPECT_RATIO_LABELS = {
+    '4:5': '4:5 Portrait (Instagram)',
+    '3:4': '3:4 Tall Portrait',
+    '9:16': '9:16 Vertical (Stories/Reels)',
+    '16:9': '16:9 Widescreen',
+    '1:1': '1:1 Square (Instagram Post)',
+    '4:3': '4:3 Classic Landscape',
+    '2:3': '2:3 Portrait Photo',
+    '3:2': '3:2 Standard Photo',
+    '5:4': '5:4 Medium Format',
+    '21:9': '21:9 Ultrawide'
+};
 
 const NanoBananaTab = ({ 
     onSubmit, 
@@ -26,6 +39,7 @@ const NanoBananaTab = ({
     const [prompt, setPrompt] = useState('');
     const [numImages, setNumImages] = useState(1);
     const [outputFormat, setOutputFormat] = useState('jpeg');
+    const [aspectRatio, setAspectRatio] = useState('');
     const [syncMode, setSyncMode] = useState(false);
 
     const handleSubmit = (e) => {
@@ -48,6 +62,9 @@ const NanoBananaTab = ({
         formData.append('prompt', prompt);
         formData.append('num_images', numImages);
         formData.append('output_format', outputFormat);
+        if (aspectRatio) {
+            formData.append('aspect_ratio', aspectRatio);
+        }
         formData.append('sync_mode', syncMode);
 
         onSubmit(formData);
@@ -120,6 +137,19 @@ const NanoBananaTab = ({
                     disabled={isSubmitting}
                     allowEmpty={false}
                 />
+
+                <CustomSelect
+                    label="Aspect Ratio"
+                    value={aspectRatio}
+                    onChange={setAspectRatio}
+                    options={ASPECT_RATIO_OPTIONS.map(ratio => ({
+                        value: ratio,
+                        label: ASPECT_RATIO_LABELS[ratio]
+                    }))}
+                    disabled={isSubmitting}
+                    allowEmpty={true}
+                    emptyLabel="Auto (from images)"
+                />
             </div>
 
             {/* Sync Mode Toggle */}
@@ -155,8 +185,6 @@ const NanoBananaTab = ({
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
                 actionCost={(costs?.nano_banana || 0) * files.length * numImages}
-                actionName="Process"
-                submitText={`Process ${files.length} Image${files.length !== 1 ? 's' : ''}`}
                 disabled={files.length === 0 || !prompt.trim()}
             />
         </form>

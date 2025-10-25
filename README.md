@@ -80,6 +80,15 @@ R2_ENDPOINT=your_cloudflare_r2_endpoint
 R2_ACCESS_KEY=your_r2_access_key
 R2_SECRET_KEY=your_r2_secret_key
 R2_BUCKET=your_r2_bucket_name
+
+# ⚠️ ВАЖНО: Для локальной разработки с общей БД укажите URL продакшен сервера
+# Это позволит Fal.ai отправлять webhooks на продакшен, который сохранит результаты в общую БД
+FAL_WEBHOOK_BASE_URL=https://your-production-url.ondigitalocean.app
+
+# Для полностью изолированной локальной разработки используйте ngrok:
+# 1. Установите ngrok: https://ngrok.com/download
+# 2. Запустите: ngrok http 5000
+# 3. Укажите: FAL_WEBHOOK_BASE_URL=https://your-ngrok-url.ngrok.io
 ```
 
 6. Create a `.env.local` file in the `frontend` directory with the following variables:

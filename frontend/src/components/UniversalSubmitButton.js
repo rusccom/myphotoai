@@ -2,56 +2,35 @@ import React from 'react';
 import styles from './UniversalSubmitButton.module.css';
 
 function UniversalSubmitButton({
-  actionType, // Legacy prop
-  numImages = 1, // Legacy prop
-  costs, // Legacy prop
   isSubmitting,
-  isDisabled, // Legacy prop
-  disabled, // New prop
-  baseText = "Start Generation", // Legacy prop
-  customText, // Legacy prop
-  actionCost, // New prop - cost in points
-  actionName = "Start", // New prop - name of action
-  submitText, // New prop - custom button text
+  disabled,
+  actionCost, // For complex calculations (e.g., NanoBanana)
+  baseCost, // Base cost per operation
+  quantity = 1, // Number of images/operations
 }) {
 
-  // Функция для расчета стоимости (legacy mode)
-  const calculateCost = () => {
-    if (!costs || !actionType || !costs[actionType]) {
-      return null;
-    }
-    if (actionType === 'upscale') {
-        return costs[actionType];
-    }
-    return costs[actionType] * numImages;
-  };
+  // Автоматический расчет: baseCost × quantity
+  const calculatedCost = baseCost !== undefined && quantity !== undefined 
+    ? baseCost * quantity 
+    : undefined;
 
-  // Определяем стоимость: либо из нового пропса, либо из старого расчета
-  const cost = actionCost !== undefined ? actionCost : calculateCost();
+  // Приоритет: actionCost (для сложных расчетов) → calculatedCost
+  const cost = actionCost !== undefined ? actionCost : calculatedCost;
   
   // Определяем disabled состояние
-  const isButtonDisabled = isSubmitting || disabled || isDisabled || (cost === null && actionCost === undefined);
+  const isButtonDisabled = isSubmitting || disabled || cost === null || cost === undefined;
 
   // Формируем текст для кнопки
   const getButtonText = () => {
     if (isSubmitting) {
-      return `${actionName}ing...`;
+      return "GOing...";
     }
     
-    // Если передан submitText, используем его
-    if (submitText) {
-      if (cost !== null && cost !== undefined) {
-        return `${submitText} (Cost: ${cost} ${cost === 1 ? 'point' : 'points'})`;
-      }
-      return submitText;
-    }
-    
-    // Legacy mode: используем старый формат
-    const baseTextToShow = customText || baseText || "Start";
     if (cost !== null && cost !== undefined) {
-      return `${baseTextToShow} (Cost: ${cost} ${cost === 1 ? 'point' : 'points'})`;
+      return `GO (Cost: ${cost} ${cost === 1 ? 'point' : 'points'})`;
     }
-    return baseTextToShow;
+    
+    return "GO";
   };
 
   return (

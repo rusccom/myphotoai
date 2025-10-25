@@ -177,9 +177,8 @@ const ModelPhotoTab = ({
 
                     <UniversalSubmitButton
                         isSubmitting={isSubmitting}
-                        actionCost={costs?.model_photo || 0}
-                        actionName="Generate"
-                        submitText="Generate Images"
+                        baseCost={costs?.model_photo}
+                        quantity={modelNumImages}
                     />
                 </>
             ) : (

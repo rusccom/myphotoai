@@ -12,6 +12,35 @@ const formatCssAspectRatio = (ratioStr) => {
     return `${w} / ${h}`;
 };
 
+// Badge configuration for all generation types
+const BADGE_CONFIG = {
+    upscale: {
+        text: 'Upscaled',
+        className: 'badgeUpscale'
+    },
+    model_photo: {
+        text: 'Model Gen',
+        className: 'badgeModelPhoto'
+    },
+    text_to_image: {
+        text: 'Text Gen',
+        className: 'badgeTextToImage'
+    },
+    try_on: {
+        text: 'Try-On',
+        className: 'badgeTryOn'
+    },
+    nano_banana: {
+        text: 'Edit Photo',
+        className: 'badgeNanoBanana'
+    }
+};
+
+const DEFAULT_BADGE = {
+    text: 'Generated',
+    className: 'badgeDefault'
+};
+
 const ImageCard = ({ 
     img, 
     onOpenModal, 
@@ -33,22 +62,9 @@ const ImageCard = ({
         if (img.prompt) altText += ` (${img.prompt})`;
     }
 
-    const getBadgeClass = () => {
-        const type = img.generation_type;
-        if (type === 'upscale') return styles.badgeUpscale;
-        if (type === 'model_photo') return styles.badgeModelPhoto;
-        if (type === 'text_to_image') return styles.badgeTextToImage;
-        if (type === 'try_on') return styles.badgeTryOn;
-        return '';
-    };
-
-    const getBadgeText = () => {
-        const type = img.generation_type;
-        if (type === 'upscale') return 'Upscaled';
-        if (type === 'model_photo') return 'Model Gen';
-        if (type === 'text_to_image') return 'Text Gen';
-        if (type === 'try_on') return 'Try-On';
-        return 'Generated';
+    const getBadgeConfig = () => {
+        const config = BADGE_CONFIG[img.generation_type];
+        return config || DEFAULT_BADGE;
     };
 
     return (
@@ -175,8 +191,8 @@ const ImageCard = ({
                     )}
                     
                     {img.status === 'Ready' && img.generation_type && (
-                        <span className={`${styles.generationTypeBadge} ${getBadgeClass()}`}>
-                            {getBadgeText()}
+                        <span className={`${styles.generationTypeBadge} ${styles[getBadgeConfig().className]}`}>
+                            {getBadgeConfig().text}
                         </span>
                     )}
                 </>

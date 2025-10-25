@@ -186,9 +186,8 @@ const UpscaleTab = ({
 
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
-                actionCost={costs?.upscale || 0}
-                actionName="Upscale"
-                submitText={`Upscale ${upscaleFactor}x`}
+                baseCost={costs?.upscale}
+                quantity={1}
                 disabled={!hasImage || !isSizeValid}
             />
         </form>

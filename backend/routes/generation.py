@@ -1228,10 +1228,16 @@ def start_nano_banana():
     # Get optional parameters
     num_images = int(request.form.get('num_images', 1))
     output_format = request.form.get('output_format', 'jpeg')
+    aspect_ratio = request.form.get('aspect_ratio')  # Optional
     sync_mode = request.form.get('sync_mode', 'false').lower() == 'true'
 
     if not (1 <= num_images <= 8):
         return jsonify({"error": "Number of images must be between 1 and 8"}), 400
+    
+    # Validate aspect_ratio if provided
+    valid_aspect_ratios = ['21:9', '1:1', '4:3', '3:2', '2:3', '5:4', '4:5', '3:4', '16:9', '9:16']
+    if aspect_ratio and aspect_ratio not in valid_aspect_ratios:
+        return jsonify({"error": f"Invalid aspect_ratio. Must be one of: {', '.join(valid_aspect_ratios)}"}), 400
 
     # --- Balance check and deduction --- 
     can_proceed, error_message, balance_info = check_balance_and_deduct(
@@ -1301,6 +1307,10 @@ def start_nano_banana():
             "output_format": output_format,
             "sync_mode": sync_mode
         }
+        
+        # Add aspect_ratio only if provided
+        if aspect_ratio:
+            fal_arguments["aspect_ratio"] = aspect_ratio
         
         logging.info(f"[NanoBanana] Submitting job to {model_identifier} with args: {fal_arguments}")
         handler = fal_client.submit(
