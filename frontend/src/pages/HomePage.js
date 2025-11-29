@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO, { SCHEMAS } from '../components/SEO';
 import styles from './HomePage.module.css';
 
 // New components
@@ -13,6 +14,15 @@ import LivePhoto from '../components/home/LivePhoto';
 import Capabilities from '../components/home/Capabilities';
 import Faq from '../components/home/Faq';
 import FinalCTA from '../components/home/FinalCTA';
+
+// Combined schema for homepage
+const homePageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+        SCHEMAS.organization,
+        SCHEMAS.softwareApplication
+    ]
+};
 
 function HomePage() {
     const { isAuthenticated } = useAuth();
@@ -30,6 +40,11 @@ function HomePage() {
 
     return (
         <div className={styles.page}>
+            <SEO 
+                path="/"
+                description="Turn your photos into a personalized AI model. Generate stunning, photorealistic images and videos of yourself in any style or setting. Start creating your digital twin today!"
+                schema={homePageSchema}
+            />
             <Hero />
             <FeaturesShowcase />
             <ModelGeneration />

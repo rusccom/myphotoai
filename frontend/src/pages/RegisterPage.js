@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 import styles from './AuthForms.module.css';
 
 function RegisterPage() {
@@ -59,6 +60,11 @@ function RegisterPage() {
 
     return (
         <div className={styles.authContainer}>
+            <SEO 
+                title="Create Account - Start Free"
+                description="Create your free MyPhotoAI account. Start generating AI photos and videos of yourself in any style. No credit card required."
+                path="/register"
+            />
             <div className={styles.authHeader}>
                 <h1 className={styles.authTitle}>Create Account</h1>
                 <p className={styles.authSubtitle}>Start your journey by creating an account</p>

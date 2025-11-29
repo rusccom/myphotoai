@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 import styles from './AuthForms.module.css';
 
 function LoginPage() {
@@ -52,6 +53,11 @@ function LoginPage() {
 
     return (
         <div className={styles.authContainer}>
+            <SEO 
+                title="Sign In"
+                description="Sign in to your MyPhotoAI account. Access your AI models, generated images, and create stunning photorealistic content."
+                path="/login"
+            />
             <div className={styles.authHeader}>
                 <h1 className={styles.authTitle}>Welcome Back</h1>
                 <p className={styles.authSubtitle}>Sign in to your account to access the dashboard</p>

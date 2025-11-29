@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { useAuth } from '../context/AuthContext';
 import { createCheckoutSession } from '../services/api';
+import SEO from '../components/SEO';
 import styles from './PricePage.module.css';
 
 // Replace with your actual Stripe publishable key
@@ -81,8 +82,42 @@ function PricePage() {
         setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly');
     };
 
+    // Pricing schema for SEO
+    const pricingSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Pricing - MyPhotoAI",
+        "description": "Choose the right plan for AI photo generation",
+        "offers": [
+            {
+                "@type": "Offer",
+                "name": "Free Plan",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            {
+                "@type": "Offer",
+                "name": "Plus Plan",
+                "price": prices.plus[billingCycle].toString(),
+                "priceCurrency": "USD"
+            },
+            {
+                "@type": "Offer",
+                "name": "Premium Plan",
+                "price": prices.premium[billingCycle].toString(),
+                "priceCurrency": "USD"
+            }
+        ]
+    };
+
     return (
         <div className={styles.pricingContainer}>
+            <SEO 
+                title="Pricing - AI Photo Generation Plans"
+                description="Choose the right MyPhotoAI plan. Free, Plus, and Premium tiers for AI photo generation, virtual try-on, and more. Start free today!"
+                path="/pricing"
+                schema={pricingSchema}
+            />
             <div className={styles.pricingHeader}>
                 <h1 className={styles.pricingTitle}>Choose the Right Plan</h1>
                 <p className={styles.pricingSubtitle}>

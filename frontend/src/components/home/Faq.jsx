@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './Faq.module.css';
@@ -30,6 +31,20 @@ const faqs = [
     }
 ];
 
+// FAQ Schema for Google Rich Results
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+        "@type": "Question",
+        "name": faq.q,
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.a
+        }
+    }))
+};
+
 function Faq() {
     const [openIndex, setOpenIndex] = useState(null);
 
@@ -39,6 +54,11 @@ function Faq() {
 
     return (
         <section id="faq" className={styles.section}>
+            <Helmet>
+                <script type="application/ld+json">
+                    {JSON.stringify(faqSchema)}
+                </script>
+            </Helmet>
             <div className="container">
                 <ScrollReveal animation="fadeUp">
                     <div className={styles.sectionHeader}>

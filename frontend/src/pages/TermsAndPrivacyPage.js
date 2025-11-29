@@ -1,9 +1,15 @@
 import React from 'react';
+import SEO from '../components/SEO';
 import styles from './TermsAndPrivacyPage.module.css';
 
 function TermsAndPrivacyPage() {
     return (
         <div className={styles.container}>
+            <SEO 
+                title="Terms of Service & Privacy Policy"
+                description="Read MyPhotoAI Terms of Service and Privacy Policy. Learn about data protection, user rights, and usage guidelines."
+                path="/terms-and-privacy"
+            />
             <div className={styles.content}>
                 {/* Terms of Use Section */}
                 <section className={styles.section}>

@@ -1,39 +1,34 @@
 const { SitemapStream, streamToPromise } = require('sitemap');
-const { createWriteStream } = require('fs');
+const { writeFileSync } = require('fs');
 const path = require('path');
 
-// Определяем список публичных страниц
+// Все публичные страницы для индексации Google
 const links = [
     { url: '/', changefreq: 'daily', priority: 1.0 },
-    { url: '/pricing', changefreq: 'monthly', priority: 0.8 },
-    { url: '/login', changefreq: 'monthly', priority: 0.5 },
+    { url: '/pricing', changefreq: 'weekly', priority: 0.9 },
+    { url: '/login', changefreq: 'monthly', priority: 0.4 },
     { url: '/register', changefreq: 'monthly', priority: 0.5 },
+    { url: '/terms-and-privacy', changefreq: 'monthly', priority: 0.3 },
 ];
 
-// Устанавливаем базовый URL вашего сайта
 const hostname = 'https://myphotoai.net';
-
-// Путь для сохранения файла sitemap.xml
 const dest = path.resolve(__dirname, 'public', 'sitemap.xml');
 
-// Создаем поток для генерации карты сайта
-const sitemapStream = new SitemapStream({ hostname });
+async function generateSitemap() {
+    try {
+        const sitemapStream = new SitemapStream({ hostname });
+        
+        links.forEach(link => sitemapStream.write(link));
+        sitemapStream.end();
+        
+        const sitemap = await streamToPromise(sitemapStream);
+        writeFileSync(dest, sitemap.toString());
+        console.log(`✅ Sitemap generated: ${dest}`);
+        console.log(`   Pages: ${links.length}`);
+    } catch (error) {
+        console.error('❌ Sitemap generation failed:', error);
+        process.exit(1);
+    }
+}
 
-// Преобразуем поток в Promise, чтобы дождаться его завершения
-streamToPromise(sitemapStream)
-    .then(sm => {
-        // Записываем сгенерированную карту в файл
-        const writeStream = createWriteStream(dest);
-        writeStream.write(sm);
-        writeStream.end();
-        console.log(`Sitemap generated successfully at ${dest}`);
-    })
-    .catch(console.error);
-
-// Добавляем все наши ссылки в поток
-links.forEach(link => {
-    sitemapStream.write(link);
-});
-
-// Завершаем поток
-sitemapStream.end(); 
+generateSitemap(); 

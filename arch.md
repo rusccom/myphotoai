@@ -1481,5 +1481,77 @@ CORS_ORIGINS=https://yourdomain.com
 
 ---
 
-_Последнее обновление: 2025-10-25_
+### 2025-11-29: SEO оптимизация для Google
+
+**Что было сделано:**
+
+#### 1. sitemap.xml ✅
+- Создан файл `frontend/public/sitemap.xml` с 5 публичными страницами
+- Страницы: `/`, `/pricing`, `/register`, `/login`, `/terms-and-privacy`
+- Указаны приоритеты и частота обновления для каждой страницы
+- Обновлен скрипт `generate-sitemap.js` для автоматической генерации
+
+#### 2. manifest.json ✅
+- Обновлены брендированные данные:
+  - `short_name`: "MyPhotoAI"
+  - `name`: "MyPhotoAI - AI Digital Twin Photo Generator"
+  - `description`: добавлено описание сервиса
+- Установлен правильный `theme_color`: #8b5cf6 (фирменный фиолетовый)
+- Добавлены категории: photo, graphics, lifestyle
+- Добавлен язык: en-US
+
+#### 3. react-helmet-async ✅
+- Установлен пакет `react-helmet-async`
+- Создан компонент `SEO.jsx` для динамических метатегов
+- Интегрирован `HelmetProvider` в `index.js`
+- Добавлен SEO на все публичные страницы:
+  - `HomePage.js` - главная страница с полным описанием
+  - `PricePage.js` - страница тарифов с Pricing Schema
+  - `LoginPage.js` - страница входа
+  - `RegisterPage.js` - страница регистрации
+  - `TermsAndPrivacyPage.js` - условия и политика
+
+#### 4. JSON-LD Schema разметка ✅
+- **Organization Schema** - информация о компании
+- **SoftwareApplication Schema** - описание приложения
+- **FAQPage Schema** - разметка FAQ для Rich Results в Google
+- **Pricing/Offer Schema** - структура тарифов
+
+**Файлы SEO:**
+```
+frontend/
+├── public/
+│   ├── sitemap.xml          ✅ 5 страниц
+│   ├── robots.txt           ✅ Ссылается на sitemap
+│   └── manifest.json        ✅ Брендированный PWA манифест
+├── src/
+│   ├── components/
+│   │   └── SEO.jsx          ✅ Универсальный SEO компонент (80 строк)
+│   └── index.js             ✅ HelmetProvider интегрирован
+└── generate-sitemap.js      ✅ Скрипт генерации sitemap
+```
+
+**SEO компонент (components/SEO.jsx):**
+- Универсальный компонент для всех страниц
+- Автоматическая генерация:
+  - Title с брендом
+  - Meta description
+  - Canonical URL
+  - Open Graph теги
+  - Twitter Card теги
+  - JSON-LD Schema (опционально)
+- Поддержка noindex для служебных страниц
+- Готовые схемы: `SCHEMAS.organization`, `SCHEMAS.softwareApplication`, `SCHEMAS.createFaqSchema()`
+
+**Рекомендации для дальнейшего улучшения SEO:**
+1. Добавить prerender.io или similar для SSR (Google лучше индексирует статический HTML)
+2. Добавить hreflang теги при локализации
+3. Создать отдельные landing pages для ключевых запросов
+4. Добавить BreadcrumbList Schema для навигации
+5. Улучшить Core Web Vitals (LCP, FID, CLS)
+6. Добавить социальные профили в Organization Schema
+
+---
+
+_Последнее обновление: 2025-11-29_
 
