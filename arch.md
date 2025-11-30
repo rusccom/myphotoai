@@ -1404,7 +1404,7 @@ CORS_ORIGINS=https://yourdomain.com
 - ✅ Frontend: константы `ASPECT_RATIO_OPTIONS` и `ASPECT_RATIO_LABELS` в NanoBananaTab.jsx
 - ✅ Frontend: state переменная `aspectRatio` с дефолтным значением `''` (Auto)
 - ✅ Frontend: CustomSelect компонент для выбора aspect ratio в UI
-- ✅ Backend: обработка параметра `aspect_ratio` в `/api/generation/nano-banana`
+- ✅ Backend: обработка параметра `aspect_ratio` в `NanoBananaStrategy`
 - ✅ Backend: валидация допустимых значений aspect ratio
 - ✅ Обновлена документация в arch.md
 
@@ -1553,5 +1553,193 @@ frontend/
 
 ---
 
-_Последнее обновление: 2025-11-29_
+### 2025-11-30: Рефакторинг архитектуры генерации (Strategy Pattern)
+
+**Проблема:**
+- `routes/generation.py` содержал 1368 строк с большим количеством дублирующегося кода
+- Каждый тип генерации (5 типов) повторял одну и ту же логику:
+  - Проверка баланса
+  - Списание поинтов
+  - Отправка в Fal.ai
+  - Создание записей в БД
+  - Обработка ошибок с возвратом поинтов
+- Добавление нового типа генерации требовало копирования ~200 строк кода
+
+**Решение:**
+Внедрена архитектура на основе паттернов Strategy + Factory:
+
+```
+backend/
+├── services/
+│   └── generation/
+│       ├── __init__.py           # Экспорт публичного API
+│       ├── base.py               # BaseGenerationStrategy (Template Method)
+│       ├── factory.py            # GenerationFactory
+│       └── strategies/
+│           ├── __init__.py
+│           ├── model_photo.py    # LoRA генерация (~120 строк)
+│           ├── text_to_image.py  # Text-to-Image (~45 строк)
+│           ├── upscale.py        # Апскейл (~95 строк)
+│           ├── try_on.py         # Примерка (~135 строк)
+│           └── nano_banana.py    # Nano Banana (~100 строк)
+├── routes/
+│   └── generation.py             # Тонкий контроллер (~300 строк)
+```
+
+**Архитектура:**
+
+```
+Frontend                              Backend
+─────────────────────────────────────────────────────────────────
+Все типы      →  POST /api/generation/start   →  GenerationFactory
+генерации        { type: "model_photo", ... }      ↓
+                                                get(type)
+                                                   ↓
+                                              Strategy.execute()
+                                                   │
+                                    ┌──────────────┼──────────────┐
+                                    ▼              ▼              ▼
+                              ModelPhoto    TextToImage     Upscale
+                              Strategy      Strategy        Strategy
+                                    │              │              │
+                                    └──────────────┼──────────────┘
+                                                   │
+                                         BaseGenerationStrategy
+                                           (общая логика):
+                                           - validate_input()
+                                           - check_balance_and_deduct()
+                                           - prepare_files()
+                                           - build_fal_arguments()
+                                           - submit_to_fal()
+                                           - create_db_records()
+                                           - handle_errors()
+```
+
+**BaseGenerationStrategy (base.py):**
+- Template Method паттерн
+- `execute()` - основной алгоритм с фиксированной последовательностью шагов
+- Общие методы (не нужно переопределять):
+  - `_check_and_deduct_balance()` - проверка и списание
+  - `_submit_to_fal()` - отправка в Fal.ai
+  - `_create_db_records()` - создание записей в БД
+  - `_refund()` - возврат поинтов при ошибке
+- Абстрактные методы (обязательно переопределить):
+  - `validate_input()` - валидация входных данных
+  - `build_fal_arguments()` - построение аргументов для Fal.ai
+- Опциональные методы (переопределить при необходимости):
+  - `get_num_images()` - количество изображений
+  - `prepare_files()` - подготовка файлов
+  - `get_db_params()` - параметры для БД
+
+**GenerationConfig (dataclass):**
+```python
+@dataclass
+class GenerationConfig:
+    action_type: str              # Ключ из costs_config.json
+    generation_type: GenerationType
+    fal_model: str                # Идентификатор модели Fal.ai
+    default_num_images: int = 1
+    max_num_images: int = 8
+    supports_file_upload: bool = False
+    use_form_data: bool = False
+```
+
+**GenerationFactory (factory.py):**
+```python
+GenerationFactory.register('model_photo', ModelPhotoStrategy)
+GenerationFactory.register('text_to_image', TextToImageStrategy)
+# ...
+
+strategy = GenerationFactory.get('model_photo')
+result = strategy.execute(data)
+```
+
+**Универсальный endpoint:**
+```python
+@bp.route('/start', methods=['POST'])
+@login_required
+def start_generation():
+    generation_type = data.get('type')  # "model_photo", "upscale", etc.
+    strategy = GenerationFactory.get(generation_type)
+    result = strategy.execute(data)
+    return jsonify(response), result.status_code
+```
+
+**Frontend обновления:**
+
+1. **api.js** - добавлена универсальная функция:
+```javascript
+export const startGeneration = async (type, data, isFormData = false) => {
+    if (isFormData) {
+        data.append('type', type);
+    } else {
+        data = { ...data, type };
+    }
+    return fetchApi('/generation/start', { method: 'POST', body: data }, isFormData);
+};
+```
+
+2. **useGeneration.js** - новый универсальный хук:
+```javascript
+const { submit, getState, TYPES } = useGeneration(updateUser, setPendingGenerations);
+
+// Использование:
+await submit(TYPES.MODEL_PHOTO, { prompt, aspectRatio, ... });
+await submit(TYPES.UPSCALE, formData);
+```
+
+3. **useGenerationHandlers.js** - обновлен для обратной совместимости
+
+**Преимущества новой архитектуры:**
+
+| Метрика | До | После | Улучшение |
+|---------|-----|-------|-----------|
+| routes/generation.py | 1368 строк | ~300 строк | -78% |
+| Добавление нового типа | ~200 строк копипаста | ~60 строк стратегии | -70% |
+| Изменение общей логики | 5 мест | 1 место (base.py) | -80% |
+| Тестируемость | Сложно | Изолированные стратегии | ✅ |
+
+**Добавление нового типа генерации:**
+
+1. Создать файл `strategies/new_type.py`:
+```python
+class NewTypeStrategy(BaseGenerationStrategy):
+    config = GenerationConfig(
+        action_type='new_type',
+        generation_type=GenerationType.NEW_TYPE,
+        fal_model='fal-ai/new-model',
+    )
+    
+    def validate_input(self, data): ...
+    def build_fal_arguments(self, data, file_urls): ...
+```
+
+2. Зарегистрировать в factory.py:
+```python
+GenerationFactory.register('new_type', NewTypeStrategy)
+```
+
+3. Добавить стоимость в costs_config.json:
+```json
+{ "new_type": 5 }
+```
+
+4. Добавить enum в models.py:
+```python
+class GenerationType(PyEnum):
+    NEW_TYPE = 'new_type'
+```
+
+**Единственный endpoint:**
+Все генерации идут через один endpoint:
+```
+POST /api/generation/start
+{ "type": "model_photo", ... }
+```
+
+Legacy endpoints удалены - используется только новая архитектура.
+
+---
+
+_Последнее обновление: 2025-11-30_
 
