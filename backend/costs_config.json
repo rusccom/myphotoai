@@ -4,5 +4,6 @@
   "text_to_image": 1,
   "upscale": 1,
   "virtual_try_on": 10,
-  "nano_banana": 5
+  "edit_photo_nano_banana": 5,
+  "edit_photo_flux": 5
 } 

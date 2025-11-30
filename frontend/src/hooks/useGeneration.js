@@ -26,7 +26,7 @@ const CONFIG = {
         defaultAspectRatio: '3:4',
         isFormData: true,
     },
-    [GENERATION_TYPES.NANO_BANANA]: {
+    [GENERATION_TYPES.EDIT_PHOTO]: {
         defaultAspectRatio: 'auto',
         isFormData: true,
     },
@@ -118,8 +118,8 @@ export const useGeneration = (updateUser, setPendingGenerations) => {
     const submitTryOn = useCallback((formData, options) => 
         submit(GENERATION_TYPES.TRY_ON, formData, options), [submit]);
     
-    const submitNanoBanana = useCallback((formData, options) => 
-        submit(GENERATION_TYPES.NANO_BANANA, formData, options), [submit]);
+    const submitEditPhoto = useCallback((formData, options) => 
+        submit(GENERATION_TYPES.EDIT_PHOTO, formData, options), [submit]);
 
     return {
         submit,
@@ -132,7 +132,7 @@ export const useGeneration = (updateUser, setPendingGenerations) => {
         submitTextToImage,
         submitUpscale,
         submitTryOn,
-        submitNanoBanana,
+        submitEditPhoto,
         
         // Состояния для обратной совместимости
         isSubmittingModelPhoto: states[GENERATION_TYPES.MODEL_PHOTO]?.isSubmitting || false,
@@ -147,8 +147,8 @@ export const useGeneration = (updateUser, setPendingGenerations) => {
         isSubmittingTryOn: states[GENERATION_TYPES.TRY_ON]?.isSubmitting || false,
         tryOnError: states[GENERATION_TYPES.TRY_ON]?.error || null,
         
-        isSubmittingNanoBanana: states[GENERATION_TYPES.NANO_BANANA]?.isSubmitting || false,
-        nanoBananaError: states[GENERATION_TYPES.NANO_BANANA]?.error || null,
+        isSubmittingEditPhoto: states[GENERATION_TYPES.EDIT_PHOTO]?.isSubmitting || false,
+        editPhotoError: states[GENERATION_TYPES.EDIT_PHOTO]?.error || null,
     };
 };
 

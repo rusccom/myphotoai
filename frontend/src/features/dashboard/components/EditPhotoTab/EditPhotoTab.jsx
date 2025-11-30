@@ -4,24 +4,15 @@ import NumImagesSelect from '../../../../components/NumImagesSelect';
 import UniversalSubmitButton from '../../../../components/UniversalSubmitButton';
 import FileUploader from '../../../../components/FileUploader';
 import CustomSelect from '../../../../components/CustomSelect';
-import styles from './NanoBananaTab.module.css';
+import { ASPECT_RATIO_OPTIONS, ASPECT_RATIO_LABELS } from '../../../../constants/aspectRatio';
+import styles from './EditPhotoTab.module.css';
 
-const OUTPUT_FORMATS = ['jpeg', 'png'];
-const ASPECT_RATIO_OPTIONS = ['4:5', '3:4', '9:16', '16:9', '1:1', '4:3', '2:3', '3:2', '5:4', '21:9'];
-const ASPECT_RATIO_LABELS = {
-    '4:5': '4:5 Portrait (Instagram)',
-    '3:4': '3:4 Tall Portrait',
-    '9:16': '9:16 Vertical (Stories/Reels)',
-    '16:9': '16:9 Widescreen',
-    '1:1': '1:1 Square (Instagram Post)',
-    '4:3': '4:3 Classic Landscape',
-    '2:3': '2:3 Portrait Photo',
-    '3:2': '3:2 Standard Photo',
-    '5:4': '5:4 Medium Format',
-    '21:9': '21:9 Ultrawide'
-};
+const EDIT_MODELS = [
+    { value: 'nano_banana_pro', label: 'Nano Banana Pro' },
+    { value: 'flux_2_pro', label: 'Flux 2 Pro' }
+];
 
-const NanoBananaTab = ({ 
+const EditPhotoTab = ({ 
     onSubmit, 
     isSubmitting, 
     error,
@@ -36,20 +27,24 @@ const NanoBananaTab = ({
         reset
     } = useMultiFileUpload(10);
 
+    const [selectedModel, setSelectedModel] = useState('nano_banana_pro');
     const [prompt, setPrompt] = useState('');
     const [numImages, setNumImages] = useState(1);
-    const [outputFormat, setOutputFormat] = useState('jpeg');
     const [aspectRatio, setAspectRatio] = useState('');
-    const [syncMode, setSyncMode] = useState(false);
+
+    const isFluxModel = selectedModel === 'flux_2_pro';
+    const effectiveNumImages = isFluxModel ? 1 : numImages;
+
+    const getCostKey = () => {
+        return selectedModel === 'nano_banana_pro' 
+            ? 'edit_photo_nano_banana' 
+            : 'edit_photo_flux';
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!prompt.trim()) {
-            return;
-        }
-
-        if (files.length === 0) {
+        if (!prompt.trim() || files.length === 0) {
             return;
         }
 
@@ -59,32 +54,44 @@ const NanoBananaTab = ({
             formData.append('image_urls', file);
         });
         
+        formData.append('model', selectedModel);
         formData.append('prompt', prompt);
-        formData.append('num_images', numImages);
-        formData.append('output_format', outputFormat);
+        formData.append('num_images', effectiveNumImages);
+        
         if (aspectRatio) {
             formData.append('aspect_ratio', aspectRatio);
         }
-        formData.append('sync_mode', syncMode);
 
         onSubmit(formData);
 
-        // Reset after submission
         setPrompt('');
         setNumImages(1);
         reset();
     };
 
+    const costPerImage = costs?.[getCostKey()] || 0;
+    const totalCost = costPerImage * files.length * effectiveNumImages;
+
     return (
-        <form onSubmit={handleSubmit} className={styles.nanoBananaForm}>
+        <form onSubmit={handleSubmit} className={styles.editPhotoForm}>
             <div className={styles.header}>
-                <h3>⭐ Nano Banana</h3>
-                <span className={styles.badge}>Advanced</span>
+                <h3>Edit Photo</h3>
+                <span className={styles.badge}>AI</span>
             </div>
             
             <p className={styles.description}>
-                Edit multiple images simultaneously with AI-powered transformations.
+                Edit your images with AI-powered transformations.
             </p>
+
+            {/* Model Selection */}
+            <CustomSelect
+                label="Model"
+                value={selectedModel}
+                onChange={setSelectedModel}
+                options={EDIT_MODELS}
+                disabled={isSubmitting}
+                allowEmpty={false}
+            />
 
             {/* Image Upload */}
             <FileUploader
@@ -118,26 +125,6 @@ const NanoBananaTab = ({
 
             {/* Settings Grid */}
             <div className={styles.settingsGrid}>
-                <NumImagesSelect
-                    label="Output Images per Input"
-                    value={numImages}
-                    onChange={setNumImages}
-                    disabled={isSubmitting}
-                    max={4}
-                />
-
-                <CustomSelect
-                    label="Output Format"
-                    value={outputFormat}
-                    onChange={setOutputFormat}
-                    options={OUTPUT_FORMATS.map(format => ({
-                        value: format,
-                        label: format.toUpperCase()
-                    }))}
-                    disabled={isSubmitting}
-                    allowEmpty={false}
-                />
-
                 <CustomSelect
                     label="Aspect Ratio"
                     value={aspectRatio}
@@ -150,20 +137,14 @@ const NanoBananaTab = ({
                     allowEmpty={true}
                     emptyLabel="Auto (from images)"
                 />
-            </div>
 
-            {/* Sync Mode Toggle */}
-            <div className={styles.checkboxContainer}>
-                <label className={styles.checkboxLabel}>
-                    <input
-                        type="checkbox"
-                        checked={syncMode}
-                        onChange={(e) => setSyncMode(e.target.checked)}
-                        disabled={isSubmitting}
-                        className={styles.checkbox}
-                    />
-                    <span>Sync Mode (Wait for all images to complete)</span>
-                </label>
+                <NumImagesSelect
+                    label="Output Images per Input"
+                    value={effectiveNumImages}
+                    onChange={setNumImages}
+                    disabled={isSubmitting || isFluxModel}
+                    max={4}
+                />
             </div>
 
             {/* Error */}
@@ -171,25 +152,24 @@ const NanoBananaTab = ({
 
             {/* Info */}
             <div className={styles.infoBox}>
-                <p><strong>💡 How it works:</strong></p>
+                <p><strong>How it works:</strong></p>
                 <ul>
                     <li>Upload 1-10 images you want to edit</li>
                     <li>Describe the changes in the prompt</li>
-                    <li>Each image will be processed independently</li>
                     <li>
-                        Total cost: {files.length} images × {numImages} outputs × {costs?.nano_banana || 0} points
+                        Total cost: {files.length} images × {effectiveNumImages} outputs × {costPerImage} points = {totalCost} points
                     </li>
+                    {isFluxModel && <li><em>Flux 2 Pro generates 1 output per image</em></li>}
                 </ul>
             </div>
 
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
-                actionCost={(costs?.nano_banana || 0) * files.length * numImages}
+                actionCost={totalCost}
                 disabled={files.length === 0 || !prompt.trim()}
             />
         </form>
     );
 };
 
-export default NanoBananaTab;
-
+export default EditPhotoTab;

@@ -33,7 +33,7 @@ def start_generation():
     - text_to_image: Базовая text-to-image генерация
     - upscale: Увеличение разрешения
     - try_on: Виртуальная примерка
-    - nano_banana: Редактирование изображений (Gemini)
+    - edit_photo: Редактирование изображений (Nano Banana Pro / Flux 2 Pro)
     """
     # Определяем тип данных и извлекаем параметры
     if request.is_json:
@@ -258,7 +258,8 @@ def _handle_failed(data: dict, db_images: list, generation_type, status: str):
         GenerationType.TEXT_TO_IMAGE: 'text_to_image',
         GenerationType.UPSCALE: 'upscale',
         GenerationType.TRY_ON: 'virtual_try_on',
-        GenerationType.NANO_BANANA: 'nano_banana',
+        GenerationType.NANO_BANANA: 'edit_photo_nano_banana',  # Legacy
+        GenerationType.EDIT_PHOTO: 'edit_photo_nano_banana',   # Default (same price for both models)
     }
     action_type = action_type_map.get(generation_type)
     

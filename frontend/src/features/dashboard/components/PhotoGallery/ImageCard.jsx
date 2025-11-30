@@ -30,9 +30,9 @@ const BADGE_CONFIG = {
         text: 'Try-On',
         className: 'badgeTryOn'
     },
-    nano_banana: {
+    edit_photo: {
         text: 'Edit Photo',
-        className: 'badgeNanoBanana'
+        className: 'badgeEditPhoto'
     }
 };
 

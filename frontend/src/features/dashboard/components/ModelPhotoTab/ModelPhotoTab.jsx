@@ -4,20 +4,13 @@ import UniversalSubmitButton from '../../../../components/UniversalSubmitButton'
 import CustomSelect from '../../../../components/CustomSelect';
 import ModelManagement from '../ModelManagement/ModelManagement';
 import { Link } from 'react-router-dom';
+import { ASPECT_RATIO_OPTIONS, ASPECT_RATIO_LABELS } from '../../../../constants/aspectRatio';
 import styles from './ModelPhotoTab.module.css';
 
 const STYLE_OPTIONS = ['Photorealistic', 'Fashion Magazine', 'Vintage Film', 'Dreamy Look', 'Golden Hour', 'Minimalist Style', 'Noir Film', 'Cyberpunk City', 'Fantasy Art', 'Gothic Vibe', 'Pop Art'];
 const CAMERA_OPTIONS = ['Close-up', 'Medium shot', 'Full shot', 'From above', 'From below'];
 const EMOTION_OPTIONS = ['Smiling', 'Serious', 'Happy', 'Sad', 'Confident', 'Neutral', 'Scared'];
 const LIGHT_OPTIONS = ['Studio Light', 'Ring Light', 'Neon Light', 'Dramatic Shadow'];
-const ASPECT_RATIO_OPTIONS = ['3:4', '9:16', '1:1', '4:3', '16:9'];
-const ASPECT_RATIO_LABELS = {
-    '3:4': '3:4 Portrait (Instagram)',
-    '9:16': '9:16 (Stories/Reels)',
-    '1:1': '1:1 Square',
-    '4:3': '4:3 Landscape',
-    '16:9': '16:9 Widescreen'
-};
 
 const ModelPhotoTab = ({ 
     models,

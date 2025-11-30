@@ -3,16 +3,8 @@ import { Link } from 'react-router-dom';
 import NumImagesSelect from '../../../../components/NumImagesSelect';
 import UniversalSubmitButton from '../../../../components/UniversalSubmitButton';
 import CustomSelect from '../../../../components/CustomSelect';
+import { ASPECT_RATIO_OPTIONS, ASPECT_RATIO_LABELS } from '../../../../constants/aspectRatio';
 import styles from './TextToImageTab.module.css';
-
-const ASPECT_RATIO_OPTIONS = ['3:4', '9:16', '1:1', '4:3', '16:9'];
-const ASPECT_RATIO_LABELS = {
-    '3:4': '3:4 Portrait (Instagram)',
-    '9:16': '9:16 (Stories/Reels)',
-    '1:1': '1:1 Square',
-    '4:3': '4:3 Landscape',
-    '16:9': '16:9 Widescreen'
-};
 
 const TextToImageTab = ({ 
     onSubmit, 
@@ -22,7 +14,6 @@ const TextToImageTab = ({
 }) => {
     const [textPrompt, setTextPrompt] = useState('');
     const [textAspectRatio, setTextAspectRatio] = useState('3:4');
-    const [textNumImages, setTextNumImages] = useState(2);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -34,7 +25,6 @@ const TextToImageTab = ({
         onSubmit({
             prompt: textPrompt,
             aspectRatio: textAspectRatio,
-            num_images: textNumImages,
         });
 
         setTextPrompt('');
@@ -74,9 +64,9 @@ const TextToImageTab = ({
 
                 <NumImagesSelect
                     label="Number of Images"
-                    value={textNumImages}
-                    onChange={setTextNumImages}
-                    disabled={isSubmitting}
+                    value={1}
+                    onChange={() => {}}
+                    disabled={true}
                 />
             </div>
 
@@ -85,7 +75,7 @@ const TextToImageTab = ({
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
                 baseCost={costs?.text_to_image}
-                quantity={textNumImages}
+                quantity={1}
             />
 
             <div className={styles.infoBox}>

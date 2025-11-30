@@ -120,7 +120,7 @@ components/
 - Валидация типов и размера файлов
 - Одиночная и множественная загрузка
 - Responsive дизайн
-- Используется в: CreateModelPage, UpscaleTab, ClothingTryOnTab, NanoBananaTab
+- Используется в: CreateModelPage, UpscaleTab, ClothingTryOnTab, EditPhotoTab
 
 #### Компоненты HomePage
 ```
@@ -307,7 +307,7 @@ hooks/
 
 **Структура:**
 - **Левая панель** - вкладки генерации:
-  - `nanoBanana` ⭐ - генерация с несколькими входными фото
+  - `editPhoto` - редактирование фото (Nano Banana Pro / Flux 2 Pro)
   - `modelPhoto` - генерация на основе AI модели
   - `descriptionGeneration` - Text to Image
   - `clothingTryOn` - примерка одежды
@@ -517,7 +517,8 @@ GROUP BY user_id
 - `generate_base_image` - базовая генерация
 - `upscale_image` - апскейл
 - `try_on` - примерка одежды
-- `nano_banana` - Nano Banana
+- `edit_photo_nano_banana` - Edit Photo (Nano Banana Pro)
+- `edit_photo_flux` - Edit Photo (Flux 2 Pro)
 
 #### utils/notifications.py - уведомления
 - `send_telegram_message(message)` - отправка в Telegram
@@ -727,9 +728,9 @@ features/dashboard/
 │   ├── ClothingTryOnTab/
 │   │   ├── ClothingTryOnTab.jsx      ✅ (169 строк)
 │   │   └── ClothingTryOnTab.module.css ✅ (137 строк)
-│   ├── NanoBananaTab/
-│   │   ├── NanoBananaTab.jsx         ✅ (196 строк)
-│   │   └── NanoBananaTab.module.css  ✅ (204 строки)
+│   ├── EditPhotoTab/
+│   │   ├── EditPhotoTab.jsx          ✅ (~160 строк)
+│   │   └── EditPhotoTab.module.css   ✅ (~100 строк)
 │   ├── ModelManagement/
 │   │   ├── ModelManagement.jsx       ✅ (136 строк)
 │   │   └── ModelManagement.module.css ✅ (170 строк)
@@ -783,22 +784,24 @@ features/dashboard/
 - Интеграция с NumImagesSelect
 - Валидация и обработка ошибок
 
-#### `NanoBananaTab` (196 строк → ~210 строк после обновления 2025-10-24)
-- Форма редактирования нескольких изображений одновременно (Gemini AI)
+#### `EditPhotoTab` (~160 строк, обновлено 2025-11-30)
+- Редактирование изображений с выбором AI модели
+- **Выбор модели**: Nano Banana Pro / Flux 2 Pro
 - FileUploader для загрузки 1-10 изображений
-- Селекторы: Output Format, **Aspect Ratio** (обновлено 2025-10-24), Number of Output Images
-- **Aspect Ratio опции**:
-  - Поддержка 10 форматов: 4:5, 3:4, 9:16, 16:9, 1:1, 4:3, 2:3, 3:2, 5:4, 21:9
-  - Опция "Auto (from images)" - использует соотношение входных изображений
-  - Понятные английские названия (Portrait, Instagram, Stories/Reels, Widescreen и т.д.)
-- Sync Mode checkbox (ожидание завершения всех изображений)
-- Расчет стоимости: файлы × выходные изображения × стоимость за действие
+- Универсальные Aspect Ratio (из `constants/aspectRatio.js`)
+- **Динамические параметры**:
+  - Nano Banana Pro: Number of Images (1-4) - активен
+  - Flux 2 Pro: Number of Images - disabled (всегда 1)
+- **Захардкоженные параметры** (на бэкенде):
+  - output_format: "jpeg"
+  - Nano Banana: resolution: "1K"
+  - Flux: safety_tolerance: "5", enable_safety_checker: false
+- Расчет стоимости: файлы × изображения × стоимость модели
 - Интеграция с UniversalSubmitButton
-- Валидация типов файлов и обработка ошибок
 
 ### ✅ Этап 2: Все компоненты созданы - ЗАВЕРШЕН
 Полный список созданных компонентов:
-- `NanoBananaTab.jsx` ✅ (196 строк)
+- `EditPhotoTab.jsx` ✅ (~160 строк)
 - `TextToImageTab.jsx` ✅ (105 строк)
 - `ClothingTryOnTab.jsx` ✅ (169 строк)
 - `UpscaleTab.jsx` ✅ (199 строк)
@@ -1175,12 +1178,13 @@ ingress:
 ```json
 // backend/costs_config.json
 {
-  "model_training": 50,    // Создание AI модели
-  "model_photo": 1,        // Генерация с LoRA моделью
-  "text_to_image": 1,      // Базовая text-to-image
-  "upscale": 1,            // Увеличение разрешения
-  "virtual_try_on": 10,    // Примерка одежды
-  "nano_banana": 5         // Nano Banana генерация
+  "model_training": 50,           // Создание AI модели
+  "model_photo": 1,               // Генерация с LoRA моделью
+  "text_to_image": 1,             // Базовая text-to-image
+  "upscale": 1,                   // Увеличение разрешения
+  "virtual_try_on": 10,           // Примерка одежды
+  "edit_photo_nano_banana": 5,    // Edit Photo (Nano Banana Pro)
+  "edit_photo_flux": 5            // Edit Photo (Flux 2 Pro)
 }
 ```
 
@@ -1398,34 +1402,17 @@ CORS_ORIGINS=https://yourdomain.com
 
 ---
 
-### 2025-10-24: Добавлен выбор Aspect Ratio для Nano Banana
+### 2025-10-24: Добавлен выбор Aspect Ratio (устарело - см. 2025-11-30)
 
-**Что добавлено:**
-- ✅ Frontend: константы `ASPECT_RATIO_OPTIONS` и `ASPECT_RATIO_LABELS` в NanoBananaTab.jsx
-- ✅ Frontend: state переменная `aspectRatio` с дефолтным значением `''` (Auto)
-- ✅ Frontend: CustomSelect компонент для выбора aspect ratio в UI
-- ✅ Backend: обработка параметра `aspect_ratio` в `NanoBananaStrategy`
-- ✅ Backend: валидация допустимых значений aspect ratio
-- ✅ Обновлена документация в arch.md
+**Примечание:** Эта секция устарела. Aspect Ratio теперь вынесены в общие константы `constants/aspectRatio.js` и используются во всех компонентах генерации. NanoBananaTab заменён на EditPhotoTab с поддержкой двух моделей.
 
-**Поддерживаемые форматы (в порядке популярности):**
-- `4:5` - Portrait (Instagram)
-- `3:4` - Tall Portrait
-- `9:16` - Vertical (Stories/Reels)
+**Универсальные форматы:**
+- `3:4` - Portrait (Instagram)
+- `9:16` - Stories/Reels
+- `1:1` - Square
+- `4:3` - Landscape
 - `16:9` - Widescreen
-- `1:1` - Square (Instagram Post)
-- `4:3` - Classic Landscape
-- `2:3` - Portrait Photo
-- `3:2` - Standard Photo
-- `5:4` - Medium Format
-- `21:9` - Ultrawide
-- `Auto` - использует aspect ratio входных изображений (дефолт)
-
-**Технические детали:**
-- NanoBananaTab.jsx: 196 строк → ~210 строк (+7%)
-- Параметр `aspect_ratio` опциональный, передается в Fal.ai API только если указан
-- Консистентность с другими вкладками (ModelPhotoTab)
-- Соблюдение правила ≤300 строк на файл ✅
+- `Auto` - из входных изображений (для Edit Photo)
 
 ---
 
@@ -1581,7 +1568,7 @@ backend/
 │           ├── text_to_image.py  # Text-to-Image (~45 строк)
 │           ├── upscale.py        # Апскейл (~95 строк)
 │           ├── try_on.py         # Примерка (~135 строк)
-│           └── nano_banana.py    # Nano Banana (~100 строк)
+│           └── edit_photo.py     # Edit Photo (~220 строк)
 ├── routes/
 │   └── generation.py             # Тонкий контроллер (~300 строк)
 ```
@@ -1738,6 +1725,187 @@ POST /api/generation/start
 ```
 
 Legacy endpoints удалены - используется только новая архитектура.
+
+---
+
+### 2025-11-30: Миграция Text-to-Image на Flux 2 Pro
+
+**Что изменено:**
+
+1. **Backend** (`backend/services/generation/strategies/text_to_image.py`):
+   - Модель: `fal-ai/flux-pro/v1.1-ultra` → `fal-ai/flux-2-pro`
+   - Параметр размера: `aspect_ratio` → `image_size` (enum)
+   - Добавлен маппинг `ASPECT_RATIO_TO_IMAGE_SIZE`
+   - `safety_tolerance`: `'6'` → `'5'` (max для Flux 2 Pro)
+   - Удалены параметры: `num_images`, `raw` (не поддерживаются в Flux 2 Pro)
+   - `max_num_images` в config: 8 → 1
+
+2. **Frontend** (`TextToImageTab.jsx`):
+   - NumImagesSelect: `disabled={true}`, `value={1}`
+   - Удалён state `textNumImages`
+   - `quantity` в UniversalSubmitButton зафиксирован на 1
+
+**Маппинг aspect ratio → image_size:**
+```python
+ASPECT_RATIO_TO_IMAGE_SIZE = {
+    '3:4': 'portrait_4_3',
+    '9:16': 'portrait_16_9',
+    '1:1': 'square',
+    '4:3': 'landscape_4_3',
+    '16:9': 'landscape_16_9',
+}
+```
+
+**Ограничения Flux 2 Pro:**
+- Генерирует только 1 изображение за запрос
+- safety_tolerance: max 5 (было 6)
+- Нет параметра `raw`
+- Размер через enum `image_size`, не `aspect_ratio`
+
+---
+
+### 2025-11-30: Миграция Upscale на SeedVR Upscaler
+
+**Что изменено:**
+
+1. **Backend** (`backend/services/generation/strategies/upscale.py`):
+   - Модель: `fal-ai/clarity-upscaler` → `fal-ai/seedvr/upscale/image`
+   - Удалены SD-параметры: `prompt`, `negative_prompt`, `creativity`, `resemblance`, `guidance_scale`, `num_inference_steps`, `enable_safety_checker`
+   - Добавлены новые параметры: `upscale_mode`, `noise_scale`, `output_format`
+   - Добавлена валидация `upscale_factor` (1.0 - 4.0)
+
+2. **Frontend**: Без изменений (уже передавал только `image_url`/`image` и `upscale_factor`)
+
+3. **Webhook**: Без изменений (уже поддерживал формат `{ "image": {...} }` для UPSCALE)
+
+**Новые параметры SeedVR Upscaler:**
+```python
+{
+    'image_url': '...',
+    'upscale_mode': 'factor',      # "factor" или "target"
+    'upscale_factor': 2.0,         # 1.0 - 4.0
+    'noise_scale': 0.1,            # Уровень шума
+    'output_format': 'jpg',        # "png", "jpg", "webp"
+}
+```
+
+**Отличия от Clarity Upscaler:**
+| Параметр | Clarity Upscaler | SeedVR Upscaler |
+|----------|------------------|-----------------|
+| Тип | SD-based (генеративный) | Чистый апскейлер |
+| Промпт | Требуется (захардкожен) | Не используется |
+| upscale_factor | Без ограничений | 1.0 - 4.0 |
+| Качество | Может "дорисовывать" детали | Сохраняет оригинал |
+
+**Поддерживаемые значения upscale_factor:**
+- Минимум: 1.0
+- Максимум: 4.0
+- Frontend кнопки: 2x, 3x, 4x
+
+---
+
+### 2025-11-30: Миграция Virtual Try-On на Flux 2 LoRA Gallery
+
+**Что изменено:**
+
+1. **Backend** (`backend/services/generation/strategies/try_on.py`):
+   - Модель: `fal-ai/fashn/tryon/v1.5` → `fal-ai/flux-2-lora-gallery/virtual-tryon`
+   - Входной формат: отдельные `model_image` / `garment_image` → `image_urls` (список из 2 URL)
+   - Добавлен обязательный параметр `prompt` (автогенерация если не указан)
+   - Новые параметры: `guidance_scale`, `num_inference_steps`, `acceleration`, `lora_scale`, `image_size`
+   - Удалены старые параметры: `category`, `mode`, `garment_photo_type`, `moderation_level`, `segmentation_free`
+
+2. **Frontend** (`ClothingTryOnTab.jsx`):
+   - Добавлено текстовое поле `prompt` (optional) для описания желаемого результата
+   - Максимальная длина prompt: 500 символов
+   - Счетчик символов в UI
+   - Обновлены подсказки в info box
+
+3. **CSS** (`ClothingTryOnTab.module.css`):
+   - Добавлены стили для `.promptSection`, `.promptInput`, `.charCount`
+   - Стиль textarea в оранжевой цветовой схеме (Try-On)
+
+**Финальная структура аргументов Fal.ai:**
+```python
+{
+    'image_urls': [model_url, garment_url],  # Список из 2 URL
+    'prompt': "Virtual Try On",              # Default если не указан
+    'image_size': None,                       # Опционально (None = размер входного фото)
+    'guidance_scale': 2.5,
+    'num_inference_steps': 40,
+    'acceleration': 'none',                   # Максимальное качество
+    'seed': None,                             # Optional
+    'enable_safety_checker': False,           # Выключен
+    'output_format': 'png',
+    'num_images': 1,
+    'lora_scale': 1.0,
+}
+```
+
+**Поддерживаемые image_size:**
+- `Auto (from image)` - default, не передается в API
+- `portrait_4_3`, `portrait_16_9`
+- `landscape_4_3`, `landscape_16_9`
+- `square`, `square_hd`
+
+**Frontend обновления:**
+- Добавлен селектор "Output Size" с опцией "Auto (from image)" по умолчанию
+- Prompt опциональный, default = "Virtual Try On"
+
+**Обратная совместимость:**
+- ✅ Frontend полностью совместим (все параметры опциональные)
+- ✅ Webhook обработка без изменений (формат ответа: `{ images: [...] }`)
+- ✅ Стоимость без изменений (`virtual_try_on: 10 points`)
+
+---
+
+### 2025-11-30: Edit Photo с выбором модели (замена Nano Banana)
+
+**Что изменено:**
+
+1. **Backend** - новая стратегия `edit_photo.py`:
+   - Универсальная стратегия с поддержкой двух моделей
+   - `nano_banana_pro`: fal-ai/nano-banana-pro/edit
+   - `flux_2_pro`: fal-ai/flux-2-pro/edit
+   - Динамический выбор fal_model и action_type
+   - Маппинг aspect_ratio → image_size для Flux
+
+2. **costs_config.json**:
+   - Удалён `nano_banana: 5`
+   - Добавлены `edit_photo_nano_banana: 5` и `edit_photo_flux: 5`
+
+3. **Frontend** - новый компонент `EditPhotoTab`:
+   - Dropdown выбора модели (Nano Banana Pro / Flux 2 Pro)
+   - Динамические параметры формы
+   - Number of Images: активен для Nano Banana, disabled для Flux
+   - Универсальный Aspect Ratio из `constants/aspectRatio.js`
+
+4. **Общие константы** `constants/aspectRatio.js`:
+   - `ASPECT_RATIO_OPTIONS`: ['3:4', '9:16', '1:1', '4:3', '16:9']
+   - `ASPECT_RATIO_LABELS`: человекочитаемые названия
+   - `ASPECT_RATIO_TO_IMAGE_SIZE`: маппинг для Flux API
+   - Используется в: ModelPhotoTab, TextToImageTab, EditPhotoTab
+
+**Удалённые файлы:**
+- `backend/services/generation/strategies/nano_banana.py`
+- `frontend/src/features/dashboard/components/NanoBananaTab/`
+
+**API формат запроса:**
+```json
+POST /api/generation/start
+{
+  "type": "edit_photo",
+  "model": "nano_banana_pro",  // или "flux_2_pro"
+  "prompt": "...",
+  "image_urls": [files],
+  "aspect_ratio": "16:9",      // опционально
+  "num_images": 2              // только для nano_banana_pro
+}
+```
+
+**Захардкоженные параметры (не на фронтенде):**
+- Nano Banana Pro: `resolution: "1K"`, `output_format: "jpeg"`
+- Flux 2 Pro: `safety_tolerance: "5"`, `enable_safety_checker: false`, `output_format: "jpeg"`
 
 ---
 

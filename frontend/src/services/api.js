@@ -9,7 +9,7 @@ export const GENERATION_TYPES = {
     TEXT_TO_IMAGE: 'text_to_image',
     UPSCALE: 'upscale',
     TRY_ON: 'try_on',
-    NANO_BANANA: 'nano_banana',
+    EDIT_PHOTO: 'edit_photo',
 };
 
 /**

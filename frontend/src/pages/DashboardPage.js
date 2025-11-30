@@ -10,7 +10,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 
 // Components
 import PhotoGallery from '../features/dashboard/components/PhotoGallery/PhotoGallery';
-import NanoBananaTab from '../features/dashboard/components/NanoBananaTab/NanoBananaTab';
+import EditPhotoTab from '../features/dashboard/components/EditPhotoTab/EditPhotoTab';
 import ModelPhotoTab from '../features/dashboard/components/ModelPhotoTab/ModelPhotoTab';
 import TextToImageTab from '../features/dashboard/components/TextToImageTab/TextToImageTab';
 import UpscaleTab from '../features/dashboard/components/UpscaleTab/UpscaleTab';
@@ -27,7 +27,7 @@ function DashboardPage() {
     // Tab states
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [activeTab, setActiveTab] = useState('Photo');
-    const [leftPanelTab, setLeftPanelTab] = useState('nanoBanana');
+    const [leftPanelTab, setLeftPanelTab] = useState('editPhoto');
     const [mobileGalleryView, setMobileGalleryView] = useState('double'); // 'single' or 'double'
 
     // Costs
@@ -56,9 +56,9 @@ function DashboardPage() {
 
     // Generation handlers hook
     const {
-        isSubmittingNanoBanana,
-        nanoBananaError,
-        handleNanoBananaSubmit,
+        isSubmittingEditPhoto,
+        editPhotoError,
+        handleEditPhotoSubmit,
         isSubmitting,
         error,
         handleModelPhotoSubmit,
@@ -76,7 +76,7 @@ function DashboardPage() {
     // Hash navigation
     useEffect(() => {
         const hash = location.hash.substring(1);
-        const validTabs = ['nanoBanana', 'modelPhoto', 'descriptionGeneration', 'upscale', 'clothingTryOn', 'livePhoto']; 
+        const validTabs = ['editPhoto', 'modelPhoto', 'descriptionGeneration', 'upscale', 'clothingTryOn', 'livePhoto']; 
         if (hash && validTabs.includes(hash)) {
             setLeftPanelTab(hash);
         }
@@ -147,12 +147,12 @@ function DashboardPage() {
 
     const renderLeftPanelContent = () => {
         switch (leftPanelTab) {
-            case 'nanoBanana':
+            case 'editPhoto':
                 return (
-                    <NanoBananaTab
-                        onSubmit={handleNanoBananaSubmit}
-                        isSubmitting={isSubmittingNanoBanana}
-                        error={nanoBananaError}
+                    <EditPhotoTab
+                        onSubmit={handleEditPhotoSubmit}
+                        isSubmitting={isSubmittingEditPhoto}
+                        error={editPhotoError}
                         costs={costs}
                     />
                 );
@@ -184,7 +184,7 @@ function DashboardPage() {
             case 'upscale':
                 return (
                     <UpscaleTab
-                        onSubmit={(formData) => handleUpscaleSubmit(formData, upscaleImageFromGallery)}
+                        onSubmit={(formData, aspectRatio) => handleUpscaleSubmit(formData, aspectRatio)}
                         isSubmitting={isSubmittingUpscale}
                         error={upscaleError}
                         costs={costs}
@@ -257,10 +257,10 @@ function DashboardPage() {
             {/* Left Panel Tab Navigation */}
             <div className={styles.topTabContainer}>
                 <button
-                    onClick={() => setLeftPanelTab('nanoBanana')}
-                    className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'nanoBanana' ? styles.activeTab : ''}`}
+                    onClick={() => setLeftPanelTab('editPhoto')}
+                    className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'editPhoto' ? styles.activeTab : ''}`}
                 >
-                    ⭐ Nano Banana
+                    Edit Photo
                 </button>
                 <button
                     onClick={() => setLeftPanelTab('modelPhoto')}

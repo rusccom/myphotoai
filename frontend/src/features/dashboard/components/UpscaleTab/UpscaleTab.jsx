@@ -79,7 +79,9 @@ const UpscaleTab = ({
         
         formData.append('upscale_factor', upscaleFactor);
 
-        onSubmit(formData);
+        // Pass aspectRatio for placeholder (from uploaded file or gallery)
+        const imageAspectRatio = aspectRatio || imageFromGallery?.aspect_ratio;
+        onSubmit(formData, imageAspectRatio);
 
         // Reset after submission
         reset();

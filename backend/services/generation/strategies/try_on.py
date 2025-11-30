@@ -1,5 +1,6 @@
 """
 Стратегия виртуальной примерки одежды (Virtual Try-On).
+Использует fal-ai/flux-2-lora-gallery/virtual-tryon.
 """
 from typing import Optional
 import logging
@@ -16,7 +17,7 @@ class TryOnStrategy(BaseGenerationStrategy):
     config = GenerationConfig(
         action_type='virtual_try_on',
         generation_type=GenerationType.TRY_ON,
-        fal_model='fal-ai/fashn/tryon/v1.5',
+        fal_model='fal-ai/flux-2-lora-gallery/virtual-tryon',
         default_num_images=1,
         max_num_images=4,
         supports_file_upload=True,
@@ -24,11 +25,11 @@ class TryOnStrategy(BaseGenerationStrategy):
     )
     
     # Допустимые значения параметров
-    VALID_CATEGORIES = ['tops', 'bottoms', 'one-pieces', 'auto']
-    VALID_MODES = ['performance', 'balanced', 'quality']
-    VALID_GARMENT_TYPES = ['auto', 'model', 'flat-lay']
-    VALID_MODERATION = ['none', 'permissive', 'conservative']
-    VALID_FORMATS = ['png', 'jpeg']
+    VALID_IMAGE_SIZES = [
+        'square_hd', 'square', 'portrait_4_3', 'portrait_16_9',
+        'landscape_4_3', 'landscape_16_9'
+    ]
+    VALID_FORMATS = ['png', 'jpeg', 'webp']
     
     def __init__(self):
         self.model_image_url: Optional[str] = None
@@ -37,13 +38,12 @@ class TryOnStrategy(BaseGenerationStrategy):
         self.garment_filename: str = 'garment'
     
     def get_num_images(self, data: dict) -> int:
-        """Получение количества изображений (num_samples)."""
+        """Получение количества изображений."""
         num = int(request.form.get('num_images', 1))
         return min(max(1, num), self.config.max_num_images)
     
     def validate_input(self, data: dict) -> Optional[str]:
         """Валидация входных данных для примерки."""
-        # Проверяем garment_image (обязательно файл)
         if 'garment_image' not in request.files:
             return 'garment_image file is required'
         
@@ -51,7 +51,6 @@ class TryOnStrategy(BaseGenerationStrategy):
         if not garment.filename:
             return 'No selected file for garment image'
         
-        # Проверяем model_image (URL или файл)
         has_model_url = bool(request.form.get('model_image_url'))
         has_model_file = 'model_image' in request.files and request.files['model_image'].filename
         
@@ -62,12 +61,10 @@ class TryOnStrategy(BaseGenerationStrategy):
     
     def prepare_files(self, data: dict) -> dict:
         """Подготовка изображений для примерки."""
-        # 1. Model image
         model_url = request.form.get('model_image_url')
         
         if model_url:
             self.model_image_url = model_url
-            # Извлекаем имя файла из URL
             try:
                 path = urlparse(model_url).path
                 self.model_filename = path.split('/')[-1].split('?')[0] or 'gallery_image'
@@ -75,7 +72,6 @@ class TryOnStrategy(BaseGenerationStrategy):
                 pass
             logging.info(f"[TryOn] Using model_image_url: {model_url}")
         else:
-            # Загружаем model_image файл
             model_file = request.files.get('model_image')
             if model_file and model_file.filename:
                 self.model_filename = model_file.filename
@@ -85,7 +81,6 @@ class TryOnStrategy(BaseGenerationStrategy):
                 self.model_image_url = fal_url
                 logging.info(f"[TryOn] Uploaded model image to Fal: {fal_url}")
         
-        # 2. Garment image (всегда файл)
         garment_file = request.files['garment_image']
         self.garment_filename = garment_file.filename
         
@@ -104,55 +99,80 @@ class TryOnStrategy(BaseGenerationStrategy):
         }
     
     def build_fal_arguments(self, data: dict, file_urls: dict) -> dict:
-        """Построение аргументов для fal-ai/fashn/tryon."""
-        # Валидация и нормализация параметров
-        category = request.form.get('category', 'auto')
-        if category not in self.VALID_CATEGORIES:
-            category = 'auto'
+        """Построение аргументов для fal-ai/flux-2-lora-gallery/virtual-tryon."""
+        model_url = file_urls.get('model_image', self.model_image_url)
+        garment_url = file_urls.get('garment_image', self.garment_image_url)
         
-        mode = request.form.get('mode', 'balanced')
-        if mode not in self.VALID_MODES:
-            mode = 'balanced'
+        # Prompt (обязательный параметр)
+        prompt = request.form.get('prompt', '').strip()
+        if not prompt:
+            prompt = "Virtual Try On"
         
-        garment_type = request.form.get('garment_photo_type', 'auto')
-        if garment_type not in self.VALID_GARMENT_TYPES:
-            garment_type = 'auto'
+        # Image size (None = использует размер входного изображения)
+        image_size = request.form.get('image_size')
+        if image_size and image_size not in self.VALID_IMAGE_SIZES:
+            image_size = None
         
-        moderation = request.form.get('moderation_level', 'permissive')
-        if moderation not in self.VALID_MODERATION:
-            moderation = 'permissive'
-        
+        # Output format
         output_format = request.form.get('output_format', 'png')
         if output_format not in self.VALID_FORMATS:
             output_format = 'png'
         
-        # Seed
-        seed = 42
-        try:
-            seed = int(request.form.get('seed', 42))
-        except (ValueError, TypeError):
-            pass
+        # Numeric parameters
+        guidance_scale = self._get_float_param('guidance_scale', 2.5, 1.0, 10.0)
+        num_inference_steps = self._get_int_param('num_inference_steps', 40, 10, 100)
+        lora_scale = self._get_float_param('lora_scale', 1.0, 0.0, 2.0)
         
-        # Segmentation free
-        seg_free = request.form.get('segmentation_free', 'true').lower() == 'true'
+        # Seed (optional)
+        seed = None
+        seed_str = request.form.get('seed')
+        if seed_str:
+            try:
+                seed = int(seed_str)
+            except (ValueError, TypeError):
+                pass
         
-        return {
-            'model_image': file_urls.get('model_image', self.model_image_url),
-            'garment_image': file_urls.get('garment_image', self.garment_image_url),
-            'category': category,
-            'mode': mode,
-            'garment_photo_type': garment_type,
-            'moderation_level': moderation,
+        args = {
+            'image_urls': [model_url, garment_url],
+            'prompt': prompt,
+            'guidance_scale': guidance_scale,
+            'num_inference_steps': num_inference_steps,
+            'acceleration': 'none',  # Максимальное качество
             'seed': seed,
-            'num_samples': self.get_num_images(data),
-            'segmentation_free': seg_free,
+            'enable_safety_checker': False,  # Выключен
             'output_format': output_format,
+            'num_images': self.get_num_images(data),
+            'lora_scale': lora_scale,
         }
+        
+        # Image size только если указан (иначе API использует размер входного фото)
+        if image_size:
+            args['image_size'] = image_size
+        
+        return args
+    
+    def _get_float_param(self, name: str, default: float, min_v: float, max_v: float) -> float:
+        """Безопасное получение float параметра."""
+        try:
+            val = float(request.form.get(name, default))
+            return min(max(min_v, val), max_v)
+        except (ValueError, TypeError):
+            return default
+    
+    def _get_int_param(self, name: str, default: int, min_v: int, max_v: int) -> int:
+        """Безопасное получение int параметра."""
+        try:
+            val = int(request.form.get(name, default))
+            return min(max(min_v, val), max_v)
+        except (ValueError, TypeError):
+            return default
     
     def get_db_params(self, data: dict) -> dict:
         """Параметры для записи в БД."""
         params = super().get_db_params(data)
         params['original_image_url'] = self.model_image_url
-        num_samples = self.get_num_images(data)
-        params['prompt'] = f"Try-on: Garment '{self.garment_filename}' on Model '{self.model_filename}'"
+        prompt = request.form.get('prompt', '').strip()
+        if not prompt:
+            prompt = "Virtual Try On"
+        params['prompt'] = prompt
         return params

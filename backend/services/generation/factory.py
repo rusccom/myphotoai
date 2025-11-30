@@ -59,11 +59,11 @@ def register_all_strategies():
         TextToImageStrategy,
         UpscaleStrategy,
         TryOnStrategy,
-        NanoBananaStrategy,
+        EditPhotoStrategy,
     )
     
     GenerationFactory.register('model_photo', ModelPhotoStrategy)
     GenerationFactory.register('text_to_image', TextToImageStrategy)
     GenerationFactory.register('upscale', UpscaleStrategy)
     GenerationFactory.register('try_on', TryOnStrategy)
-    GenerationFactory.register('nano_banana', NanoBananaStrategy)
+    GenerationFactory.register('edit_photo', EditPhotoStrategy)

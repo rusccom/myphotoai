@@ -4,7 +4,7 @@ import styles from './UniversalSubmitButton.module.css';
 function UniversalSubmitButton({
   isSubmitting,
   disabled,
-  actionCost, // For complex calculations (e.g., NanoBanana)
+  actionCost, // For complex calculations (e.g., Edit Photo)
   baseCost, // Base cost per operation
   quantity = 1, // Number of images/operations
 }) {

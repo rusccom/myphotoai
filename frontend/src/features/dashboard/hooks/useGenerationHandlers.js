@@ -35,9 +35,8 @@ export const useGenerationHandlers = (
     }, [generation]);
 
     // Upscale
-    const handleUpscaleSubmit = useCallback(async (formData, galleryImage) => {
-        const aspectRatio = galleryImage?.aspect_ratio || '1:1';
-        return generation.submitUpscale(formData, { aspectRatio });
+    const handleUpscaleSubmit = useCallback(async (formData, aspectRatio) => {
+        return generation.submitUpscale(formData, { aspectRatio: aspectRatio || '1:1' });
     }, [generation]);
 
     // Clothing Try-On
@@ -45,16 +44,16 @@ export const useGenerationHandlers = (
         return generation.submitTryOn(formData, { aspectRatio: aspectRatio || '3:4' });
     }, [generation]);
 
-    // Nano Banana
-    const handleNanoBananaSubmit = useCallback(async (formData) => {
-        return generation.submitNanoBanana(formData);
+    // Edit Photo
+    const handleEditPhotoSubmit = useCallback(async (formData) => {
+        return generation.submitEditPhoto(formData);
     }, [generation]);
 
     return {
-        // Nano Banana
-        isSubmittingNanoBanana: generation.isSubmittingNanoBanana,
-        nanoBananaError: generation.nanoBananaError,
-        handleNanoBananaSubmit,
+        // Edit Photo
+        isSubmittingEditPhoto: generation.isSubmittingEditPhoto,
+        editPhotoError: generation.editPhotoError,
+        handleEditPhotoSubmit,
 
         // Model Photo
         isSubmitting: generation.isSubmittingModelPhoto,

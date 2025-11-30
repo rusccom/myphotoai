@@ -3,7 +3,22 @@ import { useFileUpload } from '../../hooks/useFileUpload';
 import NumImagesSelect from '../../../../components/NumImagesSelect';
 import UniversalSubmitButton from '../../../../components/UniversalSubmitButton';
 import FileUploader from '../../../../components/FileUploader';
+import CustomSelect from '../../../../components/CustomSelect';
 import styles from './ClothingTryOnTab.module.css';
+
+// Image size options
+const IMAGE_SIZE_OPTIONS = [
+    '', 'portrait_4_3', 'portrait_16_9', 'landscape_4_3', 'landscape_16_9', 'square', 'square_hd'
+];
+const IMAGE_SIZE_LABELS = {
+    '': 'Auto (from image)',
+    'portrait_4_3': 'Portrait 3:4',
+    'portrait_16_9': 'Portrait 9:16',
+    'landscape_4_3': 'Landscape 4:3',
+    'landscape_16_9': 'Landscape 16:9',
+    'square': 'Square',
+    'square_hd': 'Square HD',
+};
 
 const ClothingTryOnTab = ({ 
     onSubmit, 
@@ -16,6 +31,8 @@ const ClothingTryOnTab = ({
     const modelUpload = useFileUpload();
     const garmentUpload = useFileUpload();
     const [numImages, setNumImages] = React.useState(2);
+    const [prompt, setPrompt] = React.useState('');
+    const [imageSize, setImageSize] = React.useState('');
 
     const hasModelImage = modelImageFromGallery || modelUpload.file;
     const hasGarmentImage = garmentUpload.file;
@@ -40,12 +57,24 @@ const ClothingTryOnTab = ({
 
         formData.append('garment_image', garmentUpload.file);
         formData.append('num_images', numImages);
+        
+        // Add prompt if provided
+        if (prompt.trim()) {
+            formData.append('prompt', prompt.trim());
+        }
+        
+        // Add image_size if selected (empty = auto from input image)
+        if (imageSize) {
+            formData.append('image_size', imageSize);
+        }
 
         onSubmit(formData, modelUpload.aspectRatio || modelImageFromGallery?.aspect_ratio);
 
         // Reset after submission
         modelUpload.reset();
         garmentUpload.reset();
+        setPrompt('');
+        setImageSize('');
         if (onClearGalleryModel) {
             onClearGalleryModel();
         }
@@ -120,6 +149,34 @@ const ClothingTryOnTab = ({
                 showPreview={true}
             />
 
+            {/* Prompt (optional) */}
+            <div className={styles.promptSection}>
+                <label htmlFor="tryOnPrompt">Description (optional):</label>
+                <textarea
+                    id="tryOnPrompt"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe how you want the try-on to look, e.g. 'A person wearing a stylish jacket, casual look'"
+                    className={styles.promptInput}
+                    disabled={isSubmitting}
+                    rows={3}
+                    maxLength={500}
+                />
+                <span className={styles.charCount}>{prompt.length}/500</span>
+            </div>
+
+            {/* Image Size */}
+            <div>
+                <label>Output Size:</label>
+                <CustomSelect
+                    value={imageSize}
+                    onChange={setImageSize}
+                    options={IMAGE_SIZE_OPTIONS}
+                    labels={IMAGE_SIZE_LABELS}
+                    disabled={isSubmitting}
+                />
+            </div>
+
             {/* Number of Images */}
             <div>
                 <label>Number of Images:</label>
@@ -140,8 +197,8 @@ const ClothingTryOnTab = ({
                 </p>
                 <ul>
                     <li>Use clear, front-facing photos for best results</li>
-                    <li>Model should be in similar pose to garment</li>
-                    <li>Avoid busy backgrounds</li>
+                    <li>Garment image can be flat-lay or on model</li>
+                    <li>Add a description for more control over the result</li>
                 </ul>
             </div>
 
@@ -156,4 +213,3 @@ const ClothingTryOnTab = ({
 };
 
 export default ClothingTryOnTab;
-
