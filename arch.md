@@ -798,6 +798,10 @@ features/dashboard/
   - Превью изображения с кнопкой "Change Image"
   - Использование `signed_url` из галереи
 - Универсальные Aspect Ratio (из `constants/aspectRatio.js`)
+- **Placeholder aspect ratio** (исправлено 2025-12-02):
+  - Auto (пустой) → placeholder 1:1
+  - Выбранный ratio → placeholder соответствует выбору
+  - Передаётся через `onSubmit(formData, aspectRatio || '1:1')`
 - **Динамические параметры**:
   - Nano Banana Pro: Number of Images (1-4) - активен
   - Flux 2 Pro: Number of Images - disabled (всегда 1)
@@ -2050,6 +2054,38 @@ REACT_APP_WS_BASE_URL=http://localhost:5000
 4. Выбрать секцию
 5. Загрузить/заменить/удалить файлы
 6. Изменения сохраняются в R2 и отображаются на лендинге
+
+---
+
+### 2025-12-02: Исправление placeholder aspect ratio для EditPhoto
+
+**Проблема:**
+- EditPhotoTab не передавал выбранный aspect ratio для создания placeholder'а
+- Независимо от выбора пользователя, placeholder всегда был квадратным (1:1)
+
+**Причина:**
+- `handleEditPhotoSubmit` в `useGenerationHandlers.js` не передавал `aspectRatio` в options
+- `EditPhotoTab` вызывал `onSubmit(formData)` без второго аргумента
+
+**Решение:**
+
+1. **EditPhotoTab.jsx** - передаёт aspectRatio как второй аргумент:
+```javascript
+// Если Auto (пустой) → '1:1', иначе выбранный
+onSubmit(formData, aspectRatio || '1:1');
+```
+
+2. **useGenerationHandlers.js** - принимает и передаёт aspectRatio:
+```javascript
+const handleEditPhotoSubmit = useCallback(async (formData, aspectRatio) => {
+    return generation.submitEditPhoto(formData, { aspectRatio });
+}, [generation]);
+```
+
+**Результат:**
+- Если выбрано "Auto" → placeholder 1:1 (квадрат)
+- Если выбрано 16:9/3:4/etc → placeholder соответствует выбору
+- После генерации → точный aspect ratio из width/height обновляет изображение
 
 ---
 

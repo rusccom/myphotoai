@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMultiFileUpload } from '../../hooks/useFileUpload';
 import NumImagesSelect from '../../../../components/NumImagesSelect';
 import UniversalSubmitButton from '../../../../components/UniversalSubmitButton';
@@ -33,6 +33,19 @@ const EditPhotoTab = ({
     const [prompt, setPrompt] = useState('');
     const [numImages, setNumImages] = useState(1);
     const [aspectRatio, setAspectRatio] = useState('');
+
+    // Auto-set aspect ratio from gallery image
+    useEffect(() => {
+        if (imageFromGallery?.aspect_ratio) {
+            // Check if gallery aspect_ratio matches our options
+            if (ASPECT_RATIO_OPTIONS.includes(imageFromGallery.aspect_ratio)) {
+                setAspectRatio(imageFromGallery.aspect_ratio);
+            } else {
+                // Keep Auto if aspect ratio doesn't match standard options
+                setAspectRatio('');
+            }
+        }
+    }, [imageFromGallery]);
 
     const isFluxModel = selectedModel === 'flux_2_pro';
     const effectiveNumImages = isFluxModel ? 1 : numImages;
@@ -69,7 +82,8 @@ const EditPhotoTab = ({
             formData.append('aspect_ratio', aspectRatio);
         }
 
-        onSubmit(formData);
+        // Передаём aspectRatio для placeholder: если Auto (пустой) → '1:1', иначе выбранный
+        onSubmit(formData, aspectRatio || '1:1');
 
         setPrompt('');
         setNumImages(1);
@@ -124,6 +138,11 @@ const EditPhotoTab = ({
                         />
                         <div className={styles.galleryImageInfo}>
                             <span>From Gallery</span>
+                            {imageFromGallery.aspect_ratio && (
+                                <span className={styles.aspectRatioInfo}>
+                                    {imageFromGallery.aspect_ratio}
+                                </span>
+                            )}
                             <button 
                                 type="button"
                                 onClick={handleClearImage}

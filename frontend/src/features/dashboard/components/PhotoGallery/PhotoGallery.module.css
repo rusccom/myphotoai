@@ -209,9 +209,9 @@
     right: 8px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    padding: 6px;
-    background: rgba(18, 18, 18, 0.7);
+    gap: 2px;
+    padding: 4px;
+    background: rgba(18, 18, 18, 0.85);
     backdrop-filter: blur(5px);
     border-radius: var(--radius-md);
     z-index: 15;
@@ -224,6 +224,25 @@
 .imageCardActions .actionButton:nth-child(6) {
     grid-column: span 2;
     justify-self: center;
+}
+
+/* Mobile: smaller buttons but keep 4+2 layout */
+@media (max-width: 768px) {
+    .imageCardActions {
+        gap: 1px;
+        padding: 3px;
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    .imageCardActions .actionButton {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .imageCardActions .actionButton svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .menuButtonContainer {

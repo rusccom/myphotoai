@@ -162,6 +162,12 @@
     font-size: 0.9rem;
 }
 
+.aspectRatioInfo {
+    color: var(--gray) !important;
+    font-size: 0.8rem !important;
+    font-weight: 400 !important;
+}
+
 .clearButton {
     background: transparent;
     border: 1px solid rgba(255, 215, 0, 0.5);

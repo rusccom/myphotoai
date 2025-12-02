@@ -45,8 +45,8 @@ export const useGenerationHandlers = (
     }, [generation]);
 
     // Edit Photo
-    const handleEditPhotoSubmit = useCallback(async (formData) => {
-        return generation.submitEditPhoto(formData);
+    const handleEditPhotoSubmit = useCallback(async (formData, aspectRatio) => {
+        return generation.submitEditPhoto(formData, { aspectRatio });
     }, [generation]);
 
     return {
