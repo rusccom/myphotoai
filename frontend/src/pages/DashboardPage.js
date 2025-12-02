@@ -27,7 +27,7 @@ function DashboardPage() {
     // Tab states
     const [selectedModelId, setSelectedModelId] = useState(null);
     const [activeTab, setActiveTab] = useState('Photo');
-    const [leftPanelTab, setLeftPanelTab] = useState('editPhoto');
+    const [leftPanelTab, setLeftPanelTab] = useState('modelPhoto');
     const [mobileGalleryView, setMobileGalleryView] = useState('double'); // 'single' or 'double'
 
     // Costs
@@ -39,6 +39,7 @@ function DashboardPage() {
     // Gallery selection
     const [upscaleImageFromGallery, setUpscaleImageFromGallery] = useState(null);
     const [tryOnModelFromGallery, setTryOnModelFromGallery] = useState(null);
+    const [editPhotoImageFromGallery, setEditPhotoImageFromGallery] = useState(null);
 
     // History hook
     const {
@@ -140,6 +141,10 @@ function DashboardPage() {
             setLeftPanelTab('upscale');
             setUpscaleImageFromGallery(image);
             scrollToLeftPanelTop();
+        } else if (actionType === 'Edit Photo') {
+            setLeftPanelTab('editPhoto');
+            setEditPhotoImageFromGallery(image);
+            scrollToLeftPanelTop();
         } else if (actionType === 'Video') {
             alert(`Video creation for image ID: ${image.id} (Not implemented yet)`);
         }
@@ -154,6 +159,8 @@ function DashboardPage() {
                         isSubmitting={isSubmittingEditPhoto}
                         error={editPhotoError}
                         costs={costs}
+                        imageFromGallery={editPhotoImageFromGallery}
+                        onClearGalleryImage={() => setEditPhotoImageFromGallery(null)}
                     />
                 );
 
@@ -257,16 +264,16 @@ function DashboardPage() {
             {/* Left Panel Tab Navigation */}
             <div className={styles.topTabContainer}>
                 <button
-                    onClick={() => setLeftPanelTab('editPhoto')}
-                    className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'editPhoto' ? styles.activeTab : ''}`}
-                >
-                    Edit Photo
-                </button>
-                <button
                     onClick={() => setLeftPanelTab('modelPhoto')}
                     className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'modelPhoto' ? styles.activeTab : ''}`}
                 >
                     Model Photo
+                </button>
+                <button
+                    onClick={() => setLeftPanelTab('editPhoto')}
+                    className={`${styles.tabButton} ${styles.topTabButton} ${leftPanelTab === 'editPhoto' ? styles.activeTab : ''}`}
+                >
+                    Edit Photo
                 </button>
                 <button
                     onClick={() => setLeftPanelTab('descriptionGeneration')}

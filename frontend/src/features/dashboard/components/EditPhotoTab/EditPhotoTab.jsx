@@ -16,7 +16,9 @@ const EditPhotoTab = ({
     onSubmit, 
     isSubmitting, 
     error,
-    costs 
+    costs,
+    imageFromGallery,
+    onClearGalleryImage
 }) => {
     const {
         files,
@@ -44,15 +46,20 @@ const EditPhotoTab = ({
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!prompt.trim() || files.length === 0) {
+        const hasImage = files.length > 0 || imageFromGallery;
+        if (!prompt.trim() || !hasImage) {
             return;
         }
 
         const formData = new FormData();
         
-        files.forEach((file) => {
-            formData.append('image_urls', file);
-        });
+        if (imageFromGallery && imageFromGallery.signed_url) {
+            formData.append('image_url', imageFromGallery.signed_url);
+        } else {
+            files.forEach((file) => {
+                formData.append('image_urls', file);
+            });
+        }
         
         formData.append('model', selectedModel);
         formData.append('prompt', prompt);
@@ -67,10 +74,22 @@ const EditPhotoTab = ({
         setPrompt('');
         setNumImages(1);
         reset();
+        if (onClearGalleryImage) {
+            onClearGalleryImage();
+        }
     };
 
-    const costPerImage = costs?.[getCostKey()] || 0;
-    const totalCost = costPerImage * files.length * effectiveNumImages;
+    const handleClearImage = () => {
+        reset();
+        if (onClearGalleryImage) {
+            onClearGalleryImage();
+        }
+    };
+
+    const hasImage = files.length > 0 || imageFromGallery;
+
+    const baseCost = costs?.[getCostKey()] || 0;
+    const totalCost = baseCost * effectiveNumImages;
 
     return (
         <form onSubmit={handleSubmit} className={styles.editPhotoForm}>
@@ -94,21 +113,44 @@ const EditPhotoTab = ({
             />
 
             {/* Image Upload */}
-            <FileUploader
-                accept="image/png,image/jpeg,image/jpg,image/webp"
-                multiple={true}
-                maxFiles={10}
-                maxSizeMB={10}
-                onChange={(fileArray) => {
-                    if (fileArray && fileArray.length > 0) {
-                        const fakeEvent = { target: { files: fileArray } };
-                        handleFilesChange(fakeEvent);
-                    }
-                }}
-                disabled={isSubmitting}
-                label="Upload Images (1-10)"
-                showPreview={true}
-            />
+            {imageFromGallery ? (
+                <div>
+                    <label>Selected Image:</label>
+                    <div className={styles.galleryImageContainer}>
+                        <img 
+                            src={imageFromGallery.signed_url} 
+                            alt="From gallery" 
+                            className={styles.previewImage}
+                        />
+                        <div className={styles.galleryImageInfo}>
+                            <span>From Gallery</span>
+                            <button 
+                                type="button"
+                                onClick={handleClearImage}
+                                className={styles.clearButton}
+                            >
+                                Change Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <FileUploader
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    multiple={true}
+                    maxFiles={10}
+                    maxSizeMB={10}
+                    onChange={(fileArray) => {
+                        if (fileArray && fileArray.length > 0) {
+                            const fakeEvent = { target: { files: fileArray } };
+                            handleFilesChange(fakeEvent);
+                        }
+                    }}
+                    disabled={isSubmitting}
+                    label="Upload Images (1-10)"
+                    showPreview={true}
+                />
+            )}
 
             {/* Prompt */}
             <div>
@@ -156,17 +198,15 @@ const EditPhotoTab = ({
                 <ul>
                     <li>Upload 1-10 images you want to edit</li>
                     <li>Describe the changes in the prompt</li>
-                    <li>
-                        Total cost: {files.length} images × {effectiveNumImages} outputs × {costPerImage} points = {totalCost} points
-                    </li>
-                    {isFluxModel && <li><em>Flux 2 Pro generates 1 output per image</em></li>}
+                    <li>Cost per attempt: {baseCost} points × {effectiveNumImages} output{effectiveNumImages > 1 ? 's' : ''} = {totalCost} points</li>
+                    <li><em>Number of uploaded images does not affect the cost</em></li>
                 </ul>
             </div>
 
             <UniversalSubmitButton
                 isSubmitting={isSubmitting}
                 actionCost={totalCost}
-                disabled={files.length === 0 || !prompt.trim()}
+                disabled={!hasImage || !prompt.trim()}
             />
         </form>
     );

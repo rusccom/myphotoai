@@ -35,8 +35,9 @@ const PhotoGallery = ({
     const handleShareImage = async (imageUrl, imageName, event) => {
         if (event) event.stopPropagation();
 
-        const title = "Check out this image I created!";
-        const text = "I made this image with MyPhotoAI. You can create your own too! Check it out:";
+        // TODO: Временно закомментировано
+        // const title = "Check out this image I created!";
+        // const text = "I made this image with MyPhotoAI. You can create your own too! Check it out:";
         const siteUrl = window.location.origin;
 
         try {
@@ -46,12 +47,12 @@ const PhotoGallery = ({
 
             const shareDataWithFile = {
                 files: [file],
-                title: title,
-                text: text,
+                // title: title,
+                // text: text,
             };
             const shareDataWithUrl = {
-                title: title,
-                text: text,
+                // title: title,
+                // text: text,
                 url: siteUrl,
             };
 

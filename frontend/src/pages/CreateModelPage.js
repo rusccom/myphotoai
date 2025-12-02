@@ -11,16 +11,11 @@ const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
 const EYE_COLOR_OPTIONS = ['Blue', 'Green', 'Brown', 'Hazel', 'Gray', 'Other'];
 const APPEARANCE_OPTIONS = ['European', 'Caucasian', 'Asian', 'African', 'Hispanic/Latino', 'Middle Eastern', 'Other']; // Added European and made it first
 
-const MIN_FILES = 1;
-const MAX_FILES = 30; // <--- Изменяем максимум на 30
+const MIN_FILES = 10;
+const MAX_FILES = 20;
 
-// Опции для нового поля Mode
-const MODE_OPTIONS = [
-    { value: 'character', label: 'Character (Person/Animal)' },
-    { value: 'product', label: 'Product' },
-    { value: 'style', label: 'Artistic Style' },
-    { value: 'general', label: 'General Concept' },
-];
+// Фиксированное значение Mode (без выбора пользователем)
+const DEFAULT_MODE = 'character';
 
 function CreateModelPage() {
     const { /* user, */ isLoading: authLoading, /* checkStatus, */ refreshModels } = useAuth(); // Get user and checkStatus for updating
@@ -33,7 +28,6 @@ function CreateModelPage() {
     const [eyeColor, setEyeColor] = useState(EYE_COLOR_OPTIONS[0]);
     const [appearance, setAppearance] = useState(APPEARANCE_OPTIONS[0]); // Default to 'European'
     const [photos, setPhotos] = useState([]);
-    const [mode, setMode] = useState(MODE_OPTIONS[0].value);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -67,7 +61,7 @@ function CreateModelPage() {
         formData.append('age', age);
         formData.append('eyeColor', eyeColor);
         formData.append('appearance', appearance);
-        formData.append('mode', mode);
+        formData.append('mode', DEFAULT_MODE);
         console.log('[CreateModelPage] Appending photos:', photos.length);
         photos.forEach((photo, index) => {
             formData.append('photos', photo);
@@ -130,16 +124,6 @@ function CreateModelPage() {
                             disabled={isLoading}
                             className={styles.input}
                             placeholder="e.g., My Realistic Model"
-                        />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <CustomSelect
-                            label="Model Mode (Concept Type)"
-                            value={mode}
-                            onChange={setMode}
-                            options={MODE_OPTIONS}
-                            disabled={isLoading}
-                            allowEmpty={false}
                         />
                     </div>
                     <div className={styles.formGroup}>

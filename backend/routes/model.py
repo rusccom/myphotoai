@@ -155,7 +155,7 @@ def create_model():
             fal_arguments = {
                 "images_data_url": zip_url_from_fal, 
                 "trigger_phrase": generated_trigger_word,
-                "steps": 3500,
+                "steps": 2000,
                 "learning_rate": 0.00009,
                 "multiresolution_training": True,
                 "subject_crop": True,
