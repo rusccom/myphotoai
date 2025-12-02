@@ -3,10 +3,13 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './ModelGeneration.module.css';
 
-// Пути к изображениям
-const MAIN_IMAGE = '/media/model-generation/main/main.jpg';
+// R2 base URL for landing media (required in production)
+const R2_BASE = process.env.REACT_APP_R2_URL;
+
+// Пути к изображениям в R2
+const MAIN_IMAGE = `${R2_BASE}/landing/model-generation/main/main.jpg`;
 const GRID_IMAGES = Array.from({ length: 12 }, (_, i) => 
-    `/media/model-generation/grid/image-${i + 1}.jpg`
+    `${R2_BASE}/landing/model-generation/grid/image-${i + 1}.jpg`
 );
 
 // Хаотичные задержки для анимации

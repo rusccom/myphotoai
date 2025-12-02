@@ -1918,5 +1918,140 @@ POST /api/generation/start
 
 ---
 
-_Последнее обновление: 2025-11-30_
+---
+
+### 2025-12-02: Админ-панель для управления медиа лендинга (R2 Storage)
+
+**Что добавлено:**
+
+Админ-панель для редактирования медиа файлов лендинга с хранением в Cloudflare R2.
+
+**Доступ:**
+- URL: `/admin`
+- Авторизация: только пароль (без логина)
+- Пароль хранится в переменной окружения `ADMIN_PASSWORD`
+- Дефолтный пароль для разработки: `admin123`
+
+**Хранение в R2:**
+
+Все медиа файлы лендинга хранятся в Cloudflare R2 для постоянного хранения между деплоями:
+
+```
+bucket/
+├── users/                         # Пользовательские данные (существующее)
+│   └── {user_id}/
+│       ├── model_previews/        # Превью AI моделей
+│       └── photos/                # Сгенерированные фото
+│
+└── landing/                       # Медиа лендинга (новое)
+    ├── model-generation/
+    │   ├── main/main.jpg
+    │   └── grid/image-{1-12}.jpg
+    ├── photo-editing/
+    │   ├── main/main.jpg
+    │   └── grid/image-{1-12}.jpg
+    ├── clothing-try-on/
+    │   └── {1-4}/{1-3}.jpg
+    ├── live-photo/
+    │   └── videos/{1-5}.mp4
+    └── presets/
+        ├── presets-config.json
+        └── {Category}/{1-5}.jpg
+```
+
+**Секции для редактирования:**
+
+| Секция | Формат | Соотношение | Файлы |
+|--------|--------|-------------|-------|
+| Model Photo | JPG, PNG, WebP | 3:4 | main.jpg + 12 grid |
+| Edit Photo | JPG, PNG, WebP | 3:4 | main.jpg + 12 grid |
+| Try-On | JPG, PNG, WebP | 3:4 | 4 блока × 3 фото |
+| Live Photo | MP4, WebM | 9:16 | 5 видео |
+| Presets | JPG, PNG, WebP | 3:4 | 4 категории × 5 фото |
+
+**Backend (routes/admin.py, ~280 строк):**
+
+Эндпоинты:
+- `POST /api/admin/verify` - проверка пароля
+- `GET /api/admin/r2-config` - получить базовый URL R2
+- `GET /api/admin/media/<section>` - список файлов секции из R2
+- `POST /api/admin/media/<section>/upload` - загрузка файла в R2
+- `DELETE /api/admin/media/<section>/<filepath>` - удаление файла из R2
+- `GET /api/admin/sections` - список секций с требованиями
+
+Особенности:
+- Загрузка/удаление через R2 API (`upload_file_to_r2`, `delete_file_from_r2`)
+- Файлы загружаются с ACL `public-read`
+- Проверка существования файлов через `head_object`
+- Информация о требованиях (aspect ratio, форматы, размеры) для каждой секции
+
+**Frontend (pages/AdminPage.js, ~360 строк):**
+
+Компоненты:
+- `AdminPage` - основной компонент с формой входа и панелью
+- `SectionRequirements` - блок с информацией о требованиях к файлам
+- `SectionEditor` - роутер для типа секции
+- `StandardEditor` - редактор стандартных секций
+- `TryOnEditor` - редактор секции примерки (4 блока)
+- `PresetsEditor` - редактор пресетов с категориями
+- `FileCard` - карточка файла с превью и кнопками
+
+Функционал:
+- Отображение требований (aspect ratio, размер, форматы) над каждой секцией
+- Превью изображений и видео из R2
+- Загрузка файлов напрямую в R2
+- Индикатор загрузки при upload
+
+**Компоненты лендинга:**
+
+Все компоненты загружают медиа напрямую из R2:
+
+```javascript
+// Общий паттерн во всех компонентах:
+const R2_BASE = process.env.REACT_APP_R2_URL;
+
+// Пример пути к изображению:
+const MAIN_IMAGE = `${R2_BASE}/landing/model-generation/main/main.jpg`;
+```
+
+Обновлённые файлы:
+- `components/home/ModelGeneration.jsx`
+- `components/home/PhotoEditing.jsx`
+- `components/home/ClothingTryOn.jsx`
+- `components/home/LivePhoto.jsx`
+- `components/home/Capabilities.jsx`
+
+**Локальная папка media:**
+
+В `frontend/public/media/` остался только `hero-background.jpg` для фона Hero секции.
+Все остальные медиа файлы лендинга хранятся в R2.
+
+**Конфигурация:**
+
+Backend (`.env`):
+```env
+ADMIN_PASSWORD=your_secure_password_here
+R2_CUSTOM_DOMAIN=media.myphotoai.net
+```
+
+Frontend (`.env` или `.env.local`):
+```env
+# R2 URL для медиа лендинга (обязательно!)
+REACT_APP_R2_URL=https://media.myphotoai.net
+
+# WebSocket URL (для real-time обновлений)
+REACT_APP_WS_BASE_URL=http://localhost:5000
+```
+
+**Использование:**
+1. Перейти на `/admin`
+2. Ввести пароль
+3. Посмотреть требования к файлам (aspect ratio, размер, форматы)
+4. Выбрать секцию
+5. Загрузить/заменить/удалить файлы
+6. Изменения сохраняются в R2 и отображаются на лендинге
+
+---
+
+_Последнее обновление: 2025-12-02_
 

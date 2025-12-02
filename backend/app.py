@@ -144,6 +144,9 @@ def create_app(config_class=Config):
     from .routes.generation import bp as generation_bp
     app.register_blueprint(generation_bp, url_prefix='/api/generation')
 
+    from .routes.admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
+
     # Импортируем WebSocket обработчики (не blueprint, просто регистрируем события)
     from .routes import websocket
 

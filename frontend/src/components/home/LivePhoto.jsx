@@ -3,10 +3,13 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './LivePhoto.module.css';
 
-// Генерация путей к видео для 5 блоков
+// R2 base URL for landing media (required in production)
+const R2_BASE = process.env.REACT_APP_R2_URL;
+
+// Генерация путей к видео для 5 блоков в R2
 const VIDEOS = [1, 2, 3, 4, 5].map(num => ({
     id: num,
-    src: `/media/live-photo/${num}.mp4`,
+    src: `${R2_BASE}/landing/live-photo/videos/${num}.mp4`,
 }));
 
 // Placeholder для отсутствующих видео (формат 9:16)

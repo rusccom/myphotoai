@@ -3,15 +3,20 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './Capabilities.module.css';
 
+// R2 base URL for landing media (required in production)
+const R2_BASE = process.env.REACT_APP_R2_URL;
+
 function Capabilities() {
     const [activeCategory, setActiveCategory] = useState('All');
     const [presets, setPresets] = useState([]);
     const [categories, setCategories] = useState(['All']);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load presets configuration
+    // Load presets configuration from R2
     useEffect(() => {
-        fetch('/media/presets/presets-config.json')
+        const configUrl = `${R2_BASE}/landing/presets/presets-config.json`;
+        
+        fetch(configUrl)
             .then(res => res.json())
             .then(data => {
                 setCategories(data.categories || ['All']);
@@ -33,9 +38,9 @@ function Capabilities() {
             });
     }, []);
 
-    // Generate image path
+    // Generate image path in R2
     const getImagePath = (category, filename) => {
-        return `/media/presets/${category}/${filename}`;
+        return `${R2_BASE}/landing/presets/${category}/${filename}`;
     };
 
     // Generate placeholder

@@ -73,6 +73,9 @@ class Config:
     R2_REGION_NAME = os.environ.get('R2_REGION', 'auto')
     R2_CUSTOM_DOMAIN = os.environ.get('R2_CUSTOM_DOMAIN') # e.g., 'media.myphotoai.net' or None
 
+    # Admin Panel Configuration
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123'  # Change in production!
+
 # Класс для конфигурации тестирования (если нужен)
 # class TestingConfig(Config):
 #     TESTING = True

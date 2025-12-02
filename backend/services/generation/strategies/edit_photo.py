@@ -70,12 +70,15 @@ class EditPhotoStrategy(BaseGenerationStrategy):
         if not prompt:
             return 'Prompt is required for photo editing'
         
-        # Проверяем наличие файлов
+        # Проверяем наличие изображений (URL из галереи ИЛИ загруженные файлы)
+        has_url = bool(request.form.get('image_url'))
         image_files = request.files.getlist('image_urls')
-        if not image_files or len(image_files) == 0:
-            return 'At least one image file is required'
+        has_files = image_files and len(image_files) > 0 and image_files[0].filename
         
-        if len(image_files) > self.MAX_INPUT_IMAGES:
+        if not has_url and not has_files:
+            return 'At least one image file or image_url is required'
+        
+        if has_files and len(image_files) > self.MAX_INPUT_IMAGES:
             return f'Maximum {self.MAX_INPUT_IMAGES} images allowed'
         
         # Проверяем aspect_ratio если передан
@@ -86,7 +89,15 @@ class EditPhotoStrategy(BaseGenerationStrategy):
         return None
     
     def prepare_files(self, data: dict) -> dict:
-        """Загрузка всех изображений в Fal temp storage."""
+        """Загрузка изображений в Fal temp storage или использование URL из галереи."""
+        # Проверяем сначала URL из галереи
+        image_url = request.form.get('image_url')
+        if image_url:
+            logging.info(f"[EditPhoto] Using image_url from gallery: {image_url[:50]}...")
+            self.uploaded_image_urls = [image_url]
+            return {'urls': {'image_urls': self.uploaded_image_urls}}
+        
+        # Иначе загружаем файлы
         image_files = request.files.getlist('image_urls')
         allowed_extensions = {'png', 'jpg', 'jpeg', 'webp'}
         

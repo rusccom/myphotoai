@@ -17,6 +17,7 @@ import PaymentCancelPage from './pages/PaymentCancelPage';
 import AccountPage from './pages/AccountPage';
 import BillingPage from './pages/BillingPage';
 import TermsAndPrivacyPage from './pages/TermsAndPrivacyPage';
+import AdminPage from './pages/AdminPage';
 
 // Импортируем CSS модуль для App
 import styles from './App.module.css';
@@ -68,41 +69,49 @@ function AppContent() {
   const { isLoading } = useAuth();
 
   return (
-    <Layout>
-      <ScrollToTop />
-      <main className={styles.mainContent}>
-        {isLoading ? (
-          <LoadingScreen />
-        ) : (
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/pricing" element={<PricePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/terms-and-privacy" element={<TermsAndPrivacyPage />} />
-            <Route path="/payment/success" element={<PaymentSuccessPage />} />
-            <Route path="/payment/cancel" element={<PaymentCancelPage />} />
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
-            />
-            <Route
-              path="/create-model"
-              element={<ProtectedRoute><CreateModelPage /></ProtectedRoute>}
-            />
-            <Route
-              path="/account"
-              element={<ProtectedRoute><AccountPage /></ProtectedRoute>}
-            />
-            <Route
-              path="/billing"
-              element={<ProtectedRoute><BillingPage /></ProtectedRoute>}
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        )}
-      </main>
-    </Layout>
+    <Routes>
+      {/* Admin page without Layout (no Navbar/Footer) */}
+      <Route path="/admin" element={<AdminPage />} />
+      
+      {/* All other pages with Layout */}
+      <Route path="*" element={
+        <Layout>
+          <ScrollToTop />
+          <main className={styles.mainContent}>
+            {isLoading ? (
+              <LoadingScreen />
+            ) : (
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/pricing" element={<PricePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/terms-and-privacy" element={<TermsAndPrivacyPage />} />
+                <Route path="/payment/success" element={<PaymentSuccessPage />} />
+                <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+                <Route
+                  path="/dashboard"
+                  element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
+                />
+                <Route
+                  path="/create-model"
+                  element={<ProtectedRoute><CreateModelPage /></ProtectedRoute>}
+                />
+                <Route
+                  path="/account"
+                  element={<ProtectedRoute><AccountPage /></ProtectedRoute>}
+                />
+                <Route
+                  path="/billing"
+                  element={<ProtectedRoute><BillingPage /></ProtectedRoute>}
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            )}
+          </main>
+        </Layout>
+      } />
+    </Routes>
   );
 }
 

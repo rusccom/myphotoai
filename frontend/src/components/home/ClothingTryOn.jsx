@@ -3,13 +3,16 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './ClothingTryOn.module.css';
 
-// Генерация путей к изображениям для 4 блоков
+// R2 base URL for landing media (required in production)
+const R2_BASE = process.env.REACT_APP_R2_URL;
+
+// Генерация путей к изображениям для 4 блоков в R2
 const BLOCKS = [1, 2, 3, 4].map(blockNum => ({
     id: blockNum,
     images: {
-        left1: `/media/clothing-try-on/${blockNum}/1.jpg`,
-        left2: `/media/clothing-try-on/${blockNum}/2.jpg`,
-        right: `/media/clothing-try-on/${blockNum}/3.jpg`
+        left1: `${R2_BASE}/landing/clothing-try-on/${blockNum}/1.jpg`,
+        left2: `${R2_BASE}/landing/clothing-try-on/${blockNum}/2.jpg`,
+        right: `${R2_BASE}/landing/clothing-try-on/${blockNum}/3.jpg`
     }
 }));
 
