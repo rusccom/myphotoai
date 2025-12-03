@@ -58,7 +58,8 @@ def _replace_host_for_custom_domain(url: str) -> str:
         logging.warning(f"Could not replace host/path for custom R2 domain in URL '{url}': {e}")
         return url
 
-def upload_file_to_r2(file_obj, object_key: str, content_type: str = 'application/octet-stream', acl: str = 'private'):
+def upload_file_to_r2(file_obj, object_key: str, content_type: str = 'application/octet-stream', 
+                      acl: str = 'private', cache_control: str = None):
     """
     Загружает файлоподобный объект в R2.
 
@@ -69,19 +70,20 @@ def upload_file_to_r2(file_obj, object_key: str, content_type: str = 'applicatio
                 Для R2 обычно используется 'private', а доступ контролируется через pre-signed URLs
                 или политики бакета. 'public-read' может быть использован, если бакет и объект
                 предназначены для публичного доступа через кастомный домен.
+    :param cache_control: Директива Cache-Control для объекта (например, 'no-cache, max-age=0').
     :return: True в случае успеха, False в противном случае.
     """
     client = get_r2_client()
     bucket_name = current_app.config['R2_BUCKET_NAME']
+    extra_args = {'ContentType': content_type, 'ACL': acl}
+    if cache_control:
+        extra_args['CacheControl'] = cache_control
     try:
         client.upload_fileobj(
             Fileobj=file_obj,
             Bucket=bucket_name,
             Key=object_key,
-            ExtraArgs={
-                'ContentType': content_type,
-                'ACL': acl
-            }
+            ExtraArgs=extra_args
         )
         logging.info(f"Successfully uploaded {object_key} to R2 bucket {bucket_name}.")
         # Если используется кастомный публичный домен и ACL 'public-read', можно вернуть прямой URL

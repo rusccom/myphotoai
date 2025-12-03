@@ -283,7 +283,8 @@ def upload_media(section):
     file_bytes = BytesIO(file.read())
     
     if upload_file_to_r2(file_obj=file_bytes, object_key=r2_key, 
-                         content_type=content_type, acl='public-read'):
+                         content_type=content_type, acl='public-read',
+                         cache_control='no-cache, max-age=0, must-revalidate'):
         logging.info(f'Admin uploaded to R2: {r2_key}')
         base_url = get_r2_base_url()
         return jsonify({
