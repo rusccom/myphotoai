@@ -27,10 +27,7 @@ const FileUploader = ({
             return null;
         }
 
-        if (multiple && fileArray.length > maxFiles) {
-            setError(`Maximum ${maxFiles} files allowed`);
-            return null;
-        }
+        // Проверка maxFiles перенесена в processFiles для корректной работы с добавлением
 
         const allowedTypes = accept.split(',').map(t => t.trim());
         const invalidFiles = fileArray.filter(file => {
@@ -63,18 +60,39 @@ const FileUploader = ({
     };
 
     const processFiles = (fileList) => {
-        const validFiles = validateFiles(fileList);
-        if (!validFiles) return;
-
+        const newFiles = Array.from(fileList);
+        
+        // Фильтруем дубликаты по имени
+        const existingNames = new Set(files.map(f => f.name));
+        const uniqueNewFiles = newFiles.filter(f => !existingNames.has(f.name));
+        
+        if (uniqueNewFiles.length === 0) {
+            setError('These files are already added');
+            return;
+        }
+        
+        // Проверяем максимальное количество после добавления
+        const combinedFiles = [...files, ...uniqueNewFiles];
+        if (multiple && combinedFiles.length > maxFiles) {
+            setError(`Maximum ${maxFiles} files. You have ${files.length}, trying to add ${uniqueNewFiles.length}`);
+            return;
+        }
+        
+        // Валидируем только новые файлы
+        const validNewFiles = validateFiles(uniqueNewFiles);
+        if (!validNewFiles) return;
+        
+        const finalFiles = [...files, ...validNewFiles];
+        
         setError(null);
-        setFiles(validFiles);
+        setFiles(finalFiles);
 
         if (showPreview && accept.includes('image')) {
-            generatePreviews(validFiles);
+            generatePreviews(finalFiles);
         }
 
         if (onChange) {
-            onChange(multiple ? validFiles : validFiles[0]);
+            onChange(multiple ? finalFiles : finalFiles[0]);
         }
     };
 

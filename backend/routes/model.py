@@ -26,7 +26,31 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 MAX_FILES = 30 # Максимальное количество файлов
 MIN_FILES = 1  
 
-# UUID_COMMENT_PREFIX = "UUID:" # Больше не используется?
+# Конфигурация типов моделей для разных Fal.ai trainer-ов
+MODEL_CONFIGS = {
+    'flux2': {
+        'endpoint': 'fal-ai/flux-2-trainer',
+        'zip_param': 'image_data_url',
+        'trigger_param': 'default_caption',
+        'extra_args': {
+            'steps': 1000,
+            'learning_rate': 0.00005,
+            'output_lora_format': 'fal',
+        }
+    },
+    'flux': {
+        'endpoint': 'fal-ai/flux-lora-portrait-trainer',
+        'zip_param': 'images_data_url',
+        'trigger_param': 'trigger_phrase',
+        'extra_args': {
+            'steps': 2000,
+            'learning_rate': 0.00009,
+            'multiresolution_training': True,
+            'subject_crop': True,
+            'create_masks': False,
+        }
+    }
+}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -46,11 +70,14 @@ def create_model():
     logging.info(f"[CreateModel-Fal] User {current_user.id} passed balance check for '{action_type}'. New balance: {balance_info}. Proceeding.")
 
     # --- Получение данных --- 
+    model_type = request.form.get('modelType', 'flux2')
+    config = MODEL_CONFIGS.get(model_type, MODEL_CONFIGS['flux2'])
+    logging.info(f"[CreateModel-Fal] Model type: {model_type}, endpoint: {config['endpoint']}")
+    
     gender = request.form.get('gender')
     age_str = request.form.get('age')
     eye_color = request.form.get('eyeColor')
     appearance = request.form.get('appearance')
-    mode_from_form = request.form.get('mode')
     model_name_base = request.form.get('modelName', f"My Model")
     files = request.files.getlist('photos')
 
@@ -92,7 +119,7 @@ def create_model():
             age=age,
             eye_color=eye_color,
             appearance=appearance,
-            concept_type=mode_from_form 
+            concept_type=model_type
         )
         db.session.add(new_model_db)
         db.session.flush() 
@@ -153,17 +180,12 @@ def create_model():
                  logging.warning("[CreateModel-Fal] Webhook base URL not configured.")
 
             fal_arguments = {
-                "images_data_url": zip_url_from_fal, 
-                "trigger_phrase": generated_trigger_word,
-                "steps": 2000,
-                "learning_rate": 0.00009,
-                "multiresolution_training": True,
-                "subject_crop": True,
-                "create_masks": False,
-                "resume_from_checkpoint": ""
+                config['zip_param']: zip_url_from_fal,
+                config['trigger_param']: generated_trigger_word,
+                **config['extra_args']
             }
             
-            model_identifier = "fal-ai/flux-lora-portrait-trainer"
+            model_identifier = config['endpoint']
             logging.info(f"[CreateModel-Fal] Submitting training job to {model_identifier} with args: {fal_arguments}")
             handler = fal_client.submit(
                 model_identifier,

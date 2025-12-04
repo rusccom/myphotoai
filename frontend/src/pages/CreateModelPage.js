@@ -7,9 +7,12 @@ import CustomSelect from '../components/CustomSelect';
 import styles from './CreateModelPage.module.css';
 
 // Options for dropdowns
+const MODEL_TYPE_OPTIONS = ['Flux 2', 'Flux'];
+// Flux 2 = fal-ai/flux-2-trainer (новая, по умолчанию)
+// Flux = fal-ai/flux-lora-portrait-trainer (текущая)
 const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
 const EYE_COLOR_OPTIONS = ['Blue', 'Green', 'Brown', 'Hazel', 'Gray', 'Other'];
-const APPEARANCE_OPTIONS = ['European', 'Caucasian', 'Asian', 'African', 'Hispanic/Latino', 'Middle Eastern', 'Other']; // Added European and made it first
+const APPEARANCE_OPTIONS = ['European', 'Caucasian', 'Asian', 'African', 'Hispanic/Latino', 'Middle Eastern', 'Other'];
 
 const MIN_FILES = 10;
 const MAX_FILES = 20;
@@ -22,6 +25,7 @@ function CreateModelPage() {
     const navigate = useNavigate();
 
     // Form state
+    const [modelType, setModelType] = useState(MODEL_TYPE_OPTIONS[0]);
     const [modelName, setModelName] = useState('My Model');
     const [gender, setGender] = useState(GENDER_OPTIONS[0]);
     const [age, setAge] = useState('');
@@ -56,6 +60,9 @@ function CreateModelPage() {
         setIsLoading(true);
         console.log('[CreateModelPage] Creating FormData...'); // ЛОГ 4
         const formData = new FormData();
+        // 'Flux 2' → 'flux2', 'Flux' → 'flux'
+        const modelTypeKey = modelType === 'Flux 2' ? 'flux2' : 'flux';
+        formData.append('modelType', modelTypeKey);
         formData.append('modelName', modelName.trim());
         formData.append('gender', gender);
         formData.append('age', age);
@@ -113,6 +120,16 @@ function CreateModelPage() {
             
             <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.gridContainer}>
+                    <div className={`${styles.formGroup} ${styles.formGroupFullSpan}`}>
+                        <CustomSelect
+                            label="Model Type"
+                            value={modelType}
+                            onChange={setModelType}
+                            options={MODEL_TYPE_OPTIONS}
+                            disabled={isLoading}
+                            allowEmpty={false}
+                        />
+                    </div>
                     <div className={`${styles.formGroup} ${styles.formGroupFullSpan}`}>
                         <label htmlFor="modelName" className={styles.label}>Model Name (for your reference):</label>
                         <input

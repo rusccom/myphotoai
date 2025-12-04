@@ -94,7 +94,7 @@ components/
 ├── Footer.js              # Минималистичный футер
 ├── ProtectedRoute.js      # HOC для защиты маршрутов
 ├── ImageModal.js          # Модальное окно просмотра
-├── FileUploader.jsx       # Drag & Drop загрузчик
+├── FileUploader.jsx       # Drag & Drop загрузчик (инкрементное добавление/удаление)
 ├── UniversalSubmitButton.js # Кнопка "GO (Cost: X points)"
 └── NumImagesSelect.js     # Селектор количества
 ```
@@ -137,7 +137,8 @@ components/
 **AIModel:**
 - id, user_id, name, model_url, trigger_word
 - status (TRAINING/READY/FAILED/PENDING_DELETION)
-- preview_r2_object_key, gender, age, concept_type
+- preview_r2_object_key, gender, age
+- concept_type (`flux` / `flux2` - тип trainer-а)
 
 **GeneratedImage:**
 - id, user_id, ai_model_id (nullable)
@@ -159,8 +160,14 @@ components/
 - GET `/google/login`, `/google/callback` - OAuth
 
 **Model (`/api/model/`):**
-- POST `/create` - создание AI модели (FormData)
+- POST `/create` - создание AI модели (FormData, поддержка двух типов)
 - GET `/list`, `/status/<uuid>`
+
+**Типы моделей (MODEL_CONFIGS в model.py):**
+| Тип | Endpoint | Описание |
+|-----|----------|----------|
+| `flux2` | `fal-ai/flux-2-trainer` | Универсальный trainer (стили, бренды, персонажи) |
+| `flux` | `fal-ai/flux-lora-portrait-trainer` | Portrait trainer (фото людей) |
 
 **Generation (`/api/generation/`):**
 - POST `/start` - универсальный endpoint (Strategy Pattern)
@@ -345,4 +352,4 @@ class NewTypeStrategy(BaseGenerationStrategy):
 
 ---
 
-_Последнее обновление: 2025-12-04_
+_Последнее обновление: 2025-12-04_ (FileUploader: инкрементное добавление/удаление файлов)
