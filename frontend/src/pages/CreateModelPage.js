@@ -15,7 +15,7 @@ const EYE_COLOR_OPTIONS = ['Blue', 'Green', 'Brown', 'Hazel', 'Gray', 'Other'];
 const APPEARANCE_OPTIONS = ['European', 'Caucasian', 'Asian', 'African', 'Hispanic/Latino', 'Middle Eastern', 'Other'];
 
 const MIN_FILES = 10;
-const MAX_FILES = 20;
+const MAX_FILES = 30;
 
 // Фиксированное значение Mode (без выбора пользователем)
 const DEFAULT_MODE = 'character';

@@ -3,104 +3,59 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './Capabilities.module.css';
 
-// R2 base URL for landing media (required in production)
-const R2_BASE = process.env.REACT_APP_R2_URL;
+const API_BASE = process.env.REACT_APP_API_URL || '';
 
 function Capabilities() {
-    const [activeCategory, setActiveCategory] = useState('All');
+    const [activeCategory, setActiveCategory] = useState('all');
     const [presets, setPresets] = useState([]);
-    const [categories, setCategories] = useState(['All']);
+    const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load presets configuration from R2
+    // Load presets from API
     useEffect(() => {
-        const configUrl = `${R2_BASE}/landing/presets/presets-config.json`;
+        const loadData = async () => {
+            try {
+                const [catRes, presetsRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/preset/categories`),
+                    fetch(`${API_BASE}/api/preset/list`)
+                ]);
+                
+                if (catRes.ok && presetsRes.ok) {
+                    const catData = await catRes.json();
+                    const presetsData = await presetsRes.json();
+                    setCategories(catData.categories || []);
+                    setPresets(presetsData.presets || []);
+                }
+            } catch (error) {
+                console.error('Failed to load presets:', error);
+            }
+            setIsLoading(false);
+        };
         
-        fetch(configUrl)
-            .then(res => res.json())
-            .then(data => {
-                setCategories(data.categories || ['All']);
-                setPresets(data.presets || []);
-                setIsLoading(false);
-            })
-            .catch(() => {
-                // Fallback: show placeholders for each category
-                const fallbackCategories = ['All', 'Portraits', 'Fashion', 'Professional', 'Creative'];
-                const fallbackPresets = [
-                    { category: 'Portraits', title: 'Portrait Presets', images: [] },
-                    { category: 'Fashion', title: 'Fashion Presets', images: [] },
-                    { category: 'Professional', title: 'Professional Presets', images: [] },
-                    { category: 'Creative', title: 'Creative Presets', images: [] }
-                ];
-                setCategories(fallbackCategories);
-                setPresets(fallbackPresets);
-                setIsLoading(false);
-            });
+        loadData();
     }, []);
 
-    // Generate image path in R2
-    const getImagePath = (category, filename) => {
-        return `${R2_BASE}/landing/presets/${category}/${filename}`;
-    };
-
-    // Generate placeholder
-    const getPlaceholder = (category, index) => {
+    // Generate placeholder color based on category
+    const getPlaceholder = (categoryName) => {
         const colors = {
             'Portraits': '8b5cf6',
             'Fashion': 'ec4899',
             'Professional': '6366f1',
             'Creative': 'a78bfa'
         };
-        const color = colors[category] || '8b5cf6';
-        return `https://placehold.co/600x800/${color}/ffffff?text=${category}+${index + 1}`;
+        const color = colors[categoryName] || '8b5cf6';
+        return `https://placehold.co/600x800/${color}/ffffff?text=${categoryName || 'Preset'}`;
     };
 
-    // Get images for display
-    const getDisplayImages = () => {
-        if (activeCategory === 'All') {
-            // Show all images from all categories
-            const allImages = [];
-            presets.forEach(preset => {
-                const images = preset.images.length > 0 
-                    ? preset.images 
-                    : ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'];
-                
-                images.forEach((filename, index) => {
-                    allImages.push({
-                        id: `${preset.category}-${index}`,
-                        category: preset.category,
-                        title: `${preset.category} ${index + 1}`,
-                        imagePath: getImagePath(preset.category, filename),
-                        placeholder: getPlaceholder(preset.category, index)
-                    });
-                });
-            });
-            return allImages;
-        } else {
-            // Show images for selected category
-            const preset = presets.find(p => p.category === activeCategory);
-            if (!preset) return [];
-            
-            const images = preset.images.length > 0 
-                ? preset.images 
-                : ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'];
-            
-            return images.map((filename, index) => ({
-                id: `${preset.category}-${index}`,
-                category: preset.category,
-                title: `${preset.category} ${index + 1}`,
-                imagePath: getImagePath(preset.category, filename),
-                placeholder: getPlaceholder(preset.category, index)
-            }));
-        }
-    };
+    // Filter presets by category
+    const displayPresets = activeCategory === 'all'
+        ? presets
+        : presets.filter(p => p.category_id === activeCategory);
 
     // Handle image error (fallback to placeholder)
-    const handleImageError = (e, placeholder) => {
-        e.target.src = placeholder;
+    const handleImageError = (e, categoryName) => {
+        e.target.src = getPlaceholder(categoryName);
     };
-
-    const displayImages = getDisplayImages();
 
     return (
         <section id="capabilities" className={styles.section}>
@@ -118,13 +73,19 @@ function Capabilities() {
 
                 {/* Category tabs */}
                 <div className={styles.categoryTabs}>
+                    <button
+                        className={`${styles.categoryTab} ${activeCategory === 'all' ? styles.active : ''}`}
+                        onClick={() => setActiveCategory('all')}
+                    >
+                        All
+                    </button>
                     {categories.map((cat) => (
                         <button
-                            key={cat}
-                            className={`${styles.categoryTab} ${activeCategory === cat ? styles.active : ''}`}
-                            onClick={() => setActiveCategory(cat)}
+                            key={cat.id}
+                            className={`${styles.categoryTab} ${activeCategory === cat.id ? styles.active : ''}`}
+                            onClick={() => setActiveCategory(cat.id)}
                         >
-                            {cat}
+                            {cat.name}
                         </button>
                     ))}
                 </div>
@@ -134,19 +95,20 @@ function Capabilities() {
                     <div className={styles.loading}>Loading presets...</div>
                 ) : (
                     <div className={styles.bentoGrid}>
-                        {displayImages.map((item, index) => (
-                            <ScrollReveal key={item.id} animation="scale" delay={index * 50}>
+                        {displayPresets.map((preset, index) => (
+                            <ScrollReveal key={preset.id} animation="scale" delay={index * 50}>
                                 <div className={styles.gridItem}>
                                     <div className={styles.imageWrapper}>
                                         <img 
-                                            src={item.imagePath} 
-                                            alt={item.title}
+                                            src={preset.signed_url || getPlaceholder(preset.category_name)} 
+                                            alt={preset.name}
                                             className={styles.image}
-                                            onError={(e) => handleImageError(e, item.placeholder)}
+                                            onError={(e) => handleImageError(e, preset.category_name)}
                                         />
                                         <div className={styles.overlay}>
                                             <div className={styles.overlayContent}>
-                                                <span className={styles.categoryBadge}>{item.category}</span>
+                                                <span className={styles.categoryBadge}>{preset.category_name}</span>
+                                                <span className={styles.presetName}>{preset.name}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -156,9 +118,9 @@ function Capabilities() {
                     </div>
                 )}
 
-                {displayImages.length === 0 && !isLoading && (
+                {displayPresets.length === 0 && !isLoading && (
                     <div className={styles.emptyState}>
-                        <p>No presets available for this category</p>
+                        <p>No presets available yet</p>
                     </div>
                 )}
             </div>

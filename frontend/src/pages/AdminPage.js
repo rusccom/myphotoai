@@ -245,12 +245,7 @@ function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, fileC
     const info = data.info;
     
     if (section === 'presets') {
-        return (
-            <>
-                <SectionRequirements info={info} />
-                <PresetsEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} fileCacheKeys={fileCacheKeys} />
-            </>
-        );
+        return <PresetsEditor />;
     }
     if (section === 'clothing-try-on') {
         return (
@@ -334,36 +329,396 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys })
     );
 }
 
-// Presets Editor
-function PresetsEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
-    const [activeCategory, setActiveCategory] = useState('Portraits');
+// Presets Editor (Database-backed)
+function PresetsEditor() {
+    const API_BASE = process.env.REACT_APP_API_URL || '';
+    const getAdminPassword = () => localStorage.getItem('adminPassword') || '';
+    
+    const [categories, setCategories] = useState([]);
+    const [presets, setPresets] = useState([]);
+    const [activeCategory, setActiveCategory] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [showPresetModal, setShowPresetModal] = useState(false);
+    const [editingCategory, setEditingCategory] = useState(null);
+    const [editingPreset, setEditingPreset] = useState(null);
+
+    // Load categories
+    const loadCategories = useCallback(async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/preset/admin/categories`, {
+                headers: { 'X-Admin-Password': getAdminPassword() }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setCategories(data.categories || []);
+                if (!activeCategory && data.categories?.length > 0) {
+                    setActiveCategory(data.categories[0].id);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to load categories:', err);
+        }
+    }, [API_BASE, activeCategory]);
+
+    // Load presets
+    const loadPresets = useCallback(async () => {
+        if (!activeCategory) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/preset/admin/presets?category_id=${activeCategory}`, {
+                headers: { 'X-Admin-Password': getAdminPassword() }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setPresets(data.presets || []);
+            }
+        } catch (err) {
+            console.error('Failed to load presets:', err);
+        }
+    }, [API_BASE, activeCategory]);
+
+    useEffect(() => {
+        loadCategories().then(() => setLoading(false));
+    }, [loadCategories]);
+
+    useEffect(() => {
+        if (activeCategory) loadPresets();
+    }, [activeCategory, loadPresets]);
+
+    // Category CRUD
+    const handleSaveCategory = async (categoryData) => {
+        const isEdit = !!editingCategory;
+        const url = isEdit 
+            ? `${API_BASE}/api/preset/admin/categories/${editingCategory.id}`
+            : `${API_BASE}/api/preset/admin/categories`;
+        
+        try {
+            const res = await fetch(url, {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': getAdminPassword()
+                },
+                body: JSON.stringify(categoryData)
+            });
+            if (res.ok) {
+                await loadCategories();
+                setShowCategoryModal(false);
+                setEditingCategory(null);
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to save category');
+            }
+        } catch (err) {
+            console.error('Save category error:', err);
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId) => {
+        if (!window.confirm('Delete this category?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/preset/admin/categories/${categoryId}`, {
+                method: 'DELETE',
+                headers: { 'X-Admin-Password': getAdminPassword() }
+            });
+            if (res.ok) {
+                await loadCategories();
+                if (activeCategory === categoryId) {
+                    setActiveCategory(categories[0]?.id || null);
+                }
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete category');
+            }
+        } catch (err) {
+            console.error('Delete category error:', err);
+        }
+    };
+
+    // Preset CRUD
+    const handleSavePreset = async (formData) => {
+        const isEdit = !!editingPreset;
+        const url = isEdit 
+            ? `${API_BASE}/api/preset/admin/presets/${editingPreset.id}`
+            : `${API_BASE}/api/preset/admin/presets`;
+        
+        try {
+            const res = await fetch(url, {
+                method: isEdit ? 'PUT' : 'POST',
+                headers: { 'X-Admin-Password': getAdminPassword() },
+                body: formData
+            });
+            if (res.ok) {
+                await loadPresets();
+                setShowPresetModal(false);
+                setEditingPreset(null);
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to save preset');
+            }
+        } catch (err) {
+            console.error('Save preset error:', err);
+        }
+    };
+
+    const handleDeletePreset = async (presetId) => {
+        if (!window.confirm('Delete this preset?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/preset/admin/presets/${presetId}`, {
+                method: 'DELETE',
+                headers: { 'X-Admin-Password': getAdminPassword() }
+            });
+            if (res.ok) {
+                await loadPresets();
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete preset');
+            }
+        } catch (err) {
+            console.error('Delete preset error:', err);
+        }
+    };
+
+    if (loading) return <div className={styles.loading}>Loading...</div>;
 
     return (
         <div className={styles.editorContainer}>
-            <div className={styles.categoryTabs}>
-                {Object.keys(data.files || {}).map(category => (
-                    <button
-                        key={category}
-                        className={`${styles.categoryTab} ${activeCategory === category ? styles.activeCategoryTab : ''}`}
-                        onClick={() => setActiveCategory(category)}
+            {/* Categories Section */}
+            <div className={styles.folderSection}>
+                <div className={styles.sectionHeader}>
+                    <h3 className={styles.folderTitle}>Categories</h3>
+                    <button 
+                        className={styles.addButton}
+                        onClick={() => { setEditingCategory(null); setShowCategoryModal(true); }}
                     >
-                        {category}
+                        + Add Category
                     </button>
-                ))}
+                </div>
+                <div className={styles.categoryTabs}>
+                    {categories.map(cat => (
+                        <div key={cat.id} className={styles.categoryTabWrapper}>
+                            <button
+                                className={`${styles.categoryTab} ${activeCategory === cat.id ? styles.activeCategoryTab : ''} ${!cat.is_active ? styles.inactiveTab : ''}`}
+                                onClick={() => setActiveCategory(cat.id)}
+                            >
+                                {cat.name} ({cat.presets_count})
+                            </button>
+                            <div className={styles.categoryActions}>
+                                <button 
+                                    className={styles.smallBtn}
+                                    onClick={() => { setEditingCategory(cat); setShowCategoryModal(true); }}
+                                >
+                                    Edit
+                                </button>
+                                <button 
+                                    className={styles.smallBtnDanger}
+                                    onClick={() => handleDeleteCategory(cat.id)}
+                                >
+                                    Del
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
-            <div className={styles.filesGrid}>
-                {(data.files?.[activeCategory] || []).map(file => (
-                    <FileCard
-                        key={file.name}
-                        file={file}
-                        isVideo={false}
-                        category={activeCategory}
-                        onUpload={onUpload}
-                        onDelete={onDelete}
-                        uploading={uploadingFile === file.name}
-                        fileCacheKeys={fileCacheKeys}
-                    />
-                ))}
+
+            {/* Presets Section */}
+            {activeCategory && (
+                <div className={styles.folderSection}>
+                    <div className={styles.sectionHeader}>
+                        <h3 className={styles.folderTitle}>Presets</h3>
+                        <button 
+                            className={styles.addButton}
+                            onClick={() => { setEditingPreset(null); setShowPresetModal(true); }}
+                        >
+                            + Add Preset
+                        </button>
+                    </div>
+                    <div className={styles.presetsGrid}>
+                        {presets.map(preset => (
+                            <PresetCard 
+                                key={preset.id} 
+                                preset={preset}
+                                onEdit={() => { setEditingPreset(preset); setShowPresetModal(true); }}
+                                onDelete={() => handleDeletePreset(preset.id)}
+                            />
+                        ))}
+                        {presets.length === 0 && (
+                            <p className={styles.emptyText}>No presets in this category</p>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Category Modal */}
+            {showCategoryModal && (
+                <CategoryModal
+                    category={editingCategory}
+                    onSave={handleSaveCategory}
+                    onClose={() => { setShowCategoryModal(false); setEditingCategory(null); }}
+                />
+            )}
+
+            {/* Preset Modal */}
+            {showPresetModal && (
+                <PresetModal
+                    preset={editingPreset}
+                    categoryId={activeCategory}
+                    onSave={handleSavePreset}
+                    onClose={() => { setShowPresetModal(false); setEditingPreset(null); }}
+                />
+            )}
+        </div>
+    );
+}
+
+// Preset Card Component
+function PresetCard({ preset, onEdit, onDelete }) {
+    return (
+        <div className={styles.presetCard}>
+            <div className={styles.presetImage}>
+                {preset.signed_url ? (
+                    <img src={preset.signed_url} alt={preset.name} />
+                ) : (
+                    <div className={styles.placeholder}>
+                        <span>No image</span>
+                    </div>
+                )}
+                {!preset.is_active && <div className={styles.inactiveBadge}>Inactive</div>}
+            </div>
+            <div className={styles.presetInfo}>
+                <h4>{preset.name}</h4>
+                <p className={styles.presetPrompt}>{preset.prompt.substring(0, 100)}...</p>
+            </div>
+            <div className={styles.presetActions}>
+                <button className={styles.editBtn} onClick={onEdit}>Edit</button>
+                <button className={styles.deleteBtn} onClick={onDelete}>Delete</button>
+            </div>
+        </div>
+    );
+}
+
+// Category Modal Component
+function CategoryModal({ category, onSave, onClose }) {
+    const [name, setName] = useState(category?.name || '');
+    const [slug, setSlug] = useState(category?.slug || '');
+    const [description, setDescription] = useState(category?.description || '');
+    const [sortOrder, setSortOrder] = useState(category?.sort_order || 0);
+    const [isActive, setIsActive] = useState(category?.is_active ?? true);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSave({ name, slug, description, sort_order: sortOrder, is_active: isActive });
+    };
+
+    return (
+        <div className={styles.modalOverlay} onClick={onClose}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <h3>{category ? 'Edit Category' : 'New Category'}</h3>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.formGroup}>
+                        <label>Name *</label>
+                        <input value={name} onChange={e => setName(e.target.value)} required />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Slug</label>
+                        <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="auto-generated" />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Description</label>
+                        <input value={description} onChange={e => setDescription(e.target.value)} />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Sort Order</label>
+                        <input type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>
+                            <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
+                            Active
+                        </label>
+                    </div>
+                    <div className={styles.modalActions}>
+                        <button type="button" onClick={onClose}>Cancel</button>
+                        <button type="submit" className={styles.primaryBtn}>Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// Preset Modal Component
+function PresetModal({ preset, categoryId, onSave, onClose }) {
+    const [name, setName] = useState(preset?.name || '');
+    const [prompt, setPrompt] = useState(preset?.prompt || '');
+    const [sortOrder, setSortOrder] = useState(preset?.sort_order || 0);
+    const [isActive, setIsActive] = useState(preset?.is_active ?? true);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(preset?.signed_url || null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('category_id', categoryId);
+        formData.append('name', name);
+        formData.append('prompt', prompt);
+        formData.append('sort_order', sortOrder);
+        formData.append('is_active', isActive);
+        if (imageFile) formData.append('image', imageFile);
+        onSave(formData);
+    };
+
+    return (
+        <div className={styles.modalOverlay} onClick={onClose}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                <h3>{preset ? 'Edit Preset' : 'New Preset'}</h3>
+                <form onSubmit={handleSubmit}>
+                    <div className={styles.formGroup}>
+                        <label>Name *</label>
+                        <input value={name} onChange={e => setName(e.target.value)} required />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Prompt *</label>
+                        <textarea 
+                            value={prompt} 
+                            onChange={e => setPrompt(e.target.value)} 
+                            rows={4}
+                            required 
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Image</label>
+                        <input type="file" accept="image/*" onChange={handleImageChange} />
+                        {imagePreview && (
+                            <div className={styles.imagePreview}>
+                                <img src={imagePreview} alt="Preview" />
+                            </div>
+                        )}
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Sort Order</label>
+                        <input type="number" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>
+                            <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} />
+                            Active
+                        </label>
+                    </div>
+                    <div className={styles.modalActions}>
+                        <button type="button" onClick={onClose}>Cancel</button>
+                        <button type="submit" className={styles.primaryBtn}>Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     );

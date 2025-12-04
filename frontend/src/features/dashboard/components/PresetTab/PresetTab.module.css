@@ -1,0 +1,194 @@
+/* PresetTab.module.css */
+
+.container {
+    padding: 20px 0;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 80px 20px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.emptyIcon {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+/* Category Filter */
+.categoryFilter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    padding: 0 5px;
+}
+
+.categoryBtn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.categoryBtn:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #fff;
+}
+
+.categoryBtn.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%);
+    border-color: #8b5cf6;
+    color: #fff;
+}
+
+/* Presets Grid */
+.presetsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+/* Preset Card */
+.presetCard {
+    background: rgba(30, 30, 50, 0.6);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.presetCard:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+}
+
+.presetImage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: rgba(15, 15, 26, 0.8);
+    overflow: hidden;
+}
+
+.presetImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.presetCard:hover .presetImage img {
+    transform: scale(1.05);
+}
+
+.presetPlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 3rem;
+    color: rgba(139, 92, 246, 0.3);
+}
+
+.presetOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.presetCard:hover .presetOverlay {
+    opacity: 1;
+}
+
+.generateBtn {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.generateBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+}
+
+.presetInfo {
+    padding: 15px;
+}
+
+.presetName {
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.presetCategory {
+    font-size: 0.8rem;
+    color: rgba(139, 92, 246, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .presetsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .categoryFilter {
+        gap: 8px;
+    }
+
+    .categoryBtn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .presetsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .presetInfo {
+        padding: 10px;
+    }
+
+    .presetName {
+        font-size: 0.85rem;
+    }
+}

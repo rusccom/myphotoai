@@ -45,6 +45,7 @@ AIModel/
 │   │   ├── generation.py       # /api/generation/*
 │   │   ├── payment.py          # /api/payment/*
 │   │   ├── admin.py            # /api/admin/*
+│   │   ├── preset.py           # /api/preset/*
 │   │   └── websocket.py        # WebSocket handlers
 │   ├── services/
 │   │   └── generation/         # Strategy Pattern для генерации
@@ -101,7 +102,7 @@ components/
 
 ### Dashboard (features/dashboard/)
 
-**Вкладки генерации:**
+**Вкладки генерации (левая панель):**
 | Компонент | Тип | Описание |
 |-----------|-----|----------|
 | EditPhotoTab | edit_photo | Редактирование (Nano Banana / Flux 2 Pro) |
@@ -110,6 +111,12 @@ components/
 | ClothingTryOnTab | try_on | Примерка одежды |
 | UpscaleTab | upscale | Увеличение разрешения |
 | LivePhotoTab | - | Живое фото (в разработке) |
+
+**Вкладки правой панели:**
+| Компонент | Описание |
+|-----------|----------|
+| PhotoGallery | Галерея сгенерированных фото |
+| PresetTab | Пресеты для быстрой генерации |
 
 **Хуки:**
 - `useImageHistory` - история генераций, polling, пагинация
@@ -149,6 +156,15 @@ components/
 **Payment:** id, user_id, amount_usd, amount_points, status  
 **PaidAction:** id, user_id, action_type, cost_points
 
+**PresetCategory:**
+- id, name, slug, description
+- sort_order, is_active
+- Связь: presets (one-to-many)
+
+**Preset:**
+- id, category_id, name, prompt
+- r2_object_key, sort_order, is_active
+
 **SQL View `user_balance`:** balance_points = SUM(payments) - SUM(paid_actions)
 
 ### API эндпоинты
@@ -182,6 +198,13 @@ components/
 **Admin (`/api/admin/`):**
 - POST `/verify` - проверка пароля
 - GET/POST/DELETE `/media/<section>` - управление медиа R2
+
+**Preset (`/api/preset/`):**
+- GET `/categories` - список активных категорий
+- GET `/list` - список активных пресетов (включает prompt)
+- Admin CRUD: `/admin/categories`, `/admin/presets`
+
+*Генерация по пресету выполняется через `/api/generation/start` с type: `model_photo` и prompt из пресета.*
 
 ### Generation Strategy Pattern
 
@@ -247,12 +270,16 @@ bucket/
 │   ├── model_previews/     # Превью AI моделей
 │   └── photos/             # Сгенерированные фото
 │
+├── presets/                # Пресеты (плоская структура, БД-driven)
+│   ├── 1.jpg               # preset.id = 1
+│   ├── 2.jpg               # preset.id = 2
+│   └── ...
+│
 └── landing/                # Медиа лендинга (через админку)
     ├── model-generation/
     ├── photo-editing/
     ├── clothing-try-on/
-    ├── live-photo/
-    └── presets/
+    └── live-photo/
 ```
 
 **utils/r2_utils.py:** upload, download, generate_presigned_url, delete
@@ -352,4 +379,4 @@ class NewTypeStrategy(BaseGenerationStrategy):
 
 ---
 
-_Последнее обновление: 2025-12-04_ (FileUploader: инкрементное добавление/удаление файлов)
+_Последнее обновление: 2025-12-04_ (Presets: категории пресетов в БД, генерация по пресету, админка)

@@ -321,6 +321,77 @@ class PaidAction(db.Model):
     def __repr__(self):
         return f'<PaidAction {self.id} by User {self.user_id}, type: {self.action_type}, cost: {self.cost_points}>'
 
+
+# Модель для категорий пресетов
+class PresetCategory(db.Model):
+    """Категории пресетов (Portraits, Fashion, Professional, etc.)"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    slug = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.String(255), nullable=True)
+    sort_order = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Связь с пресетами
+    presets = db.relationship('Preset', backref='category', lazy='dynamic')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'slug': self.slug,
+            'description': self.description,
+            'sort_order': self.sort_order,
+            'is_active': self.is_active,
+            'presets_count': self.presets.filter_by(is_active=True).count(),
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+    def __repr__(self):
+        return f'<PresetCategory {self.id}: {self.name}>'
+
+
+# Модель для пресетов
+class Preset(db.Model):
+    """Пресеты для быстрой генерации"""
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('preset_category.id'), nullable=False, index=True)
+    name = db.Column(db.String(100), nullable=False)
+    prompt = db.Column(db.Text, nullable=False)
+    r2_object_key = db.Column(db.String(1024), nullable=True)
+    sort_order = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        signed_url = None
+        if self.r2_object_key and current_app:
+            try:
+                expiration = current_app.config.get('R2_PRESET_URL_EXPIRATION', 3600)
+                signed_url = generate_presigned_get_url(self.r2_object_key, expiration=expiration)
+            except Exception as e:
+                current_app.logger.error(f"Error generating signed URL for Preset {self.id}: {e}")
+
+        return {
+            'id': self.id,
+            'category_id': self.category_id,
+            'category_name': self.category.name if self.category else None,
+            'name': self.name,
+            'prompt': self.prompt,
+            'r2_object_key': self.r2_object_key,
+            'signed_url': signed_url,
+            'sort_order': self.sort_order,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+    def __repr__(self):
+        return f'<Preset {self.id}: {self.name}>'
+
+
 # Представление для баланса пользователя (SQL View)
 # ПРЕДУПРЕЖДЕНИЕ: Создание представлений обычно выполняется через миграции (Alembic).
 # Этот код демонстрирует, как можно было бы определить его в SQLAlchemy,

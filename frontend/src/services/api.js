@@ -169,3 +169,23 @@ export const createCheckoutSession = (priceId) => {
         body: { priceId },
     });
 };
+
+// ============================================
+// ПРЕСЕТЫ
+// ============================================
+
+/**
+ * Получить список категорий пресетов
+ */
+export const getPresetCategories = () => {
+    return fetchApi('/preset/categories');
+};
+
+/**
+ * Получить список пресетов
+ * @param {number} categoryId - опциональный ID категории для фильтрации
+ */
+export const getPresets = (categoryId) => {
+    const params = categoryId ? `?category_id=${categoryId}` : '';
+    return fetchApi(`/preset/list${params}`);
+};

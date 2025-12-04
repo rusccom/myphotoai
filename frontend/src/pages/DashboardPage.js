@@ -16,6 +16,7 @@ import TextToImageTab from '../features/dashboard/components/TextToImageTab/Text
 import UpscaleTab from '../features/dashboard/components/UpscaleTab/UpscaleTab';
 import ClothingTryOnTab from '../features/dashboard/components/ClothingTryOnTab/ClothingTryOnTab';
 import LivePhotoTab from '../features/dashboard/components/LivePhotoTab/LivePhotoTab';
+import PresetTab from '../features/dashboard/components/PresetTab/PresetTab';
 import ImageModal from '../components/ImageModal';
 
 import styles from './DashboardPage.module.css';
@@ -254,6 +255,19 @@ function DashboardPage() {
                     </section>
                 );
 
+            case 'Preset':
+                return (
+                    <PresetTab
+                        models={models}
+                        onGenerationStart={(result) => {
+                            if (result.images) {
+                                setPendingGenerations(prev => [...result.images, ...prev]);
+                            }
+                        }}
+                        updateUser={updateUser}
+                    />
+                );
+
             default:
                 return null;
         }
@@ -330,6 +344,12 @@ function DashboardPage() {
                                 className={`${styles.tabButton} ${activeTab === 'Favorite' ? styles.activeTab : ''}`}
                             >
                                 Favorite
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('Preset')}
+                                className={`${styles.tabButton} ${activeTab === 'Preset' ? styles.activeTab : ''}`}
+                            >
+                                Preset
                             </button>
                         </div>
                         

@@ -122,6 +122,14 @@
     border-radius: var(--radius-sm);
 }
 
+.presetName {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+}
+
 /* Loading and Empty states */
 .loading {
     text-align: center;
