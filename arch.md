@@ -254,6 +254,8 @@ bucket/
 - При загрузке через админку устанавливается `Cache-Control: no-cache, max-age=0, must-revalidate`
 - Браузер проверяет актуальность файла при каждом запросе через ETag
 - Если файл не изменился — используется кэш (304 Not Modified)
+- В админке используется cache-busting (`?v=timestamp`) для мгновенного обновления превью после загрузки/удаления
+- Cloudflare: рекомендуется настроить Cache Rule с Bypass cache для `/landing/*`
 
 ---
 
@@ -343,4 +345,4 @@ class NewTypeStrategy(BaseGenerationStrategy):
 
 ---
 
-_Последнее обновление: 2025-12-03_
+_Последнее обновление: 2025-12-04_

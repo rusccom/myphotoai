@@ -20,6 +20,7 @@ function AdminPage() {
     const [sectionData, setSectionData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [uploadingFile, setUploadingFile] = useState(null);
+    const [cacheKey, setCacheKey] = useState(Date.now());
 
     // Check localStorage for saved session
     useEffect(() => {
@@ -98,6 +99,7 @@ function AdminPage() {
                 body: formData
             });
             if (res.ok) {
+                setCacheKey(Date.now());
                 loadSectionData();
             }
         } catch (err) {
@@ -113,7 +115,10 @@ function AdminPage() {
                 method: 'DELETE',
                 headers: { 'X-Admin-Password': getAdminPassword() }
             });
-            if (res.ok) loadSectionData();
+            if (res.ok) {
+                setCacheKey(Date.now());
+                loadSectionData();
+            }
         } catch (err) {
             console.error('Delete failed:', err);
         }
@@ -177,6 +182,7 @@ function AdminPage() {
                         onUpload={handleFileUpload}
                         onDelete={handleDelete}
                         uploadingFile={uploadingFile}
+                        cacheKey={cacheKey}
                     />
                 ) : null}
             </main>
@@ -219,14 +225,14 @@ function SectionRequirements({ info }) {
 }
 
 // Section Editor Component
-function SectionEditor({ section, data, onUpload, onDelete, uploadingFile }) {
+function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, cacheKey }) {
     const info = data.info;
     
     if (section === 'presets') {
         return (
             <>
                 <SectionRequirements info={info} />
-                <PresetsEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} />
+                <PresetsEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
             </>
         );
     }
@@ -234,20 +240,20 @@ function SectionEditor({ section, data, onUpload, onDelete, uploadingFile }) {
         return (
             <>
                 <SectionRequirements info={info} />
-                <TryOnEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} />
+                <TryOnEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
             </>
         );
     }
     return (
         <>
             <SectionRequirements info={info} />
-            <StandardEditor section={section} data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} />
+            <StandardEditor section={section} data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
         </>
     );
 }
 
 // Standard Section Editor (model-generation, photo-editing, live-photo)
-function StandardEditor({ section, data, onUpload, onDelete, uploadingFile }) {
+function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, cacheKey }) {
     const isVideo = section === 'live-photo';
 
     return (
@@ -269,6 +275,7 @@ function StandardEditor({ section, data, onUpload, onDelete, uploadingFile }) {
                                 onUpload={onUpload}
                                 onDelete={onDelete}
                                 uploading={uploadingFile === file.name}
+                                cacheKey={cacheKey}
                             />
                         ))}
                     </div>
@@ -279,7 +286,7 @@ function StandardEditor({ section, data, onUpload, onDelete, uploadingFile }) {
 }
 
 // Try-On Editor (4 blocks × 3 images each)
-function TryOnEditor({ data, onUpload, onDelete, uploadingFile }) {
+function TryOnEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
     return (
         <div className={styles.editorContainer}>
             {Object.entries(data.files || {}).map(([blockName, files]) => {
@@ -300,6 +307,7 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile }) {
                                     onDelete={onDelete}
                                     uploading={uploadingFile === file.name}
                                     showLabel={true}
+                                    cacheKey={cacheKey}
                                 />
                             ))}
                         </div>
@@ -311,7 +319,7 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile }) {
 }
 
 // Presets Editor
-function PresetsEditor({ data, onUpload, onDelete, uploadingFile }) {
+function PresetsEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
     const [activeCategory, setActiveCategory] = useState('Portraits');
 
     return (
@@ -337,6 +345,7 @@ function PresetsEditor({ data, onUpload, onDelete, uploadingFile }) {
                         onUpload={onUpload}
                         onDelete={onDelete}
                         uploading={uploadingFile === file.name}
+                        cacheKey={cacheKey}
                     />
                 ))}
             </div>
@@ -345,7 +354,7 @@ function PresetsEditor({ data, onUpload, onDelete, uploadingFile }) {
 }
 
 // File Card Component
-function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUpload, onDelete, uploading, showLabel }) {
+function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUpload, onDelete, uploading, showLabel, cacheKey }) {
     const inputId = `file-${file.name}-${subfolder || category}`;
 
     const handleFileSelect = (e) => {
@@ -364,14 +373,17 @@ function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUploa
                 ? `${subfolder}/${file.name}` 
                 : file.name;
 
+    // Add cache-busting parameter to URL
+    const mediaUrl = file.url ? `${file.url}?v=${cacheKey}` : '';
+
     return (
         <div className={styles.fileCard}>
             <div className={styles.filePreview}>
                 {file.exists ? (
                     isVideo ? (
-                        <video src={file.url} className={styles.previewMedia} muted loop />
+                        <video src={mediaUrl} className={styles.previewMedia} muted loop />
                     ) : (
-                        <img src={file.url} alt={file.name} className={styles.previewMedia} />
+                        <img src={mediaUrl} alt={file.name} className={styles.previewMedia} />
                     )
                 ) : (
                     <div className={styles.placeholder}>
