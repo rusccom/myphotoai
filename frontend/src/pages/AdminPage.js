@@ -20,7 +20,7 @@ function AdminPage() {
     const [sectionData, setSectionData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [uploadingFile, setUploadingFile] = useState(null);
-    const [cacheKey, setCacheKey] = useState(Date.now());
+    const [fileCacheKeys, setFileCacheKeys] = useState({});
 
     // Check localStorage for saved session
     useEffect(() => {
@@ -84,6 +84,22 @@ function AdminPage() {
         }
     }, [isAuthenticated, activeSection, loadSectionData]);
 
+    const getFileKey = (subfolder, category, filename) => {
+        return `${category || subfolder}-${filename}`;
+    };
+
+    const updateFileStatus = (subfolder, category, filename, exists) => {
+        setSectionData(prev => {
+            if (!prev) return prev;
+            const key = category || subfolder;
+            const updated = { ...prev, files: { ...prev.files } };
+            updated.files[key] = prev.files[key].map(f =>
+                f.name === filename ? { ...f, exists } : f
+            );
+            return updated;
+        });
+    };
+
     const handleFileUpload = async (file, targetName, subfolder, category) => {
         setUploadingFile(targetName);
         const formData = new FormData();
@@ -99,8 +115,9 @@ function AdminPage() {
                 body: formData
             });
             if (res.ok) {
-                setCacheKey(Date.now());
-                loadSectionData();
+                const fileKey = getFileKey(subfolder, category, targetName);
+                setFileCacheKeys(prev => ({ ...prev, [fileKey]: Date.now() }));
+                updateFileStatus(subfolder, category, targetName, true);
             }
         } catch (err) {
             console.error('Upload failed:', err);
@@ -108,7 +125,7 @@ function AdminPage() {
         setUploadingFile(null);
     };
 
-    const handleDelete = async (filepath) => {
+    const handleDelete = async (filepath, subfolder, category, filename) => {
         if (!window.confirm('Delete this file?')) return;
         try {
             const res = await fetch(`${API_BASE}/api/admin/media/${activeSection}/${filepath}`, {
@@ -116,8 +133,7 @@ function AdminPage() {
                 headers: { 'X-Admin-Password': getAdminPassword() }
             });
             if (res.ok) {
-                setCacheKey(Date.now());
-                loadSectionData();
+                updateFileStatus(subfolder, category, filename, false);
             }
         } catch (err) {
             console.error('Delete failed:', err);
@@ -182,7 +198,7 @@ function AdminPage() {
                         onUpload={handleFileUpload}
                         onDelete={handleDelete}
                         uploadingFile={uploadingFile}
-                        cacheKey={cacheKey}
+                        fileCacheKeys={fileCacheKeys}
                     />
                 ) : null}
             </main>
@@ -225,14 +241,14 @@ function SectionRequirements({ info }) {
 }
 
 // Section Editor Component
-function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, cacheKey }) {
+function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
     const info = data.info;
     
     if (section === 'presets') {
         return (
             <>
                 <SectionRequirements info={info} />
-                <PresetsEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
+                <PresetsEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} fileCacheKeys={fileCacheKeys} />
             </>
         );
     }
@@ -240,20 +256,20 @@ function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, cache
         return (
             <>
                 <SectionRequirements info={info} />
-                <TryOnEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
+                <TryOnEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} fileCacheKeys={fileCacheKeys} />
             </>
         );
     }
     return (
         <>
             <SectionRequirements info={info} />
-            <StandardEditor section={section} data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} cacheKey={cacheKey} />
+            <StandardEditor section={section} data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} fileCacheKeys={fileCacheKeys} />
         </>
     );
 }
 
 // Standard Section Editor (model-generation, photo-editing, live-photo)
-function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, cacheKey }) {
+function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
     const isVideo = section === 'live-photo';
 
     return (
@@ -275,7 +291,7 @@ function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, cach
                                 onUpload={onUpload}
                                 onDelete={onDelete}
                                 uploading={uploadingFile === file.name}
-                                cacheKey={cacheKey}
+                                fileCacheKeys={fileCacheKeys}
                             />
                         ))}
                     </div>
@@ -286,7 +302,7 @@ function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, cach
 }
 
 // Try-On Editor (4 blocks × 3 images each)
-function TryOnEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
+function TryOnEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
     return (
         <div className={styles.editorContainer}>
             {Object.entries(data.files || {}).map(([blockName, files]) => {
@@ -307,7 +323,7 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
                                     onDelete={onDelete}
                                     uploading={uploadingFile === file.name}
                                     showLabel={true}
-                                    cacheKey={cacheKey}
+                                    fileCacheKeys={fileCacheKeys}
                                 />
                             ))}
                         </div>
@@ -319,7 +335,7 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
 }
 
 // Presets Editor
-function PresetsEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
+function PresetsEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
     const [activeCategory, setActiveCategory] = useState('Portraits');
 
     return (
@@ -345,7 +361,7 @@ function PresetsEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
                         onUpload={onUpload}
                         onDelete={onDelete}
                         uploading={uploadingFile === file.name}
-                        cacheKey={cacheKey}
+                        fileCacheKeys={fileCacheKeys}
                     />
                 ))}
             </div>
@@ -354,8 +370,9 @@ function PresetsEditor({ data, onUpload, onDelete, uploadingFile, cacheKey }) {
 }
 
 // File Card Component
-function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUpload, onDelete, uploading, showLabel, cacheKey }) {
+function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUpload, onDelete, uploading, showLabel, fileCacheKeys }) {
     const inputId = `file-${file.name}-${subfolder || category}`;
+    const fileKey = `${category || subfolder}-${file.name}`;
 
     const handleFileSelect = (e) => {
         const selectedFile = e.target.files[0];
@@ -373,8 +390,9 @@ function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUploa
                 ? `${subfolder}/${file.name}` 
                 : file.name;
 
-    // Add cache-busting parameter to URL
-    const mediaUrl = file.url ? `${file.url}?v=${cacheKey}` : '';
+    // Add cache-busting parameter to URL (only for this specific file)
+    const fileCacheKey = fileCacheKeys[fileKey] || '';
+    const mediaUrl = file.url ? `${file.url}${fileCacheKey ? `?v=${fileCacheKey}` : ''}` : '';
 
     return (
         <div className={styles.fileCard}>
@@ -413,7 +431,7 @@ function FileCard({ file, isVideo, subfolder, deleteSubfolder, category, onUploa
                         className={styles.hiddenInput}
                     />
                     {file.exists && (
-                        <button onClick={() => onDelete(deletePath)} className={styles.deleteBtn}>
+                        <button onClick={() => onDelete(deletePath, subfolder, category, file.name)} className={styles.deleteBtn}>
                             🗑️
                         </button>
                     )}
