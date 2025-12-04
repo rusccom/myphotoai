@@ -359,7 +359,7 @@ function DashboardPage() {
                             </button>
                             <button
                                 onClick={() => setActiveTab('Preset')}
-                                className={`${styles.tabButton} ${activeTab === 'Preset' ? styles.activeTab : ''}`}
+                                className={`${styles.tabButton} ${styles.presetTabButton} ${activeTab === 'Preset' ? styles.activeTab : ''}`}
                             >
                                 Preset
                             </button>

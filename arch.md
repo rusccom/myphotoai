@@ -97,9 +97,7 @@ components/
 ├── ImageModal.js          # Модальное окно просмотра
 ├── FileUploader.jsx       # Drag & Drop загрузчик (инкрементное добавление/удаление)
 ├── UniversalSubmitButton.js # Кнопка "GO (Cost: X points)"
-├── NumImagesSelect.js     # Селектор количества
-├── ScrollToTop.js         # Авто-скролл вверх при смене маршрута
-└── ScrollToTopButton.jsx  # Кнопка возврата наверх (правая панель Dashboard)
+└── NumImagesSelect.js     # Селектор количества
 ```
 
 ### Dashboard (features/dashboard/)
@@ -381,4 +379,4 @@ class NewTypeStrategy(BaseGenerationStrategy):
 
 ---
 
-_Последнее обновление: 2025-12-04_ (ScrollToTopButton: кнопка возврата наверх для правой панели Dashboard)
+_Последнее обновление: 2025-12-04_ (Presets: категории пресетов в БД, генерация по пресету, админка, золотая кнопка Preset в dashboard)
