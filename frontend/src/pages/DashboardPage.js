@@ -19,6 +19,7 @@ import ClothingTryOnTab from '../features/dashboard/components/ClothingTryOnTab/
 import LivePhotoTab from '../features/dashboard/components/LivePhotoTab/LivePhotoTab';
 import PresetTab from '../features/dashboard/components/PresetTab/PresetTab';
 import ImageModal from '../components/ImageModal';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 import styles from './DashboardPage.module.css';
 
@@ -393,7 +394,10 @@ function DashboardPage() {
 
                     {/* Right Panel Content */}
                     {renderRightPanelContent()}
-                    </div>
+
+                    {/* Scroll to Top Button */}
+                    <ScrollToTopButton />
+                </div>
             </div>
 
             {/* Image Modal */}

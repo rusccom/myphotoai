@@ -1,0 +1,64 @@
+/* ScrollToTopButton.module.css */
+
+.scrollButton {
+    /* Desktop: внутри rightPanel */
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+}
+
+.scrollButton.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scrollButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.scrollButton:active {
+    transform: translateY(0);
+}
+
+/* Mobile: фиксированная позиция на экране */
+@media (max-width: 992px) {
+    .scrollButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+}
+
+/* Маленькие экраны */
+@media (max-width: 480px) {
+    .scrollButton {
+        width: 40px;
+        height: 40px;
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .scrollButton svg {
+        width: 20px;
+        height: 20px;
+    }
+}

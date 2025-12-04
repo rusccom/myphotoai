@@ -59,6 +59,7 @@
     padding: 0.5rem;
     box-sizing: border-box;
     border: none;
+    position: relative; /* Для позиционирования ScrollToTopButton */
 }
 
 /* --- КОНЕЦ ОСНОВНОЙ СТРУКТУРЫ --- */
