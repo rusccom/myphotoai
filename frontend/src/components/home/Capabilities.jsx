@@ -29,7 +29,7 @@ function Capabilities() {
             } catch (error) {
                 console.error('Failed to load presets:', error);
             }
-            setIsLoading(false);
+                setIsLoading(false);
         };
         
         loadData();

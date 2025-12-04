@@ -487,7 +487,7 @@ function PresetsEditor() {
             <div className={styles.folderSection}>
                 <div className={styles.sectionHeader}>
                     <h3 className={styles.folderTitle}>Categories</h3>
-                    <button 
+                    <button
                         className={styles.addButton}
                         onClick={() => { setEditingCategory(null); setShowCategoryModal(true); }}
                     >
@@ -541,8 +541,8 @@ function PresetsEditor() {
                                 preset={preset}
                                 onEdit={() => { setEditingPreset(preset); setShowPresetModal(true); }}
                                 onDelete={() => handleDeletePreset(preset.id)}
-                            />
-                        ))}
+                    />
+                ))}
                         {presets.length === 0 && (
                             <p className={styles.emptyText}>No presets in this category</p>
                         )}

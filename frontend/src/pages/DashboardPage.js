@@ -6,6 +6,7 @@ import { getCosts } from '../services/api';
 // Hooks
 import { useImageHistory } from '../features/dashboard/hooks/useImageHistory';
 import { useGenerationHandlers } from '../features/dashboard/hooks/useGenerationHandlers';
+import { usePresets } from '../features/dashboard/hooks/usePresets';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 // Components
@@ -52,6 +53,13 @@ function DashboardPage() {
         loadMoreHistory,
         handleImageUpdate, // Получаем handler для WebSocket
     } = useImageHistory();
+
+    // Presets hook
+    const {
+        categories: presetCategories,
+        presets,
+        isLoading: isPresetsLoading,
+    } = usePresets();
 
     // WebSocket подключение для real-time обновлений
     useWebSocket(user?.id, handleImageUpdate);
@@ -258,6 +266,9 @@ function DashboardPage() {
             case 'Preset':
                 return (
                     <PresetTab
+                        categories={presetCategories}
+                        presets={presets}
+                        isLoading={isPresetsLoading}
                         models={models}
                         onGenerationStart={(result) => {
                             if (result.images) {

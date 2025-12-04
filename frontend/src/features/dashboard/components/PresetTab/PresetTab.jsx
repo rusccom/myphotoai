@@ -1,35 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getPresetCategories, getPresets } from '../../../../services/api';
+import React, { useState } from 'react';
 import PresetCard from './PresetCard';
 import PresetGenerateModal from './PresetGenerateModal';
 import styles from './PresetTab.module.css';
 
-const PresetTab = ({ models, onGenerationStart, updateUser }) => {
-    const [categories, setCategories] = useState([]);
-    const [presets, setPresets] = useState([]);
+const PresetTab = ({ categories, presets, isLoading, models, onGenerationStart, updateUser }) => {
     const [activeCategory, setActiveCategory] = useState('all');
-    const [isLoading, setIsLoading] = useState(true);
     const [selectedPreset, setSelectedPreset] = useState(null);
     const [showModal, setShowModal] = useState(false);
-
-    const loadData = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const [catData, presetsData] = await Promise.all([
-                getPresetCategories(),
-                getPresets()
-            ]);
-            setCategories(catData.categories || []);
-            setPresets(presetsData.presets || []);
-        } catch (error) {
-            console.error('Failed to load presets:', error);
-        }
-        setIsLoading(false);
-    }, []);
-
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
 
     const filteredPresets = activeCategory === 'all'
         ? presets
@@ -46,10 +23,6 @@ const PresetTab = ({ models, onGenerationStart, updateUser }) => {
     };
 
     const handleGenerationSuccess = (result) => {
-        // Store last used model ID
-        if (result.lastUsedModelId) {
-            localStorage.setItem('lastUsedModelId', result.lastUsedModelId);
-        }
         // Update user balance
         if (result.new_balance !== undefined && updateUser) {
             updateUser({ balance_points: result.new_balance });
