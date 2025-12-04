@@ -43,7 +43,7 @@ MODEL_CONFIGS = {
         'zip_param': 'images_data_url',
         'trigger_param': 'trigger_phrase',
         'extra_args': {
-            'steps': 2000,
+            'steps': 2500,
             'learning_rate': 0.00009,
             'multiresolution_training': True,
             'subject_crop': True,
