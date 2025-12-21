@@ -26,6 +26,10 @@ instance/
 *.sqlite
 *.sqlite3
 
+# Cursor IDE: images copied from workspaceStorage into project /assets
+assets/c__Users_User_AppData_Roaming_Cursor_User_workspaceStorage_*
+assets/*workspaceStorage*_images_image-*.png
+
 # Ignore frontend build artifacts
 frontend/node_modules/
 frontend/build/
