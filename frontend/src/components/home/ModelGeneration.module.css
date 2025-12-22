@@ -79,6 +79,17 @@
     z-index: 1;
 }
 
+/* Content Layout Reverse - как в Edit Photo (сетка слева, main справа) */
+.contentWrapperReverse {
+    display: grid;
+    grid-template-columns: 1fr 25%;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 80px;
+}
+
 /* Main Image - Левая сторона */
 .mainImageContainer {
     position: relative;
@@ -138,6 +149,24 @@
     position: absolute;
     top: 20px;
     left: 20px;
+    background: rgba(139, 92, 246, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+/* Badge справа для второго блока */
+.badgeRight {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background: rgba(139, 92, 246, 0.95);
     backdrop-filter: blur(10px);
     padding: 10px 20px;
@@ -279,6 +308,11 @@
         gap: 30px;
     }
 
+    .contentWrapperReverse {
+        grid-template-columns: 1fr 30%;
+        gap: 30px;
+    }
+
     .gridContainer {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
@@ -304,9 +338,33 @@
         margin-bottom: 50px;
     }
 
+    .sectionTitle {
+        font-size: 1.75rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 1rem;
+    }
+
     .contentWrapper {
         grid-template-columns: 1fr;
         gap: 40px;
+    }
+
+    .contentWrapperReverse {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        display: flex;
+        flex-direction: column;
+        margin-top: 60px;
+    }
+
+    .contentWrapperReverse .mainImageWrapper {
+        order: -1;
+    }
+
+    .contentWrapperReverse .gridContainer {
+        order: 1;
     }
 
     .mainImageWrapper {
@@ -348,6 +406,18 @@
         padding-right: 20px;
     }
 
+    .sectionTitle {
+        font-size: 1.5rem;
+    }
+
+    .sectionSubtitle {
+        font-size: 0.9rem;
+    }
+
+    .contentWrapperReverse {
+        margin-top: 40px;
+    }
+
     .mainImageWrapper {
         max-width: 200px;
     }
@@ -362,7 +432,8 @@
         transform: translateY(0);
     }
 
-    .badge {
+    .badge,
+    .badgeRight {
         padding: 8px 16px;
         font-size: 0.8rem;
     }

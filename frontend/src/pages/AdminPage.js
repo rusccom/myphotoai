@@ -255,6 +255,14 @@ function SectionEditor({ section, data, onUpload, onDelete, uploadingFile, fileC
             </>
         );
     }
+    if (section === 'photo-editing') {
+        return (
+            <>
+                <SectionRequirements info={info} />
+                <PhotoEditingEditor data={data} onUpload={onUpload} onDelete={onDelete} uploadingFile={uploadingFile} fileCacheKeys={fileCacheKeys} />
+            </>
+        );
+    }
     return (
         <>
             <SectionRequirements info={info} />
@@ -272,8 +280,10 @@ function StandardEditor({ section, data, onUpload, onDelete, uploadingFile, file
             {Object.entries(data.files || {}).map(([subfolder, files]) => (
                 <div key={subfolder} className={styles.folderSection}>
                     <h3 className={styles.folderTitle}>
-                        {subfolder === 'main' ? '📌 Main Image' : 
-                         subfolder === 'grid' ? '🖼️ Grid Images' : 
+                        {subfolder === 'main' ? '📌 Main Image (Block 1)' : 
+                         subfolder === 'grid' ? '🖼️ Grid Images (Block 1)' :
+                         subfolder === 'main2' ? '📌 Main Image (Block 2)' :
+                         subfolder === 'grid2' ? '🖼️ Grid Images (Block 2)' : 
                          subfolder === 'videos' ? '🎬 Videos' : subfolder}
                     </h3>
                     <div className={styles.filesGrid}>
@@ -306,6 +316,39 @@ function TryOnEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys })
                 return (
                     <div key={blockName} className={styles.folderSection}>
                         <h3 className={styles.folderTitle}>👕 {blockName}</h3>
+                        <div className={styles.filesGrid}>
+                            {files.map(file => (
+                                <FileCard
+                                    key={file.name}
+                                    file={file}
+                                    isVideo={false}
+                                    subfolder={blockName}
+                                    deleteSubfolder={blockNum}
+                                    onUpload={onUpload}
+                                    onDelete={onDelete}
+                                    uploading={uploadingFile === file.name}
+                                    showLabel={true}
+                                    fileCacheKeys={fileCacheKeys}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// Photo Editing Editor (5 blocks × 5 images each: Original + 4 Results)
+function PhotoEditingEditor({ data, onUpload, onDelete, uploadingFile, fileCacheKeys }) {
+    return (
+        <div className={styles.editorContainer}>
+            {Object.entries(data.files || {}).map(([blockName, files]) => {
+                // Extract block number: "Block 1" -> "1"
+                const blockNum = blockName.replace('Block ', '');
+                return (
+                    <div key={blockName} className={styles.folderSection}>
+                        <h3 className={styles.folderTitle}>🎨 {blockName}</h3>
                         <div className={styles.filesGrid}>
                             {files.map(file => (
                                 <FileCard

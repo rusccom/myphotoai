@@ -6,10 +6,16 @@ import styles from './ModelGeneration.module.css';
 // R2 base URL for landing media (required in production)
 const R2_BASE = process.env.REACT_APP_R2_URL;
 
-// Пути к изображениям в R2
+// Пути к изображениям в R2 (первый блок)
 const MAIN_IMAGE = `${R2_BASE}/landing/model-generation/main/main.jpg`;
 const GRID_IMAGES = Array.from({ length: 12 }, (_, i) => 
     `${R2_BASE}/landing/model-generation/grid/image-${i + 1}.jpg`
+);
+
+// Пути к изображениям в R2 (второй блок - как в Edit Photo)
+const MAIN_IMAGE_2 = `${R2_BASE}/landing/model-generation/main2/main.jpg`;
+const GRID_IMAGES_2 = Array.from({ length: 12 }, (_, i) => 
+    `${R2_BASE}/landing/model-generation/grid2/image-${i + 1}.jpg`
 );
 
 // Хаотичные задержки для анимации
@@ -24,6 +30,10 @@ function ModelGeneration() {
     const [gridImageErrors, setGridImageErrors] = useState(
         Array(12).fill(false)
     );
+    const [mainImageError2, setMainImageError2] = useState(false);
+    const [gridImageErrors2, setGridImageErrors2] = useState(
+        Array(12).fill(false)
+    );
 
     const handleMainImageError = () => {
         setMainImageError(true);
@@ -31,6 +41,18 @@ function ModelGeneration() {
 
     const handleGridImageError = (index) => {
         setGridImageErrors(prev => {
+            const newErrors = [...prev];
+            newErrors[index] = true;
+            return newErrors;
+        });
+    };
+
+    const handleMainImageError2 = () => {
+        setMainImageError2(true);
+    };
+
+    const handleGridImageError2 = (index) => {
+        setGridImageErrors2(prev => {
             const newErrors = [...prev];
             newErrors[index] = true;
             return newErrors;
@@ -103,6 +125,58 @@ function ModelGeneration() {
                             );
                         })}
                     </div>
+                </div>
+
+                {/* Второй блок - как Edit Photo (сетка слева, main справа) */}
+                <div className={styles.contentWrapperReverse}>
+                    {/* Сетка 4x3 слева */}
+                    <div className={styles.gridContainer}>
+                        {GRID_IMAGES_2.map((imagePath, index) => {
+                            const column = index % 4;
+                            const isOffset = column === 1 || column === 3;
+                            
+                            return (
+                                <ScrollReveal
+                                    key={index}
+                                    animation="scale"
+                                    delay={200 + RANDOM_DELAYS[index]}
+                                >
+                                    <div className={`${styles.gridItem} ${isOffset ? styles.gridItemOffset : ''}`}>
+                                        <div className={styles.gridImageWrapper}>
+                                            <img
+                                                src={gridImageErrors2[index] ? PLACEHOLDER_GRID : imagePath}
+                                                alt={`Generated photo ${index + 1}`}
+                                                className={styles.gridImage}
+                                                onError={() => handleGridImageError2(index)}
+                                            />
+                                            <div className={styles.gridLabelBadge}>Generated</div>
+                                        </div>
+                                    </div>
+                                </ScrollReveal>
+                            );
+                        })}
+                    </div>
+
+                    {/* Большое фото справа */}
+                    <ScrollReveal animation="fadeRight" delay={400}>
+                        <div className={styles.mainImageContainer}>
+                            <div className={styles.mainImageWrapper}>
+                                <img
+                                    src={mainImageError2 ? PLACEHOLDER_MAIN : MAIN_IMAGE_2}
+                                    alt="Main generated photo"
+                                    className={styles.mainImage}
+                                    onError={handleMainImageError2}
+                                />
+                                <div className={styles.mainImageOverlay}>
+                                    <div className={styles.badgeRight}>
+                                        <span className={styles.badgeIcon}>✨</span>
+                                        <span>Main Result</span>
+                                    </div>
+                                </div>
+                                <div className={styles.labelBadge}>Original</div>
+                            </div>
+                        </div>
+                    </ScrollReveal>
                 </div>
             </div>
         </section>

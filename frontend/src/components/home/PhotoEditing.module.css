@@ -69,197 +69,136 @@
     line-height: 1.6;
 }
 
-/* Content Layout - ОБРАТНЫЙ ПОРЯДОК */
-.contentWrapper {
-    display: grid;
-    grid-template-columns: 1fr 25%;
-    gap: 40px;
-    align-items: center;
+/* Blocks Container */
+.blocksContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     position: relative;
     z-index: 1;
 }
 
-/* Grid Container - Левая сторона */
-.gridContainer {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    align-items: start;
-}
-
-.gridItem {
-    position: relative;
-}
-
-/* Шахматный порядок - смещение четных колонок */
-.gridItemOffset {
-    transform: translateY(60px);
-}
-
-.gridImageWrapper {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.gridImageWrapper:hover {
-    transform: translateY(-4px) scale(1.05);
-    border-color: rgba(6, 182, 212, 0.3);
-    box-shadow: 
-        0 20px 40px rgba(6, 182, 212, 0.2),
-        0 0 0 1px rgba(6, 182, 212, 0.3);
-}
-
-.gridImage {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    display: block;
-}
-
-.gridOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* Transform Card - без обводки */
+.transformCard {
     display: flex;
     align-items: center;
-    justify-content: center;
-}
-
-.gridImageWrapper:hover .gridOverlay {
-    opacity: 0;
-}
-
-.gridBadge {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981, #06b6d4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #fff;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
-}
-
-/* Main Image - Правая сторона */
-.mainImageContainer {
-    position: relative;
-}
-
-.mainImageWrapper {
-    position: relative;
-    border-radius: 24px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(16, 185, 129, 0.2);
+    gap: 16px;
+    padding: 16px;
+    border-radius: 20px;
+    background: transparent;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.mainImageWrapper:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 
-        0 30px 80px rgba(16, 185, 129, 0.3),
-        0 0 0 1px rgba(16, 185, 129, 0.4);
+.transformCard:hover {
+    background: rgba(255, 255, 255, 0.02);
 }
 
-.mainImage {
+/* Image Item - одинаковый размер для всех */
+.imageItem {
+    flex: 1;
+    min-width: 0;
+    transition: transform 0.3s ease;
+}
+
+/* Шахматный порядок фотографий внутри блока */
+/* 1й (Original) - вниз */
+.imageItem:nth-child(1) {
+    transform: translateY(40px);
+}
+
+/* 2й (после divider, Result 1) - вверх */
+.imageItem:nth-child(3) {
+    transform: translateY(-40px);
+}
+
+/* 3й (Result 2) - вниз */
+.imageItem:nth-child(4) {
+    transform: translateY(40px);
+}
+
+/* 4й (Result 3) - вверх */
+.imageItem:nth-child(5) {
+    transform: translateY(-40px);
+}
+
+/* 5й (Result 4) - вниз */
+.imageItem:nth-child(6) {
+    transform: translateY(40px);
+}
+
+.imageWrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.imageWrapper:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(6, 182, 212, 0.2);
+}
+
+.image {
     width: 100%;
-    height: auto;
     aspect-ratio: 3 / 4;
     object-fit: cover;
     display: block;
 }
 
-.mainImageOverlay {
+/* Original Badge */
+.originalBadge {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.1) 0%,
-        transparent 40%,
-        transparent 60%,
-        rgba(0, 0, 0, 0.4) 100%
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.mainImageWrapper:hover .mainImageOverlay {
-    opacity: 0;
-}
-
-.badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(16, 185, 129, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 10px 20px;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #fff;
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
-}
-
-.badgeIcon {
-    font-size: 1.2rem;
-}
-
-/* Label Badges - Original/Generated */
-.labelBadge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(16, 185, 129, 0.35);
-    backdrop-filter: blur(10px);
+    top: 10px;
+    left: 10px;
+    background: rgba(16, 185, 129, 0.9);
+    backdrop-filter: blur(8px);
     padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 0.85rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #fff;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    z-index: 2;
 }
 
-.gridLabelBadge {
+/* Result Badge */
+.resultBadge {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(6, 182, 212, 0.35);
-    backdrop-filter: blur(10px);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(6, 182, 212, 0.9);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: #fff;
     box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-    z-index: 2;
+}
+
+/* Divider - простая точка */
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    flex-shrink: 0;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 1) 0%,
+        rgba(6, 182, 212, 1) 100%
+    );
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
 }
 
 /* Animations */
@@ -273,108 +212,200 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .transformCard {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    /* Уменьшаем смещение на меньших экранах */
+    .imageItem:nth-child(1) {
+        transform: translateY(30px);
+    }
+
+    .imageItem:nth-child(3) {
+        transform: translateY(-30px);
+    }
+
+    .imageItem:nth-child(4) {
+        transform: translateY(30px);
+    }
+
+    .imageItem:nth-child(5) {
+        transform: translateY(-30px);
+    }
+
+    .imageItem:nth-child(6) {
+        transform: translateY(30px);
+    }
+
+    .imageWrapper {
+        border-radius: 14px;
+    }
+}
+
 @media (max-width: 1024px) {
-    .contentWrapper {
-        grid-template-columns: 1fr 30%;
-        gap: 30px;
+    .section {
+        padding: 80px 0;
     }
 
-    .gridContainer {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
+    .blocksContainer {
+        gap: 20px;
     }
 
-    /* Шахматный порядок для планшетов (3 колонки) */
-    .gridItemOffset {
-        transform: translateY(50px);
+    .transformCard {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 16px;
+    }
+
+    /* Убираем шахматный порядок на tablet */
+    .imageItem:nth-child(1),
+    .imageItem:nth-child(3),
+    .imageItem:nth-child(4),
+    .imageItem:nth-child(5),
+    .imageItem:nth-child(6) {
+        transform: translateY(0);
+    }
+
+    /* Original занимает полную ширину сверху */
+    .imageItem:first-child {
+        flex: 0 0 100%;
+        max-width: 50%;
+        margin: 0 auto;
+    }
+
+    /* Divider по центру */
+    .divider {
+        flex: 0 0 100%;
+        padding: 8px 0;
+    }
+
+    /* 4 результата в ряд внизу */
+    .imageItem:not(:first-child) {
+        flex: 1 1 calc(25% - 12px);
+        min-width: 0;
+    }
+
+    .originalBadge {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+    }
+
+    .resultBadge {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
     }
 }
 
 @media (max-width: 768px) {
     .section {
-        padding: 80px 0;
+        padding: 60px 0;
     }
 
     .section :global(.container) {
-        padding-left: 30px;
-        padding-right: 30px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .sectionHeader {
-        margin-bottom: 50px;
+        margin-bottom: 40px;
     }
 
-    .contentWrapper {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        display: flex;
-        flex-direction: column;
+    .blocksContainer {
+        gap: 16px;
     }
 
-    .mainImageWrapper {
-        max-width: 260px;
-        margin: 0 auto;
-        order: -1;
+    .transformCard {
+        gap: 10px;
+        padding: 8px;
     }
 
-    .gridContainer {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        max-width: 100%;
-        margin: 0 auto;
-        order: 1;
+    .imageItem:first-child {
+        max-width: 60%;
     }
 
-    /* Убираем шахматный порядок для мобильных */
-    .gridItemOffset {
-        transform: translateY(0);
+    /* 4 результата - 2x2 сетка */
+    .imageItem:not(:first-child) {
+        flex: 1 1 calc(50% - 10px);
     }
 
-    /* Уменьшаем стикеры на мобильных */
-    .labelBadge {
+    .imageWrapper {
+        border-radius: 12px;
+    }
+
+    .originalBadge {
+        top: 8px;
+        left: 8px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+
+    .resultBadge {
+        top: 8px;
+        right: 8px;
+        width: 22px;
+        height: 22px;
         font-size: 0.65rem;
-        padding: 5px 10px;
     }
 
-    .gridLabelBadge {
-        font-size: 0.6rem;
-        padding: 3px 8px;
+    .dot {
+        width: 6px;
+        height: 6px;
     }
 }
 
 @media (max-width: 480px) {
     .section {
-        padding: 60px 0;
+        padding: 40px 0;
     }
 
     .section :global(.container) {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
-    .mainImageWrapper {
-        max-width: 200px;
+    .sectionHeader {
+        margin-bottom: 30px;
     }
 
-    .gridContainer {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+    .sectionTitle {
+        font-size: 1.75rem;
     }
 
-    /* Убираем шахматный порядок для маленьких экранов */
-    .gridItemOffset {
-        transform: translateY(0);
-    }
-
-    .badge {
-        padding: 8px 16px;
-        font-size: 0.8rem;
-    }
-
-    .gridBadge {
-        width: 28px;
-        height: 28px;
+    .sectionSubtitle {
         font-size: 0.9rem;
     }
-}
 
+    .blocksContainer {
+        gap: 12px;
+    }
+
+    .transformCard {
+        gap: 8px;
+        padding: 6px;
+    }
+
+    .imageItem:first-child {
+        max-width: 50%;
+    }
+
+    .imageWrapper {
+        border-radius: 10px;
+    }
+
+    .originalBadge {
+        padding: 3px 8px;
+        font-size: 0.6rem;
+    }
+
+    .resultBadge {
+        width: 18px;
+        height: 18px;
+        font-size: 0.55rem;
+        top: 6px;
+        right: 6px;
+    }
+}

@@ -3,38 +3,38 @@ import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './PhotoEditing.module.css';
 
-// R2 base URL for landing media (required in production)
+// R2 base URL for landing media
 const R2_BASE = process.env.REACT_APP_R2_URL;
 
-// Пути к изображениям в R2
-const MAIN_IMAGE = `${R2_BASE}/landing/photo-editing/main/main.jpg`;
-const GRID_IMAGES = Array.from({ length: 12 }, (_, i) => 
-    `${R2_BASE}/landing/photo-editing/grid/image-${i + 1}.jpg`
-);
+// 5 блоков, каждый с оригиналом и 4 результатами
+const BLOCKS = [1, 2, 3, 4, 5].map(blockNum => ({
+    id: blockNum,
+    original: `${R2_BASE}/landing/photo-editing/${blockNum}/original.jpg`,
+    results: [1, 2, 3, 4].map(i => 
+        `${R2_BASE}/landing/photo-editing/${blockNum}/${i}.jpg`
+    )
+}));
 
-// Хаотичные задержки для анимации
-const RANDOM_DELAYS = [0, 150, 100, 300, 50, 250, 200, 120, 180, 80, 220, 160];
-
-// Placeholder для отсутствующих изображений (формат 3:4)
-const PLACEHOLDER_MAIN = 'https://placehold.co/600x800/1a1a1a/10b981?text=Main+Photo';
-const PLACEHOLDER_GRID = 'https://placehold.co/300x400/1a1a1a/06b6d4?text=Edited';
+// Placeholder для отсутствующих изображений
+const PLACEHOLDER_ORIGINAL = 'https://placehold.co/300x400/1a1a1a/10b981?text=Original';
+const PLACEHOLDER_RESULT = 'https://placehold.co/300x400/1a1a1a/06b6d4?text=Result';
 
 function PhotoEditing() {
-    const [mainImageError, setMainImageError] = useState(false);
-    const [gridImageErrors, setGridImageErrors] = useState(
-        Array(12).fill(false)
-    );
+    const [imageErrors, setImageErrors] = useState({});
 
-    const handleMainImageError = () => {
-        setMainImageError(true);
+    const handleImageError = (blockId, imageKey) => {
+        setImageErrors(prev => ({
+            ...prev,
+            [`${blockId}-${imageKey}`]: true
+        }));
     };
 
-    const handleGridImageError = (index) => {
-        setGridImageErrors(prev => {
-            const newErrors = [...prev];
-            newErrors[index] = true;
-            return newErrors;
-        });
+    const getImageSrc = (blockId, imageKey, originalSrc, isOriginal) => {
+        const errorKey = `${blockId}-${imageKey}`;
+        if (imageErrors[errorKey]) {
+            return isOriginal ? PLACEHOLDER_ORIGINAL : PLACEHOLDER_RESULT;
+        }
+        return originalSrc;
     };
 
     return (
@@ -43,66 +43,78 @@ function PhotoEditing() {
                 <ScrollReveal animation="fadeUp">
                     <div className={styles.sectionHeader}>
                         <h2 className={styles.sectionTitle}>
-                            Edit photos{' '}
-                            <GradientText animated={true}>however you want</GradientText>
+                            Edit Photos{' '}
+                            <GradientText animated={true}>However You Want</GradientText>
                         </h2>
                         <p className={styles.sectionSubtitle}>
-                            Powerful editing tools to bring any creative idea to life
+                            One photo — endless creative possibilities with AI editing
                         </p>
                     </div>
                 </ScrollReveal>
 
-                <div className={styles.contentWrapper}>
-                    {/* Сетка 4x3 слева */}
-                    <div className={styles.gridContainer}>
-                        {GRID_IMAGES.map((imagePath, index) => {
-                            // Определяем, в какой колонке находится элемент (для 4 колонок)
-                            const column = index % 4;
-                            // Четные колонки (1 и 3) должны быть смещены
-                            const isOffset = column === 1 || column === 3;
-                            
-                            return (
-                                <ScrollReveal
-                                    key={index}
-                                    animation="scale"
-                                    delay={200 + RANDOM_DELAYS[index]}
-                                >
-                                    <div className={`${styles.gridItem} ${isOffset ? styles.gridItemOffset : ''}`}>
-                                        <div className={styles.gridImageWrapper}>
-                                            <img
-                                                src={gridImageErrors[index] ? PLACEHOLDER_GRID : imagePath}
-                                                alt={`Edited photo ${index + 1}`}
-                                                className={styles.gridImage}
-                                                onError={() => handleGridImageError(index)}
-                                            />
-                                            <div className={styles.gridLabelBadge}>Generated</div>
+                <div className={styles.blocksContainer}>
+                    {BLOCKS.map((block, index) => (
+                        <ScrollReveal 
+                            key={block.id} 
+                            animation="fadeUp" 
+                            delay={index * 100}
+                        >
+                            <div className={styles.transformCard}>
+                                {/* Оригинал */}
+                                <div className={styles.imageItem}>
+                                    <div className={styles.imageWrapper}>
+                                        <img
+                                            src={getImageSrc(
+                                                block.id, 
+                                                'original', 
+                                                block.original, 
+                                                true
+                                            )}
+                                            alt={`Original photo ${block.id}`}
+                                            className={styles.image}
+                                            onError={() => handleImageError(
+                                                block.id, 
+                                                'original'
+                                            )}
+                                        />
+                                        <div className={styles.originalBadge}>
+                                            Original
                                         </div>
                                     </div>
-                                </ScrollReveal>
-                            );
-                        })}
-                    </div>
-
-                    {/* Большое фото справа */}
-                    <ScrollReveal animation="fadeRight" delay={400}>
-                        <div className={styles.mainImageContainer}>
-                            <div className={styles.mainImageWrapper}>
-                                <img
-                                    src={mainImageError ? PLACEHOLDER_MAIN : MAIN_IMAGE}
-                                    alt="Main edited photo"
-                                    className={styles.mainImage}
-                                    onError={handleMainImageError}
-                                />
-                                <div className={styles.mainImageOverlay}>
-                                    <div className={styles.badge}>
-                                        <span className={styles.badgeIcon}>🎨</span>
-                                        <span>Final Result</span>
-                                    </div>
                                 </div>
-                                <div className={styles.labelBadge}>Original</div>
+
+                                {/* Простой разделитель */}
+                                <div className={styles.divider}>
+                                    <span className={styles.dot}></span>
+                                </div>
+
+                                {/* 4 результата */}
+                                {block.results.map((resultSrc, i) => (
+                                    <div key={i} className={styles.imageItem}>
+                                        <div className={styles.imageWrapper}>
+                                            <img
+                                                src={getImageSrc(
+                                                    block.id, 
+                                                    `result-${i}`, 
+                                                    resultSrc, 
+                                                    false
+                                                )}
+                                                alt={`Result ${i + 1}`}
+                                                className={styles.image}
+                                                onError={() => handleImageError(
+                                                    block.id, 
+                                                    `result-${i}`
+                                                )}
+                                            />
+                                            <div className={styles.resultBadge}>
+                                                {i + 1}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        </div>
-                    </ScrollReveal>
+                        </ScrollReveal>
+                    ))}
                 </div>
             </div>
         </section>
@@ -110,4 +122,3 @@ function PhotoEditing() {
 }
 
 export default PhotoEditing;
-
