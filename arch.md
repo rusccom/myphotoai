@@ -282,8 +282,23 @@ bucket/
 │
 └── landing/                # Медиа лендинга (через админку)
     ├── model-generation/
-    ├── photo-editing/
-    ├── clothing-try-on/
+    │   ├── main/main.jpg
+    │   ├── grid/image-{1-12}.jpg
+    │   ├── main2/main.jpg
+    │   └── grid2/image-{1-12}.jpg
+    ├── photo-editing/      # Radial Fan layout (5 блоков)
+    │   ├── 1/              # Блок 1
+    │   │   ├── original.jpg
+    │   │   ├── 1.jpg       # Результат 1
+    │   │   ├── 2.jpg       # Результат 2
+    │   │   ├── 3.jpg       # Результат 3
+    │   │   └── 4.jpg       # Результат 4
+    │   ├── 2/ ... 5/       # Блоки 2-5 (та же структура)
+    ├── clothing-try-on/    # Layout: 3 сверху, 1 по центру внизу
+    │   └── {1-4}/          # 4 блока × 3 изображения
+    │       ├── 1.jpg       # Before
+    │       ├── 2.jpg       # Clothing
+    │       └── 3.jpg       # Result
     └── live-photo/
 ```
 
@@ -384,4 +399,4 @@ class NewTypeStrategy(BaseGenerationStrategy):
 
 ---
 
-_Последнее обновление: 2025-12-04_ (Presets: категории пресетов в БД, генерация по пресету, админка, золотая кнопка Preset в dashboard)
+_Последнее обновление: 2025-12-22_ (ClothingTryOn: layout изменён на 3 блока сверху + 1 по центру внизу)

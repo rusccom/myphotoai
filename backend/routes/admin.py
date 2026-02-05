@@ -24,10 +24,12 @@ MEDIA_SECTIONS = {
         'type': 'image',
         'aspectRatio': '3:4',
         'recommendedSize': '600×800 or 900×1200 px',
-        'description': 'Main = original photo, Grid = AI generated photos',
+        'description': 'Main = original photo, Grid = AI generated photos (2 blocks)',
         'structure': {
             'main': ['main.jpg'],
-            'grid': [f'image-{i}.jpg' for i in range(1, 13)]
+            'grid': [f'image-{i}.jpg' for i in range(1, 13)],
+            'main2': ['main.jpg'],
+            'grid2': [f'image-{i}.jpg' for i in range(1, 13)]
         }
     },
     'photo-editing': {
@@ -35,11 +37,9 @@ MEDIA_SECTIONS = {
         'type': 'image',
         'aspectRatio': '3:4',
         'recommendedSize': '600×800 or 900×1200 px',
-        'description': 'Main = original photo, Grid = edited versions',
-        'structure': {
-            'main': ['main.jpg'],
-            'grid': [f'image-{i}.jpg' for i in range(1, 13)]
-        }
+        'description': '5 blocks: Original + 4 edited results each',
+        'blocks': 5,
+        'files_per_block': 5  # original + 4 results
     },
     'clothing-try-on': {
         'path': 'clothing-try-on',
@@ -182,6 +182,8 @@ def get_section_media(section):
         result['files'] = get_presets_files(config, base_url)
     elif section == 'clothing-try-on':
         result['files'] = get_tryon_files(config, base_url)
+    elif section == 'photo-editing':
+        result['files'] = get_photo_editing_files(config, base_url)
     else:
         result['files'] = get_standard_files(section, config, base_url)
     
@@ -222,6 +224,27 @@ def get_tryon_files(config, base_url):
                 'label': labels[i - 1],
                 'exists': exists,
                 'url': f"{base_url}/landing/clothing-try-on/{block}/{filename}" if base_url else '',
+                'r2_key': r2_key
+            })
+        files[f'Block {block}'] = block_files
+    return files
+
+
+def get_photo_editing_files(config, base_url):
+    """Get files for photo-editing section from R2 (5 blocks)."""
+    files = {}
+    labels = ['Original', 'Result 1', 'Result 2', 'Result 3', 'Result 4']
+    filenames = ['original.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg']
+    for block in range(1, config['blocks'] + 1):
+        block_files = []
+        for i, filename in enumerate(filenames):
+            r2_key = get_r2_landing_key('photo-editing', str(block), filename)
+            exists = check_r2_object_exists(r2_key)
+            block_files.append({
+                'name': filename,
+                'label': labels[i],
+                'exists': exists,
+                'url': f"{base_url}/landing/photo-editing/{block}/{filename}" if base_url else '',
                 'r2_key': r2_key
             })
         files[f'Block {block}'] = block_files
@@ -305,6 +328,10 @@ def build_r2_key(section, config, subfolder, category, filename):
         if subfolder and subfolder.startswith('Block '):
             block_num = subfolder.replace('Block ', '')
             return get_r2_landing_key('clothing-try-on', block_num, filename)
+    elif section == 'photo-editing':
+        if subfolder and subfolder.startswith('Block '):
+            block_num = subfolder.replace('Block ', '')
+            return get_r2_landing_key('photo-editing', block_num, filename)
     elif section == 'live-photo':
         return get_r2_landing_key('live-photo', 'videos', filename)
     elif 'structure' in config and subfolder in config['structure']:
