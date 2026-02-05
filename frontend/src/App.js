@@ -7,7 +7,6 @@ import ScrollToTop from './components/ScrollToTop';
 
 // Страницы
 import HomePage from './pages/HomePage';
-import PricePage from './pages/PricePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -83,7 +82,6 @@ function AppContent() {
             ) : (
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/pricing" element={<PricePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/terms-and-privacy" element={<TermsAndPrivacyPage />} />

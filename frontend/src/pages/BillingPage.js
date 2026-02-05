@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import styles from './BillingPage.module.css';
 import { useAuth } from '../context/AuthContext';
+import { createCheckoutSession, quotePoints } from '../services/api';
 
 // Функция для форматирования даты
 const formatDate = (isoString) => {
@@ -12,22 +14,30 @@ const formatDate = (isoString) => {
     }
 };
 
+const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '';
+const stripePromise = STRIPE_PUBLISHABLE_KEY.startsWith('pk_')
+    ? loadStripe(STRIPE_PUBLISHABLE_KEY)
+    : null;
+
 function BillingPage() {
     const [amount, setAmount] = useState(10);
     const [customAmount, setCustomAmount] = useState('');
     const [isCustomSelected, setIsCustomSelected] = useState(false);
-    const { api, updateUser } = useAuth();
+    const { api } = useAuth();
     // Состояния для истории платежей
     const [history, setHistory] = useState([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const [historyError, setHistoryError] = useState(null);
     // Состояние для обработки процесса оплаты
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-    const [paymentSuccessMessage, setPaymentSuccessMessage] = useState('');
     const [paymentErrorMessage, setPaymentErrorMessage] = useState('');
+    const [quoteInfo, setQuoteInfo] = useState(null);
+    const [quoteError, setQuoteError] = useState('');
+    const [isQuoting, setIsQuoting] = useState(false);
 
     const predefinedAmounts = [10, 30, 50];
     const MIN_CUSTOM_AMOUNT = 10;
+    const [minPurchaseUsd, setMinPurchaseUsd] = useState(MIN_CUSTOM_AMOUNT);
 
     // --- Выносим fetchHistory из useEffect и оборачиваем в useCallback --- 
     const fetchHistory = useCallback(async () => {
@@ -56,8 +66,8 @@ function BillingPage() {
         setAmount(value);
         setCustomAmount('');
         setIsCustomSelected(false);
-        setPaymentSuccessMessage(''); // Сбрасываем сообщения при смене суммы
         setPaymentErrorMessage('');
+        setQuoteError('');
     };
 
     const handleCustomAmountChange = (e) => {
@@ -65,69 +75,89 @@ function BillingPage() {
         if (/^\d*\.?\d*$/.test(value)) { 
             setCustomAmount(value);
             const numericValue = parseFloat(value);
-            if (!isNaN(numericValue) && numericValue >= MIN_CUSTOM_AMOUNT) {
+            if (!isNaN(numericValue) && numericValue >= minPurchaseUsd) {
                 setAmount(numericValue);
             } else {
                 // Reset amount if invalid? Or just disable button?
                 // For now, just disable button via isValidAmount check
             }
-            setPaymentSuccessMessage(''); // Сбрасываем сообщения при смене суммы
             setPaymentErrorMessage('');
+            setQuoteError('');
         }
     };
     
     const handleCustomInputFocus = () => {
         setIsCustomSelected(true);
-        setPaymentSuccessMessage(''); // Сбрасываем сообщения при фокусе
         setPaymentErrorMessage('');
+        setQuoteError('');
         if (customAmount === '') {
              // Automatically set minimum if empty when focusing
-             setCustomAmount(String(MIN_CUSTOM_AMOUNT));
-             setAmount(MIN_CUSTOM_AMOUNT);
+             setCustomAmount(String(minPurchaseUsd));
+             setAmount(minPurchaseUsd);
         }
     };
 
-    const pointsToReceive = Math.floor(amount * 100);
+    const isValidAmount = !isCustomSelected ? amount >= minPurchaseUsd :
+                          !isNaN(parseFloat(customAmount)) && parseFloat(customAmount) >= minPurchaseUsd;
+    const pointsToReceive = quoteInfo?.points;
 
-    const isValidAmount = !isCustomSelected ? amount >= MIN_CUSTOM_AMOUNT :
-                          !isNaN(parseFloat(customAmount)) && parseFloat(customAmount) >= MIN_CUSTOM_AMOUNT;
+    useEffect(() => {
+        let isActive = true;
+        if (!isValidAmount) {
+            setIsQuoting(false);
+            setQuoteInfo(null);
+            return;
+        }
+        setIsQuoting(true);
+        setQuoteError('');
+        const timer = setTimeout(async () => {
+            try {
+                const quote = await quotePoints(amount);
+                if (isActive) {
+                    setQuoteInfo(quote);
+                    if (quote.min_purchase_usd) {
+                        setMinPurchaseUsd(quote.min_purchase_usd);
+                    }
+                }
+            } catch (err) {
+                if (isActive) {
+                    const errorMsg = err.error || err.message || "Could not calculate points.";
+                    setQuoteError(errorMsg);
+                    setQuoteInfo(null);
+                }
+            } finally {
+                if (isActive) {
+                    setIsQuoting(false);
+                }
+            }
+        }, 250);
+        return () => {
+            isActive = false;
+            clearTimeout(timer);
+        };
+    }, [amount, isValidAmount]);
 
     const handlePayment = async () => {
         if (!isValidAmount || isProcessingPayment) return;
-        
+        if (!stripePromise) {
+            setPaymentErrorMessage('Stripe is not configured correctly.');
+            return;
+        }
+
         setIsProcessingPayment(true);
-        setPaymentSuccessMessage('');
         setPaymentErrorMessage('');
-        
-        console.log(`Initiating SIMULATED payment for $${amount}`);
+
         try {
-            const response = await api('/payment/record-simulated', {
-                method: 'POST',
-                body: { amount_usd: amount }
-            }); 
-            
-            const newPaymentData = response.payment;
-            const newBalance = response.new_balance;
-            console.log("Simulated payment successful:", newPaymentData);
-            
-            setPaymentSuccessMessage(`Successfully purchased ${newPaymentData.amount_points} points!`);
-            
-            // --- Добавляем лог для проверки --- 
-            console.log(`[BillingPage] Checking before updateUser: typeof newBalance = ${typeof newBalance}, value = ${newBalance}`);
-            console.log(`[BillingPage] Checking before updateUser: typeof updateUser = ${typeof updateUser}`);
-            // --- Конец лога ---
-            
-            // Обновляем баланс в контексте
-            if (updateUser && typeof newBalance === 'number') {
-                updateUser({ balance_points: newBalance });
+            const { sessionId } = await createCheckoutSession(amount);
+            const stripe = await stripePromise;
+            const { error } = await stripe.redirectToCheckout({ sessionId });
+            if (error) {
+                console.error("Stripe checkout error:", error);
+                setPaymentErrorMessage(error.message || 'Failed to redirect to payment.');
             }
-            
-            // Теперь fetchHistory доступна здесь
-            await fetchHistory(); 
-            
-        } catch (error) { 
-            console.error("Simulated payment failed:", error);
-            const errorMsg = error.error || error.message || 'Failed to record payment. Please try again.';
+        } catch (error) {
+            console.error("Payment failed:", error);
+            const errorMsg = error.error || error.message || 'Failed to start payment. Please try again.';
             setPaymentErrorMessage(errorMsg);
         } finally {
             setIsProcessingPayment(false);
@@ -137,7 +167,7 @@ function BillingPage() {
     return (
         <div className={styles.billingContainer}>
             <h1>Billing & Payments</h1>
-            <p>Purchase points to use premium features. 1 Point = $0.01</p>
+            <p>Purchase points to use premium features. Base rate: 1 Point = $0.01, discounts apply for larger top-ups.</p>
             
             <div className={styles.purchaseSection}>
                 <h2>Purchase Points</h2>
@@ -153,7 +183,7 @@ function BillingPage() {
                     ))}
                     <input 
                         type="text" 
-                        placeholder={`Min $${MIN_CUSTOM_AMOUNT}`}
+                        placeholder={`Min $${minPurchaseUsd}`}
                         className={`${styles.customAmountInput} ${isCustomSelected ? styles.selectedInput : ''}`}
                         value={customAmount}
                         onChange={handleCustomAmountChange}
@@ -161,16 +191,29 @@ function BillingPage() {
                         readOnly={isProcessingPayment} // Блокируем во время обработки
                     />
                 </div>
-                {isCustomSelected && customAmount !== '' && parseFloat(customAmount) < MIN_CUSTOM_AMOUNT && (
-                    <p className={styles.warningText}>Minimum amount is ${MIN_CUSTOM_AMOUNT}</p>
+                {isCustomSelected && customAmount !== '' && parseFloat(customAmount) < minPurchaseUsd && (
+                    <p className={styles.warningText}>Minimum amount is ${minPurchaseUsd}</p>
                 )}
                 
                 <div className={styles.summary}>
                     <span>You will receive:</span>
-                    <span className={styles.pointsValue}>{isValidAmount ? `${pointsToReceive} points` : '- ' }</span> 
+                    <span className={styles.pointsValue}>
+                        {!isValidAmount
+                            ? '-'
+                            : isQuoting
+                                ? 'Calculating...'
+                                : pointsToReceive
+                                    ? `${pointsToReceive} points`
+                                    : '-'}
+                    </span>
                 </div>
-                
-                {paymentSuccessMessage && <p className={styles.successText}>{paymentSuccessMessage}</p>}
+
+                {quoteInfo?.discount_percent > 0 && (
+                    <p className={styles.successText}>
+                        Discount applied: {quoteInfo.discount_percent}%
+                    </p>
+                )}
+                {quoteError && <p className={styles.errorText}>{quoteError}</p>}
                 {paymentErrorMessage && <p className={styles.errorText}>{paymentErrorMessage}</p>}
 
                 <button 

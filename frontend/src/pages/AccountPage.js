@@ -16,22 +16,6 @@ function AccountPage() {
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
     // ------------------------------------
 
-    const handleCancelSubscription = () => {
-        // TODO: Implement backend API call to cancel subscription
-        alert('Subscription cancellation feature is not yet implemented.');
-    };
-
-    // Helper function to format dates
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        try {
-            return new Date(dateString).toLocaleDateString(undefined, {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-        } catch (e) {
-            return 'Invalid Date';
-        }
-    };
 
     // --- Обработчик смены пароля ---
     const handlePasswordChangeSubmit = async (event) => {
@@ -73,9 +57,6 @@ function AccountPage() {
         return <div className={styles.loading}>Loading account details...</div>;
     }
 
-    const isPaidSubscription = user.subscription_type !== 'free';
-    const subscriptionEndDate = user.subscription_end_date;
-
     return (
         <div className={styles.accountContainer}>
             <h1 className={styles.pageTitle}>My Account</h1>
@@ -90,40 +71,12 @@ function AccountPage() {
             </section>
 
             <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Subscription Details</h2>
-                <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Current Plan:</span>
-                    <span className={`${styles.infoValue} ${styles.planType}`}>{user.subscription_type?.toUpperCase() || 'N/A'}</span>
-                </div>
-                {isPaidSubscription && (
-                    <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Subscription Ends:</span>
-                        <span className={styles.infoValue}>{formatDate(subscriptionEndDate)}</span>
-                    </div>
-                )}
-                 {!isPaidSubscription && (
-                    <div className={styles.infoRow}>
-                         <span className={styles.infoLabel}>Status:</span>
-                         <span className={styles.infoValue}>Active (Free)</span>
-                    </div>
-                 )}
-            </section>
-
-            <section className={styles.section}>
-                 <h2 className={styles.sectionTitle}>Manage Subscription</h2>
-                 <div className={styles.buttonGroup}>
-                    <Link to="/pricing" className={styles.actionButton}>
-                         {isPaidSubscription ? 'Change Plan' : 'Upgrade Plan'}
+                <h2 className={styles.sectionTitle}>Billing & Points</h2>
+                <div className={styles.buttonGroup}>
+                    <Link to="/billing" className={styles.actionButton}>
+                        Buy Points
                     </Link>
-                    {isPaidSubscription && (
-                        <button 
-                            onClick={handleCancelSubscription} 
-                            className={`${styles.actionButton} ${styles.cancelButton}`}
-                        >
-                            Cancel Subscription
-                        </button>
-                    )}
-                 </div>
+                </div>
             </section>
 
             {/* --- Секция смены пароля --- */}

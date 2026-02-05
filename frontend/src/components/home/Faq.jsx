@@ -26,8 +26,8 @@ const faqs = [
         a: 'Yes, all your photos and models are stored in encrypted form. You can delete all data at any time from your account settings.'
     },
     {
-        q: 'Can I cancel my subscription?',
-        a: 'Yes, you can cancel your subscription at any time from your personal account. Access to features will remain until the end of the paid period.'
+        q: 'How do payments work?',
+        a: 'You purchase points in advance and spend them on generation and training. If your balance is too low, actions are paused until you top up.'
     }
 ];
 

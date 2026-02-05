@@ -5,7 +5,6 @@ const path = require('path');
 // Все публичные страницы для индексации Google
 const links = [
     { url: '/', changefreq: 'daily', priority: 1.0 },
-    { url: '/pricing', changefreq: 'weekly', priority: 0.9 },
     { url: '/login', changefreq: 'monthly', priority: 0.4 },
     { url: '/register', changefreq: 'monthly', priority: 0.5 },
     { url: '/terms-and-privacy', changefreq: 'monthly', priority: 0.3 },

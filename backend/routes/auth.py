@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, redirect, session, url_for, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from ..app import db # Используем .. для импорта из родительской папки (backend)
-from ..models import User, SubscriptionType, Payment
+from ..models import User, Payment
 from ..utils.notifications import send_telegram_message # <--- Добавляем импорт
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text # <-- Добавляем импорт text
@@ -32,9 +32,6 @@ def register():
     # Создание нового пользователя
     new_user = User(email=email)
     new_user.set_password(password)
-    # Устанавливаем бесплатную подписку по умолчанию
-    new_user.set_subscription(SubscriptionType.FREE)
-
     try:
         db.session.add(new_user)
         db.session.commit()
@@ -236,7 +233,6 @@ def find_or_create_user(google_id, email, name=None):
     
     # Создаем нового пользователя
     new_user = User(email=email, google_id=google_id)
-    new_user.set_subscription(SubscriptionType.FREE)
     db.session.add(new_user)
     db.session.commit()
     logging.info(f"[GoogleOAuth] Created new user {new_user.id} via Google OAuth")

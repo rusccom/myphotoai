@@ -7,12 +7,12 @@ function PaymentSuccessPage() {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get('session_id');
 
-    // После успешной оплаты, обновляем статус пользователя в нашем приложении,
-    // чтобы получить актуальный тип подписки
+    // После успешной оплаты, обновляем статус пользователя,
+    // чтобы получить актуальный баланс
     useEffect(() => {
         if (sessionId) {
             console.log('Payment successful, session ID:', sessionId);
-            // Вызываем checkStatus, чтобы обновить данные пользователя (включая подписку)
+            // Вызываем checkStatus, чтобы обновить данные пользователя (включая баланс)
             checkStatus();
         }
     }, [sessionId, checkStatus]);
@@ -20,9 +20,9 @@ function PaymentSuccessPage() {
     return (
         <div>
             <h2>Payment Successful!</h2>
-            <p>Your subscription has been activated.</p>
+            <p>Your points balance will be updated shortly.</p>
             {sessionId && <p><small>Session ID: {sessionId}</small></p>}
-            <Link to="/dashboard">Go to Dashboard</Link>
+            <Link to="/billing">Go to Billing</Link>
         </div>
     );
 }

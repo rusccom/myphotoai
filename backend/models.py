@@ -2,19 +2,13 @@
 from .app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from datetime import datetime, timedelta
+from datetime import datetime
 import enum
 import uuid
 from sqlalchemy import Enum, func, String, text
 from flask import current_app # Добавляем current_app для доступа к конфигурации
 from .utils.r2_utils import generate_presigned_get_url # Импортируем функцию генерации URL
 from enum import Enum as PyEnum
-
-# Enum для типов подписки
-class SubscriptionType(enum.Enum):
-    FREE = 'free'
-    PLUS = 'plus'
-    PREMIUM = 'premium'
 
 # Enum для статуса модели
 class ModelStatus(enum.Enum):
@@ -39,12 +33,7 @@ class User(UserMixin, db.Model):
     # Google OAuth integration
     google_id = db.Column(db.String(255), unique=True, nullable=True, index=True)
 
-    # Информация о подписке
-    subscription_type = db.Column(db.Enum(SubscriptionType), default=SubscriptionType.FREE, nullable=False)
-    subscription_start_date = db.Column(db.DateTime)
-    subscription_end_date = db.Column(db.DateTime) # Для платных подписок
     stripe_customer_id = db.Column(db.String(120), index=True, unique=True, nullable=True)
-    stripe_subscription_id = db.Column(db.String(120), unique=True, nullable=True)
 
     # Связь с моделями пользователя (один ко многим)
     ai_models = db.relationship('AIModel', backref='owner', lazy='dynamic')
@@ -59,32 +48,6 @@ class User(UserMixin, db.Model):
         if not self.password_hash:
             return False
         return check_password_hash(self.password_hash, password)
-
-    def set_subscription(self, sub_type: SubscriptionType, duration_days: int = None):
-        self.subscription_type = sub_type
-        self.subscription_start_date = datetime.utcnow()
-        if sub_type != SubscriptionType.FREE and duration_days:
-            # Стандартная длительность для Plus/Premium, если не указано
-            if sub_type == SubscriptionType.PLUS and duration_days is None:
-                duration_days = 30
-            elif sub_type == SubscriptionType.PREMIUM and duration_days is None:
-                 duration_days = 30 # Или 365, в зависимости от вашей модели
-            self.subscription_end_date = self.subscription_start_date + timedelta(days=duration_days)
-        else:
-            self.subscription_end_date = None # Бесплатная подписка бессрочна
-
-    def has_active_subscription(self) -> bool:
-        if self.subscription_type == SubscriptionType.FREE:
-            return True # Бесплатная всегда активна (в рамках ее лимитов)
-        # Проверяем, что есть дата окончания и она еще не наступила
-        if self.subscription_end_date and self.subscription_end_date > datetime.utcnow():
-            return True
-        # Если дата окончания прошла, сбрасываем подписку на бесплатную
-        if self.subscription_end_date and self.subscription_end_date <= datetime.utcnow():
-             self.set_subscription(SubscriptionType.FREE)
-             # Здесь хорошо бы закоммитить изменения в БД, но модель не должна заниматься этим напрямую
-             # Это должно происходить в сервисе или view-функции
-        return False
 
     def to_dict(self):
         from sqlalchemy import text
@@ -103,9 +66,6 @@ class User(UserMixin, db.Model):
         return {
             'id': self.id,
             'email': self.email,
-            'subscription_type': self.subscription_type.value if self.subscription_type else None,
-            'subscription_end_date': self.subscription_end_date.isoformat() if self.subscription_end_date else None,
-            'has_active_subscription': self.has_active_subscription(),
             'balance_points': balance, # <-- Добавляем баланс
             # bfl_model_id и status убраны
         }
@@ -280,14 +240,6 @@ class Payment(db.Model):
     status = db.Column(db.String(30), default='completed', index=True) # Например, pending, completed, failed
 
     user = db.relationship('User', backref=db.backref('payments', lazy='dynamic'))
-
-    def __init__(self, user_id, amount_usd, transaction_id=None, status='completed'):
-        self.user_id = user_id
-        self.amount_usd = amount_usd
-        # Конвертация: 1 цент = 1 очко => сумма_в_очках = сумма_в_долларах * 100
-        self.amount_points = int(float(amount_usd) * 100)
-        self.transaction_id = transaction_id
-        self.status = status
 
     def __repr__(self):
         return f'<Payment {self.id} by User {self.user_id} for ${self.amount_usd}>'

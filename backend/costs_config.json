@@ -1,4 +1,12 @@
 {
+  "point_pricing": {
+    "base_point_usd": 0.01,
+    "min_purchase_usd": 10,
+    "discount_tiers": [
+      { "min_amount_usd": 10, "discount_percent": 5 },
+      { "min_amount_usd": 30, "discount_percent": 30 }
+    ]
+  },
   "model_training": 50,
   "model_photo": 1,
   "text_to_image": 1,

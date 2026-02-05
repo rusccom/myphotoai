@@ -7,7 +7,7 @@ A modern web application for creating AI models based on your photos and generat
 - 🧠 Create a personalized AI model based on your photos
 - 🖼️ Generate photorealistic images using text prompts
 - 🎬 Create videos based on generated images (in development)
-- 💰 Flexible pricing plans and subscription system
+- 💰 Pay-as-you-go points system
 - 🔒 Secure authentication and data protection
 
 ## Technologies

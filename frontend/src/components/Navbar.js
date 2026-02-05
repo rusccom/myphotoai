@@ -143,7 +143,7 @@ function Navbar() {
                     {!isAuthenticated && (
                         <>
                             <Link to="/" className={`${styles.navLink} ${isActive('/')}`} onClick={closeMobileMenu}>Home</Link>
-                            <Link to="/pricing" className={`${styles.navLink} ${isActive('/pricing')}`} onClick={closeMobileMenu}>Pricing</Link>
+                            <Link to="/billing" className={`${styles.navLink} ${isActive('/billing')}`} onClick={closeMobileMenu}>Buy Points</Link>
                         </>
                     )}
                     {/* Ссылки для АУТЕНТИФИЦИРОВАННЫХ пользователей */} 
@@ -190,13 +190,12 @@ function Navbar() {
                             {profileDropdownOpen && (
                                 <div className={styles.profileDropdown}>
                                     <div className={styles.dropdownItem}>Email: {user?.email}</div>
-                                    <div className={styles.dropdownItem}>Subscription: {user?.subscriptionPlan || 'Free Plan'}</div>
                                     <Link 
                                         to="/account"
                                         className={styles.dropdownLink}
                                         onClick={() => { closeMobileMenu(); setProfileDropdownOpen(false); }}
                                     >
-                                        My Account & Subscription
+                                        My Account
                                     </Link>
                                     <button 
                                         onClick={() => { logout(); closeMobileMenu(); setProfileDropdownOpen(false); }} 

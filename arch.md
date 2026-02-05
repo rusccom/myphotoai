@@ -10,7 +10,7 @@
 - **База данных**: MySQL (DigitalOcean)
 - **Хранилище**: Cloudflare R2
 - **AI**: Fal.ai API
-- **Платежи**: Stripe
+- **Платежи**: Stripe (покупка баллов)
 - **OAuth**: Google OAuth 2.0
 - **Real-time**: Flask-SocketIO (WebSocket)
 
@@ -79,7 +79,6 @@ AIModel/
 | `/` | HomePage | Лендинг |
 | `/login` | LoginPage | Вход |
 | `/register` | RegisterPage | Регистрация |
-| `/pricing` | PricePage | Тарифы |
 | `/terms-and-privacy` | TermsAndPrivacyPage | Юридическая информация |
 | `/admin` | AdminPage | Админ-панель (по паролю) |
 
@@ -142,8 +141,7 @@ components/
 
 **User:**
 - id, email, password_hash, google_id
-- subscription_type (FREE/PLUS/PREMIUM)
-- stripe_customer_id, stripe_subscription_id
+- stripe_customer_id
 - Связи: ai_models, generated_images, payments, paid_actions
 
 **AIModel:**
@@ -197,7 +195,8 @@ components/
 - POST `/webhook/<request_id>` - webhook от Fal.ai
 
 **Payment (`/api/payment/`):**
-- POST `/create-checkout-session`
+- POST `/quote` - расчет баллов за сумму пополнения
+- POST `/create-checkout-session` - Stripe Checkout (one-time)
 - POST `/webhook` - Stripe webhooks
 
 **Admin (`/api/admin/`):**
@@ -246,6 +245,14 @@ services/generation/
 
 ```json
 {
+  "point_pricing": {
+    "base_point_usd": 0.01,
+    "min_purchase_usd": 10,
+    "discount_tiers": [
+      { "min_amount_usd": 10, "discount_percent": 5 },
+      { "min_amount_usd": 30, "discount_percent": 30 }
+    ]
+  },
   "model_training": 50,
   "model_photo": 1,
   "text_to_image": 1,
@@ -256,7 +263,9 @@ services/generation/
 }
 ```
 
-**Конверсия:** 1 USD = 100 points
+**Конверсия (points pricing):**
+- base_point_usd: 0.01 (1 point = $0.01)
+- скидки: >= 10 USD → 5%, >= 30 USD → 30%
 
 ### WebSocket (Real-time)
 

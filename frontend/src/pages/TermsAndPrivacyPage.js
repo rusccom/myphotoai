@@ -67,9 +67,9 @@ function TermsAndPrivacyPage() {
                     </div>
 
                     <div className={styles.article}>
-                        <h2>7. Subscriptions, payments, and taxes</h2>
-                        <p>Access is offered via monthly or annual subscriptions with automatic renewal for the same term. You can disable auto-renewal in your account's Billing section.</p>
-                        <p>Given the high cost of computation (GPU), refunds are not provided; you also waive any standard 14-day withdrawal/cooling-off period where applicable in your law. We may change prices and offerings (models, credits, etc.); for an active subscription, changes apply from the next renewal. Taxes and duties, where applicable, are your responsibility.</p>
+                        <h2>7. Payments, credits, and taxes</h2>
+                        <p>Access is provided through pre-paid points (credits). You purchase points and spend them on generation and training actions.</p>
+                        <p>Given the high cost of computation (GPU), refunds are not provided; you also waive any standard 14-day withdrawal/cooling-off period where applicable in your law. We may change prices and offerings (models, credits, etc.). Taxes and duties, where applicable, are your responsibility.</p>
                     </div>
 
                     <div className={styles.article}>

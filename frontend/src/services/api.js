@@ -163,10 +163,17 @@ export const syncModels = () => {
 // ПЛАТЕЖИ
 // ============================================
 
-export const createCheckoutSession = (priceId) => {
+export const createCheckoutSession = (amountUsd) => {
     return fetchApi('/payment/create-checkout-session', {
         method: 'POST',
-        body: { priceId },
+        body: { amount_usd: amountUsd },
+    });
+};
+
+export const quotePoints = (amountUsd) => {
+    return fetchApi('/payment/quote', {
+        method: 'POST',
+        body: { amount_usd: amountUsd },
     });
 };
 

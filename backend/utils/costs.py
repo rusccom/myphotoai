@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+from decimal import Decimal, InvalidOperation, ROUND_DOWN
 from functools import lru_cache
 from sqlalchemy import text
 from flask import current_app, jsonify
@@ -28,6 +29,77 @@ def load_costs():
     except Exception as e:
         logging.exception(f"An unexpected error occurred while loading costs config: {e}")
         return {}
+
+def _parse_decimal(value, fallback=None) -> Decimal | None:
+    if value is None:
+        return fallback
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, TypeError):
+        return fallback
+
+def _normalize_discount_tiers(tiers_raw: list) -> list[dict]:
+    tiers = []
+    for tier in tiers_raw or []:
+        if not isinstance(tier, dict):
+            continue
+        min_amount = _parse_decimal(tier.get('min_amount_usd'), Decimal('0'))
+        percent = _parse_decimal(tier.get('discount_percent'), Decimal('0'))
+        if min_amount is None or percent is None:
+            continue
+        if percent < 0 or percent >= 100:
+            continue
+        tiers.append({'min_amount_usd': min_amount, 'discount_percent': percent})
+    return sorted(tiers, key=lambda t: t['min_amount_usd'])
+
+def get_point_pricing() -> dict:
+    config = load_costs().get('point_pricing', {})
+    base_point_usd = _parse_decimal(config.get('base_point_usd'), Decimal('0.01'))
+    min_purchase_usd = _parse_decimal(config.get('min_purchase_usd'), Decimal('0'))
+    tiers = _normalize_discount_tiers(config.get('discount_tiers', []))
+    return {
+        'base_point_usd': base_point_usd or Decimal('0.01'),
+        'min_purchase_usd': min_purchase_usd or Decimal('0'),
+        'discount_tiers': tiers
+    }
+
+def _get_discount_percent(amount_usd: Decimal, tiers: list[dict]) -> Decimal:
+    discount = Decimal('0')
+    for tier in tiers:
+        if amount_usd >= tier['min_amount_usd']:
+            discount = tier['discount_percent']
+    return discount
+
+def _calculate_points(amount_usd: Decimal, pricing: dict) -> dict:
+    base_point_usd = pricing['base_point_usd']
+    discount_percent = _get_discount_percent(amount_usd, pricing['discount_tiers'])
+    multiplier = Decimal('1') - (discount_percent / Decimal('100'))
+    effective_point_usd = (base_point_usd * multiplier).quantize(Decimal('0.0001'))
+    points = (amount_usd / effective_point_usd).quantize(Decimal('1'), rounding=ROUND_DOWN)
+    return {
+        'points': int(points),
+        'discount_percent': float(discount_percent),
+        'effective_point_usd': float(effective_point_usd)
+    }
+
+def calculate_points_for_amount(amount_usd) -> tuple[dict | None, str | None]:
+    amount = _parse_decimal(amount_usd)
+    if amount is None or amount <= 0:
+        return None, "Invalid amount"
+    amount = amount.quantize(Decimal('0.01'))
+    pricing = get_point_pricing()
+    details = _calculate_points(amount, pricing)
+    details['amount_usd'] = float(amount)
+    details['min_purchase_usd'] = float(pricing['min_purchase_usd'])
+    return details, None
+
+def quote_points_for_amount(amount_usd) -> tuple[dict | None, str | None]:
+    details, error = calculate_points_for_amount(amount_usd)
+    if error:
+        return None, error
+    if details['amount_usd'] < details['min_purchase_usd']:
+        return None, f"Minimum purchase is ${details['min_purchase_usd']}"
+    return details, None
 
 def get_action_cost(action_type: str) -> int | None:
     """Возвращает стоимость для указанного типа действия."""
