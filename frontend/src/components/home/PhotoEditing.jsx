@@ -70,7 +70,7 @@ function PhotoEditing() {
                                                 block.original, 
                                                 true
                                             )}
-                                            alt={`Original photo ${block.id}`}
+                                            alt={`Original portrait before AI edit example ${block.id}`}
                                             className={styles.image}
                                             onError={() => handleImageError(
                                                 block.id, 
@@ -99,7 +99,7 @@ function PhotoEditing() {
                                                     resultSrc, 
                                                     false
                                                 )}
-                                                alt={`Result ${i + 1}`}
+                                                alt={`AI-edited portrait variation ${i + 1} for example ${block.id}`}
                                                 className={styles.image}
                                                 onError={() => handleImageError(
                                                     block.id, 

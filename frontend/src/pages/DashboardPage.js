@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getCosts } from '../services/api';
+import SEO from '../components/SEO';
 
 // Hooks
 import { useImageHistory } from '../features/dashboard/hooks/useImageHistory';
@@ -286,7 +287,14 @@ function DashboardPage() {
     };
 
     return (
-        <div className={styles.dashboardContainer}>
+        <>
+            <SEO
+                title="Dashboard"
+                description="Manage your AI models, generations, presets, and image history in the MyPhotoAI dashboard."
+                path="/dashboard"
+                noindex={true}
+            />
+            <div className={styles.dashboardContainer}>
             {/* Left Panel Tab Navigation */}
             <div className={styles.topTabContainer}>
                 <button
@@ -407,7 +415,8 @@ function DashboardPage() {
                     onClose={() => setSelectedImageUrl(null)}
                 />
             )}
-        </div>
+            </div>
+        </>
     );
 }
 

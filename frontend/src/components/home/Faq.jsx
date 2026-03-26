@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './Faq.module.css';
 
-const faqs = [
+export const homeFaqs = [
     {
         q: 'How many photos are needed to create an AI model?',
         a: 'We recommend uploading 10 to 30 high-quality photos from different angles. The more variety, the better the result.'
@@ -31,20 +30,6 @@ const faqs = [
     }
 ];
 
-// FAQ Schema for Google Rich Results
-const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-        "@type": "Question",
-        "name": faq.q,
-        "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.a
-        }
-    }))
-};
-
 function Faq() {
     const [openIndex, setOpenIndex] = useState(null);
 
@@ -54,11 +39,6 @@ function Faq() {
 
     return (
         <section id="faq" className={styles.section}>
-            <Helmet>
-                <script type="application/ld+json">
-                    {JSON.stringify(faqSchema)}
-                </script>
-            </Helmet>
             <div className="container">
                 <ScrollReveal animation="fadeUp">
                     <div className={styles.sectionHeader}>
@@ -72,7 +52,7 @@ function Faq() {
                 </ScrollReveal>
 
                 <div className={styles.faqList}>
-                    {faqs.map((faq, index) => (
+                    {homeFaqs.map((faq, index) => (
                         <ScrollReveal key={index} animation="fadeUp" delay={index * 100}>
                             <div className={`${styles.faqItem} ${openIndex === index ? styles.open : ''}`}>
                                 <button

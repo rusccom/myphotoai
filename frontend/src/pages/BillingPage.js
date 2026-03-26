@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import styles from './BillingPage.module.css';
+import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 import { createCheckoutSession, quotePoints } from '../services/api';
 
@@ -165,7 +166,14 @@ function BillingPage() {
     };
 
     return (
-        <div className={styles.billingContainer}>
+        <>
+            <SEO
+                title="Billing"
+                description="Purchase points and review payment history in MyPhotoAI."
+                path="/billing"
+                noindex={true}
+            />
+            <div className={styles.billingContainer}>
             <h1>Billing & Payments</h1>
             <p>Purchase points to use premium features. Base rate: 1 Point = $0.01, discounts apply for larger top-ups.</p>
             
@@ -265,7 +273,8 @@ function BillingPage() {
                     </div> // Закрываем обертку
                 )}
             </div>
-        </div>
+            </div>
+        </>
     );
 }
 

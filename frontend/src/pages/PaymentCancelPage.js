@@ -1,13 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 function PaymentCancelPage() {
     return (
-        <div>
-            <h2>Payment Cancelled</h2>
-            <p>Your payment process was cancelled. You can try again from the billing page.</p>
-            <Link to="/billing">Back to Billing</Link>
-        </div>
+        <>
+            <SEO
+                title="Payment Cancelled"
+                description="The MyPhotoAI payment flow was cancelled before completion."
+                path="/payment/cancel"
+                noindex={true}
+            />
+            <div>
+                <h2>Payment Cancelled</h2>
+                <p>Your payment process was cancelled. You can try again from the billing page.</p>
+                <Link to="/billing">Back to Billing</Link>
+            </div>
+        </>
     );
 }
 

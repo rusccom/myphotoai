@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
+import SEO from './components/SEO';
 
 // Страницы
 import HomePage from './pages/HomePage';
@@ -29,6 +30,11 @@ const NotFound = () => (
     maxWidth: '600px',
     margin: '0 auto'
   }}>
+    <SEO
+      title="Page Not Found"
+      description="The requested MyPhotoAI page could not be found."
+      noindex={true}
+    />
     <h1 style={{ fontSize: '5rem', margin: '0', color: 'var(--primary)' }}>404</h1>
     <h2 style={{ 
       margin: '0.5rem 0 2rem', 

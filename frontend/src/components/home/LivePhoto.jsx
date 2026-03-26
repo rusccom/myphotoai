@@ -106,14 +106,14 @@ function LivePhoto() {
                                             loop
                                             muted
                                             playsInline
-                                            preload="auto"
+                                            preload="metadata"
                                             onError={() => handleVideoError(video.id)}
                                         />
                                     ) : (
                                         <div className={styles.placeholder}>
                                             <img 
                                                 src={PLACEHOLDER} 
-                                                alt={`Live photo ${video.id}`}
+                                                alt={`AI motion preview fallback ${video.id}`}
                                                 className={styles.placeholderImage}
                                             />
                                         </div>
@@ -136,4 +136,3 @@ function LivePhoto() {
 }
 
 export default LivePhoto;
-

@@ -143,7 +143,6 @@ function Navbar() {
                     {!isAuthenticated && (
                         <>
                             <Link to="/" className={`${styles.navLink} ${isActive('/')}`} onClick={closeMobileMenu}>Home</Link>
-                            <Link to="/billing" className={`${styles.navLink} ${isActive('/billing')}`} onClick={closeMobileMenu}>Buy Points</Link>
                         </>
                     )}
                     {/* Ссылки для АУТЕНТИФИЦИРОВАННЫХ пользователей */} 

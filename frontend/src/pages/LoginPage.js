@@ -57,6 +57,7 @@ function LoginPage() {
                 title="Sign In"
                 description="Sign in to your MyPhotoAI account. Access your AI models, generated images, and create stunning photorealistic content."
                 path="/login"
+                noindex={true}
             />
             <div className={styles.authHeader}>
                 <h1 className={styles.authTitle}>Welcome Back</h1>

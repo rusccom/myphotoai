@@ -12,17 +12,20 @@ import PhotoEditing from '../components/home/PhotoEditing';
 import ClothingTryOn from '../components/home/ClothingTryOn';
 import LivePhoto from '../components/home/LivePhoto';
 import Capabilities from '../components/home/Capabilities';
-import Faq from '../components/home/Faq';
+import Faq, { homeFaqs } from '../components/home/Faq';
 import FinalCTA from '../components/home/FinalCTA';
 
-// Combined schema for homepage
-const homePageSchema = {
-    "@context": "https://schema.org",
-    "@graph": [
-        SCHEMAS.organization,
-        SCHEMAS.softwareApplication
-    ]
-};
+const homePageSchemas = [
+    SCHEMAS.organization,
+    SCHEMAS.softwareApplication,
+    {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'MyPhotoAI',
+        url: 'https://myphotoai.net'
+    },
+    SCHEMAS.createFaqSchema(homeFaqs)
+];
 
 function HomePage() {
     const { isAuthenticated } = useAuth();
@@ -41,9 +44,10 @@ function HomePage() {
     return (
         <div className={styles.page}>
             <SEO 
+                title="AI Digital Twin Generator from Your Photos"
                 path="/"
-                description="Turn your photos into a personalized AI model. Generate stunning, photorealistic images and videos of yourself in any style or setting. Start creating your digital twin today!"
-                schema={homePageSchema}
+                description="Train a personal AI model from your photos and generate photorealistic portraits, edits, outfits, and live-photo videos in any style."
+                schema={homePageSchemas}
             />
             <Hero />
             <FeaturesShowcase />

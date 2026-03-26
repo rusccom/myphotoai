@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 
 function PaymentSuccessPage() {
@@ -18,12 +19,20 @@ function PaymentSuccessPage() {
     }, [sessionId, checkStatus]);
 
     return (
-        <div>
-            <h2>Payment Successful!</h2>
-            <p>Your points balance will be updated shortly.</p>
-            {sessionId && <p><small>Session ID: {sessionId}</small></p>}
-            <Link to="/billing">Go to Billing</Link>
-        </div>
+        <>
+            <SEO
+                title="Payment Successful"
+                description="Your MyPhotoAI payment was completed successfully."
+                path="/payment/success"
+                noindex={true}
+            />
+            <div>
+                <h2>Payment Successful!</h2>
+                <p>Your points balance will be updated shortly.</p>
+                {sessionId && <p><small>Session ID: {sessionId}</small></p>}
+                <Link to="/billing">Go to Billing</Link>
+            </div>
+        </>
     );
 }
 

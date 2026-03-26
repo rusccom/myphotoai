@@ -81,7 +81,7 @@ function ModelGeneration() {
                             <div className={styles.mainImageWrapper}>
                                 <img
                                     src={mainImageError ? PLACEHOLDER_MAIN : MAIN_IMAGE}
-                                    alt="Main generated photo"
+                                    alt="Reference portrait used to train a personal AI model"
                                     className={styles.mainImage}
                                     onError={handleMainImageError}
                                 />
@@ -114,7 +114,7 @@ function ModelGeneration() {
                                         <div className={styles.gridImageWrapper}>
                                             <img
                                                 src={gridImageErrors[index] ? PLACEHOLDER_GRID : imagePath}
-                                                alt={`Generated photo ${index + 1}`}
+                                                alt={`AI model-generated portrait example ${index + 1}`}
                                                 className={styles.gridImage}
                                                 onError={() => handleGridImageError(index)}
                                             />
@@ -145,7 +145,7 @@ function ModelGeneration() {
                                         <div className={styles.gridImageWrapper}>
                                             <img
                                                 src={gridImageErrors2[index] ? PLACEHOLDER_GRID : imagePath}
-                                                alt={`Generated photo ${index + 1}`}
+                                                alt={`Additional AI model-generated portrait example ${index + 1}`}
                                                 className={styles.gridImage}
                                                 onError={() => handleGridImageError2(index)}
                                             />
@@ -163,7 +163,7 @@ function ModelGeneration() {
                             <div className={styles.mainImageWrapper}>
                                 <img
                                     src={mainImageError2 ? PLACEHOLDER_MAIN : MAIN_IMAGE_2}
-                                    alt="Main generated photo"
+                                    alt="Second reference portrait used for AI model generation"
                                     className={styles.mainImage}
                                     onError={handleMainImageError2}
                                 />
@@ -184,4 +184,3 @@ function ModelGeneration() {
 }
 
 export default ModelGeneration;
-

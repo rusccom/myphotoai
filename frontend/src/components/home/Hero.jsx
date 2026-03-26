@@ -6,8 +6,7 @@ import styles from './Hero.module.css';
 function Hero() {
     return (
         <section className={styles.hero}>
-            {/* Static background */}
-            <div 
+            <div
                 className={styles.heroBackground}
                 style={{
                     backgroundImage: `url(${process.env.PUBLIC_URL}/media/hero-background.jpg)`
@@ -17,15 +16,15 @@ function Hero() {
             <div className={`container ${styles.heroContainer}`}>
                 <div className={styles.heroContent}>
                     <h1 className={styles.heroTitle}>
-                        <span>Visualize Your</span>
+                        <span>Create Your</span>
                         <GradientText animated={true}>
-                            {' '}Dreams{' '}
+                            {' '}AI Digital Twin{' '}
                         </GradientText>
-                        <span>with AI</span>
+                        <span>from Photos</span>
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        Turn imagination into reality — create stunning AI-generated images 
-                        from your photos in any style you dream of
+                        Train a personal AI model and generate photorealistic portraits,
+                        edits, outfits, and live-photo videos from your own images
                     </p>
 
                     <div className={styles.heroCta}>
@@ -42,7 +41,6 @@ function Hero() {
                 </div>
             </div>
 
-            {/* Scroll indicator */}
             <div className={styles.scrollIndicator}>
                 <div className={styles.mouse}>
                     <div className={styles.wheel}></div>

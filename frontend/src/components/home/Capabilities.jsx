@@ -1,60 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ScrollReveal from './animations/ScrollReveal';
 import GradientText from './animations/GradientText';
 import styles from './Capabilities.module.css';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
+const FALLBACK_CATEGORIES = [
+    { id: 'portraits', name: 'Portraits' },
+    { id: 'fashion', name: 'Fashion' },
+    { id: 'professional', name: 'Professional' },
+    { id: 'creative', name: 'Creative' }
+];
+const FALLBACK_PRESETS = [
+    { id: 'portrait-studio', category_id: 'portraits', category_name: 'Portraits', name: 'Studio Portrait' },
+    { id: 'editorial-fashion', category_id: 'fashion', category_name: 'Fashion', name: 'Editorial Fashion' },
+    { id: 'business-headshot', category_id: 'professional', category_name: 'Professional', name: 'Business Headshot' },
+    { id: 'cinematic-neon', category_id: 'creative', category_name: 'Creative', name: 'Cinematic Neon' }
+];
 
 function Capabilities() {
     const [activeCategory, setActiveCategory] = useState('all');
     const [presets, setPresets] = useState([]);
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showingFallback, setShowingFallback] = useState(false);
 
-    // Load presets from API
     useEffect(() => {
+        const loadFallbackData = () => {
+            setCategories(FALLBACK_CATEGORIES);
+            setPresets(FALLBACK_PRESETS);
+            setShowingFallback(true);
+        };
+
         const loadData = async () => {
             try {
                 const [catRes, presetsRes] = await Promise.all([
                     fetch(`${API_BASE}/api/preset/categories`),
                     fetch(`${API_BASE}/api/preset/list`)
                 ]);
-                
-                if (catRes.ok && presetsRes.ok) {
-                    const catData = await catRes.json();
-                    const presetsData = await presetsRes.json();
-                    setCategories(catData.categories || []);
-                    setPresets(presetsData.presets || []);
+
+                if (!catRes.ok || !presetsRes.ok) {
+                    loadFallbackData();
+                    return;
                 }
+
+                const catData = await catRes.json();
+                const presetsData = await presetsRes.json();
+                setCategories(catData.categories || []);
+                setPresets(presetsData.presets || []);
+                setShowingFallback(false);
             } catch (error) {
                 console.error('Failed to load presets:', error);
-            }
+                loadFallbackData();
+            } finally {
                 setIsLoading(false);
+            }
         };
-        
+
         loadData();
     }, []);
 
-    // Generate placeholder color based on category
     const getPlaceholder = (categoryName) => {
         const colors = {
-            'Portraits': '8b5cf6',
-            'Fashion': 'ec4899',
-            'Professional': '6366f1',
-            'Creative': 'a78bfa'
+            Portraits: '8b5cf6',
+            Fashion: 'ec4899',
+            Professional: '6366f1',
+            Creative: 'a78bfa'
         };
         const color = colors[categoryName] || '8b5cf6';
         return `https://placehold.co/600x800/${color}/ffffff?text=${categoryName || 'Preset'}`;
     };
 
-    // Filter presets by category
     const displayPresets = activeCategory === 'all'
         ? presets
-        : presets.filter(p => p.category_id === activeCategory);
+        : presets.filter((preset) => preset.category_id === activeCategory);
 
-    // Handle image error (fallback to placeholder)
-    const handleImageError = (e, categoryName) => {
-        e.target.src = getPlaceholder(categoryName);
+    const handleImageError = (event, categoryName) => {
+        event.target.src = getPlaceholder(categoryName);
     };
 
     return (
@@ -71,7 +92,6 @@ function Capabilities() {
                     </div>
                 </ScrollReveal>
 
-                {/* Category tabs */}
                 <div className={styles.categoryTabs}>
                     <button
                         className={`${styles.categoryTab} ${activeCategory === 'all' ? styles.active : ''}`}
@@ -90,7 +110,12 @@ function Capabilities() {
                     ))}
                 </div>
 
-                {/* Grid with presets */}
+                {showingFallback && (
+                    <div className={styles.emptyState}>
+                        <p>Live presets are temporarily unavailable. Showing curated examples instead.</p>
+                    </div>
+                )}
+
                 {isLoading ? (
                     <div className={styles.loading}>Loading presets...</div>
                 ) : (
@@ -99,11 +124,11 @@ function Capabilities() {
                             <ScrollReveal key={preset.id} animation="scale" delay={index * 50}>
                                 <div className={styles.gridItem}>
                                     <div className={styles.imageWrapper}>
-                                        <img 
-                                            src={preset.signed_url || getPlaceholder(preset.category_name)} 
-                                            alt={preset.name}
+                                        <img
+                                            src={preset.signed_url || getPlaceholder(preset.category_name)}
+                                            alt={`${preset.category_name || 'AI'} preset example: ${preset.name}`}
                                             className={styles.image}
-                                            onError={(e) => handleImageError(e, preset.category_name)}
+                                            onError={(event) => handleImageError(event, preset.category_name)}
                                         />
                                         <div className={styles.overlay}>
                                             <div className={styles.overlayContent}>

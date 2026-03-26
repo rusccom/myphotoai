@@ -9,6 +9,7 @@ function TermsAndPrivacyPage() {
                 title="Terms of Service & Privacy Policy"
                 description="Read MyPhotoAI Terms of Service and Privacy Policy. Learn about data protection, user rights, and usage guidelines."
                 path="/terms-and-privacy"
+                noindex={true}
             />
             <div className={styles.content}>
                 {/* Terms of Use Section */}
