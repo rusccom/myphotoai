@@ -7,12 +7,11 @@ function FinalCTA() {
     return (
         <section className={styles.section}>
             <div className={styles.backgroundMesh}></div>
-            
-            {/* Floating elements */}
+
             <div className={styles.floatingElements}>
                 {[...Array(6)].map((_, i) => (
-                    <div 
-                        key={i} 
+                    <div
+                        key={i}
                         className={styles.floatingElement}
                         style={{
                             left: `${15 + i * 15}%`,
@@ -30,7 +29,7 @@ function FinalCTA() {
                         <GradientText animated={true}>for free</GradientText>
                     </h2>
                     <p className={styles.subtitle}>
-                        Create professional content with AI at no cost
+                        Create portraits, headshots, edits, and outfit try-ons with one personal AI model
                     </p>
 
                     <div className={styles.ctaButtons}>
@@ -50,7 +49,7 @@ function FinalCTA() {
                             <div className={styles.statLabel}>Generations</div>
                         </div>
                         <div className={styles.stat}>
-                            <div className={styles.statNumber}>4.9★</div>
+                            <div className={styles.statNumber}>4.9 Stars</div>
                             <div className={styles.statLabel}>Rating</div>
                         </div>
                     </div>
@@ -61,4 +60,3 @@ function FinalCTA() {
 }
 
 export default FinalCTA;
-

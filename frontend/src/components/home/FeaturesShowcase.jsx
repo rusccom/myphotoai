@@ -6,31 +6,31 @@ import styles from './FeaturesShowcase.module.css';
 
 const features = [
     {
-        icon: '📸',
-        title: 'Create Personal Photos',
-        description: 'Create your virtual twin with your photos and generate new images in any location and style you desire.',
+        icon: '\uD83D\uDCF8',
+        title: 'Generate Portraits & Headshots',
+        description: 'Train on your photos and create realistic portraits in different looks, locations, and styles.',
         comingSoon: false,
         scrollToId: 'model-generation'
     },
     {
-        icon: '✨',
-        title: 'Edit Your Photos',
-        description: 'Upload or create photos, add or remove elements exactly as you want them.',
+        icon: '\u2728',
+        title: 'Edit Photos with Prompts',
+        description: 'Upload an image and add, remove, or transform elements with AI-guided edits.',
         comingSoon: false,
         scrollToId: 'photo-editing'
     },
     {
-        icon: '👕',
-        title: 'Virtual Try-On',
-        description: 'Generate yourself in any location or upload your photo. Upload a clothing image you want to try on and get ready-to-use photos.',
+        icon: '\uD83D\uDC55',
+        title: 'Virtual Outfit Try-On',
+        description: 'Upload a clothing item and see how it looks on you in ready-to-use results.',
         comingSoon: false,
         scrollToId: 'clothing-try-on'
     },
     {
-        icon: '🎬',
-        title: 'Bring Photos to Life',
-        description: 'Create personalized videos from your photos or generated images, or simply create videos from text descriptions.',
-        comingSoon: false,
+        icon: '\uD83C\uDFAC',
+        title: 'Animate Photos',
+        description: 'Turn still images into short AI motion clips. Full dashboard tool is coming soon.',
+        comingSoon: true,
         scrollToId: 'live-photo'
     }
 ];
@@ -45,7 +45,7 @@ function FeaturesShowcase() {
                             What you can <GradientText animated={true}>create</GradientText>
                         </h2>
                         <p className={styles.sectionSubtitle}>
-                            Powerful AI tools for creating professional content
+                            One trained model for portraits, edits, and outfit try-ons
                         </p>
                     </div>
                 </ScrollReveal>
@@ -63,4 +63,3 @@ function FeaturesShowcase() {
 }
 
 export default FeaturesShowcase;
-

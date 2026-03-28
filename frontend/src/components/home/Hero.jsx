@@ -18,13 +18,13 @@ function Hero() {
                     <h1 className={styles.heroTitle}>
                         <span>Create Your</span>
                         <GradientText animated={true}>
-                            {' '}AI Digital Twin{' '}
+                            {' '}Personal AI Model{' '}
                         </GradientText>
                         <span>from Photos</span>
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        Train a personal AI model and generate photorealistic portraits,
-                        edits, outfits, and live-photo videos from your own images
+                        Generate photorealistic portraits and headshots, edit images
+                        with prompts, and try on outfits with one trained model
                     </p>
 
                     <div className={styles.heroCta}>
