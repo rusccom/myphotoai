@@ -29,12 +29,7 @@ function CreateModelPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     const pageSeo = (
-        <SEO
-            title="Create Model"
-            description="Upload photos and configure a new personal AI model inside MyPhotoAI."
-            path="/create-model"
-            noindex={true}
-        />
+        <SEO noindex={true} />
     );
 
     const handleSubmit = async (event) => {

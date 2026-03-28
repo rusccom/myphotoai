@@ -288,12 +288,7 @@ function DashboardPage() {
 
     return (
         <>
-            <SEO
-                title="Dashboard"
-                description="Manage your AI models, generations, presets, and image history in the MyPhotoAI dashboard."
-                path="/dashboard"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <div className={styles.dashboardContainer}>
             {/* Left Panel Tab Navigation */}
             <div className={styles.topTabContainer}>

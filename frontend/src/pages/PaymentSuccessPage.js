@@ -20,12 +20,7 @@ function PaymentSuccessPage() {
 
     return (
         <>
-            <SEO
-                title="Payment Successful"
-                description="Your MyPhotoAI payment was completed successfully."
-                path="/payment/success"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <div>
                 <h2>Payment Successful!</h2>
                 <p>Your points balance will be updated shortly.</p>

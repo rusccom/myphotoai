@@ -145,12 +145,7 @@ function AdminPage() {
     if (!isAuthenticated) {
         return (
             <div className={styles.loginContainer}>
-                <SEO
-                    title="Admin Panel"
-                    description="Administrative media management for MyPhotoAI."
-                    path="/admin"
-                    noindex={true}
-                />
+                <SEO noindex={true} />
                 <div className={styles.loginCard}>
                     <h1 className={styles.loginTitle}>🔐 Admin Panel</h1>
                     <form onSubmit={handleLogin} className={styles.loginForm}>
@@ -175,12 +170,7 @@ function AdminPage() {
     // Admin Panel
     return (
         <div className={styles.adminContainer}>
-            <SEO
-                title="Admin Panel"
-                description="Administrative media management for MyPhotoAI."
-                path="/admin"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <header className={styles.header}>
                 <h1 className={styles.title}>🛠️ Admin Panel</h1>
                 <button onClick={handleLogout} className={styles.logoutButton}>

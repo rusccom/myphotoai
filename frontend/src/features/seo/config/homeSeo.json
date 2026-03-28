@@ -1,0 +1,40 @@
+{
+  "siteName": "MyPhotoAI",
+  "siteUrl": "https://myphotoai.net",
+  "defaultImage": "https://myphotoai.net/logo512.png",
+  "home": {
+    "path": "/",
+    "title": "AI Photo Generator & Editor with Virtual Try-On",
+    "description": "Train a personal AI model from 10-30 photos to create photorealistic portraits and headshots, edit images with prompts, and try on outfits in multiple styles.",
+    "schema": [
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "MyPhotoAI",
+        "url": "https://myphotoai.net",
+        "logo": "https://myphotoai.net/logo512.png",
+        "sameAs": []
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "MyPhotoAI",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Train a personal AI model from your photos and create photorealistic portraits, headshots, outfit try-ons, and AI-edited images with MyPhotoAI."
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "MyPhotoAI",
+        "url": "https://myphotoai.net",
+        "description": "Create a personal AI model for portraits, headshots, photo edits, and virtual try-on."
+      }
+    ]
+  }
+}

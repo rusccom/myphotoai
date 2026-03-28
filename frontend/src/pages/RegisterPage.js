@@ -60,12 +60,7 @@ function RegisterPage() {
 
     return (
         <div className={styles.authContainer}>
-            <SEO 
-                title="Create Account - Start Free"
-                description="Create your free MyPhotoAI account. Start generating AI photos and videos of yourself in any style. No credit card required."
-                path="/register"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <div className={styles.authHeader}>
                 <h1 className={styles.authTitle}>Create Account</h1>
                 <p className={styles.authSubtitle}>Start your journey by creating an account</p>

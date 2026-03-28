@@ -15,12 +15,7 @@ function AccountPage() {
     const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
 
     const pageSeo = (
-        <SEO
-            title="Account"
-            description="Manage your account settings, password, and billing access in MyPhotoAI."
-            path="/account"
-            noindex={true}
-        />
+        <SEO noindex={true} />
     );
 
     const handlePasswordChangeSubmit = async (event) => {

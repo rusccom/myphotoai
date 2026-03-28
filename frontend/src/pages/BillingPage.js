@@ -167,12 +167,7 @@ function BillingPage() {
 
     return (
         <>
-            <SEO
-                title="Billing"
-                description="Purchase points and review payment history in MyPhotoAI."
-                path="/billing"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <div className={styles.billingContainer}>
             <h1>Billing & Payments</h1>
             <p>Purchase points to use premium features. Base rate: 1 Point = $0.01, discounts apply for larger top-ups.</p>

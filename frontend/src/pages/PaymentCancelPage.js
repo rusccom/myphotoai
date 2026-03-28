@@ -5,12 +5,7 @@ import SEO from '../components/SEO';
 function PaymentCancelPage() {
     return (
         <>
-            <SEO
-                title="Payment Cancelled"
-                description="The MyPhotoAI payment flow was cancelled before completion."
-                path="/payment/cancel"
-                noindex={true}
-            />
+            <SEO noindex={true} />
             <div>
                 <h2>Payment Cancelled</h2>
                 <p>Your payment process was cancelled. You can try again from the billing page.</p>
