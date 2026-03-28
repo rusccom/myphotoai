@@ -1,13 +1,6 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /create-model
-Disallow: /account
-Disallow: /billing
-Disallow: /payment/
-Disallow: /login
-Disallow: /register
-Disallow: /terms-and-privacy
+Disallow: /api/
+Disallow: /socket.io/
 
 Sitemap: https://myphotoai.net/sitemap.xml
